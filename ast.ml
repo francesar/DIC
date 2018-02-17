@@ -10,7 +10,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less |
 type uop = Neg | Not | Trans_M
 
 (* Primitive Types *)
-type typ = Int | Bool | Char | Float | Double | Null
+type typ = Int | Bool | Char | Float | Null
 
 type bind = typ * string
 
