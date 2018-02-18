@@ -3,7 +3,7 @@
 (* Operators *)
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
 type op = Add | Sub | Mult | Div | Equal | Neq | Less |
-          Leq | Greater | Geq | And | Or | Mod | 
+          Leq | Greater | Geq | And | Or | Mod |
           CmpStruct | CmpPhys |
           Add_M | Sub_M | Mult_M | Dot_M | Div_M
 
@@ -17,29 +17,26 @@ type datatyp = String | List | Dict | Matrix
 
 type bind = typ * string
 
-type expr = 
-    Literal of int 
-  | Fliteral of string 
+type expr =
+    Literal of int
+  | Fliteral of string
   | BoolLit of bool
-  | StrLit of string
-  | MatLit of (expr list list)
-  | Id of string 
+  | StringLit of string
+  | Id of string
   | Binop of expr * op * exp
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
-  | MatIndex of (string * expr * expr)
-  | MatIndexAssign of (string * expr * expr * expr)
   | Noexpr
 
-type stmt = 
-    Block of stmt list 
-  | Expr of expr 
-  | Return of expr 
-  | If of expr * stmt * expr 
+type stmt =
+    Block of stmt list
+  | Expr of expr
+  | Return of expr
+  | If of expr * stmt * expr
   | For of expr * expr * expr * stmt
-  | While of expr * stmt 
-  
+  | While of expr * stmt
+
 type func_decl = {
   typ: typ;
   fname: string;
