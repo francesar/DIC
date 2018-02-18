@@ -7,7 +7,7 @@ open Ast
 
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK
-%token PLUS MINUS TIMES DIVIDE ASSIGN MOD TRANSPOSE CHAN
+%token PLUS MINUS TIMES DIVIDE ASSIGN MOD TRANSPOSE CHAN DOT
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL
 %token RETURN IF ELSE FOR WHILE
 %token INT BOOL FLOAT VOID STRING MATRIX
@@ -27,7 +27,7 @@ open Ast
 %left PLUS MINUS
 %left TIMES DIVIDE MOD DOT
 %right NOT NEG
-%left MATTRANS
+%left TRANSPOSE
 
 %start program
 %type <Ast.program> program
@@ -91,12 +91,15 @@ expr_opt:
 
 expr:
 	| LITERAL          { Literal($1)            }
-	| FLIT	     { Fliteral($1)           }
+	| FLIT	     	   { Fliteral($1)           }
 	| BLIT             { BoolLit($1)            }
+	| SLIT 			   { StringLit($1)			}
 	| ID               { Id($1)                 }
+	| MLIT			   { MatLit($1)				}
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
 	| expr TIMES  expr { Binop($1, Mult,  $3)   }
+	| expr DOT 	  expr { Binop($1, Dot,   $3)	}
 	| expr DIVIDE expr { Binop($1, Div,   $3)   }
 	| expr EQ     expr { Binop($1, Equal, $3)   }
 	| expr NEQ    expr { Binop($1, Neq,   $3)   }
@@ -108,6 +111,7 @@ expr:
 	| expr OR     expr { Binop($1, Or,    $3)   }
 	| MINUS expr %prec NEG { Unop(Neg, $2)      }
 	| NOT expr         { Unop(Not, $2)          }
+	| TRANSPOSE expr   { Unop(Trans_M, $2)		}
 	| ID ASSIGN expr   { Assign($1, $3)         }
 	| ID LPAREN args_opt RPAREN { Call($1, $3)  }
 	| LPAREN expr RPAREN { $2                   }

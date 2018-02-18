@@ -22,8 +22,11 @@ type expr =
   | Fliteral of string
   | BoolLit of bool
   | StringLit of string
+  | MatLit of expr list list (* Matrix literal *)
+  | MatIndex of string * expr * expr (* Matrix Access Index *)
+  | MatIndexAssign of string * expr * expr * expr (* Assign a Matrix Index *)
   | Id of string
-  | Binop of expr * op * exp
+  | Binop of expr * op * expr
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
