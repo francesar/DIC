@@ -6,13 +6,12 @@ open Ast
 %}
 
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK
-%token PLUS MINUS TIMES DIVIDE ASSIGN MOD TRANSPOSE CHAN DOT
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON
+%token PLUS MINUS TIMES DIVIDE ASSIGN MOD TRANSPOSE INVERSE CHAN DOT
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID STRING MATRIX
+%token INT BOOL FLOAT VOID
 %token <int> LITERAL
-%token <bool> BLIT
 %token <string> ID FLIT SLIT
 %token EOF
 
@@ -22,15 +21,18 @@ open Ast
 %right ASSIGN
 %left OR
 %left AND
-%left EQ NEQ
+%left EQ NEQ PEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE MOD DOT
-%right NOT NEG
-%left TRANSPOSE
+%left TIMES DIVIDE MOD DOT CHAN
+%right NOT NEG TRANSPOSE INVERSE
 
-%start program
+
+ %start program
 %type <Ast.program> program
+/*
+%start expr
+%type <Ast.expr> expr */
 
 %%
 
@@ -76,13 +78,13 @@ stmt_list:
 	| stmt_list stmt { $2 :: $1 }
 
 stmt:
-	expr SEMI									{ Expr $1				}
-	| RETURN expr_opt SEMI						{ Return $2				}
+	expr SEMI													{ Expr $1				  		}
+	| RETURN expr_opt SEMI						{ Return $2						}
 	| LBRACE stmt_list RBRACE					{ Block(List.rev $2)	}
 	| IF LPAREN expr RPAREN stmt %prec NOELSE	{ IF($3, $5, Block([])) }
 	| IF LPAREN expr RPAREN stmt ELSE stmt 		{ IF($3, $5, $7)		}
 	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
-												{ For($3, $5, $7, $9)	}
+																						{ For($3, $5, $7, $9)	}
 	| WHILE LPAREN expr RPAREN stmt 			{ While($3, $5)			}
 
 expr_opt:
@@ -91,17 +93,21 @@ expr_opt:
 
 expr:
 	| LITERAL          { Literal($1)            }
-	| FLIT	     	   { Fliteral($1)           }
-	| BLIT             { BoolLit($1)            }
-	| SLIT 			   { StringLit($1)			}
+	| FLIT	     	   	 { Fliteral($1)           }
+	| TRUE 						 { BoolLit(true)					}
+	| FALSE 					 { BoolLit(false)					}
+	| SLIT 			   		 { StringLit($1)					}
 	| ID               { Id($1)                 }
-	| MLIT			   { MatLit($1)				}
+	| LBRACK rows	RBRACK { MatLit($2)						}
+	| NULL 						 { Null 									}
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
 	| expr TIMES  expr { Binop($1, Mult,  $3)   }
-	| expr DOT 	  expr { Binop($1, Dot,   $3)	}
+	| expr DOT 	  expr { Binop($1, Dot_M, $3)	  }
 	| expr DIVIDE expr { Binop($1, Div,   $3)   }
-	| expr EQ     expr { Binop($1, Equal, $3)   }
+	| expr MOD 		expr { Binop($1, Mod,   $3)   }
+	| expr EQ     expr { Binop($1, Eq,    $3)   }
+	| expr PEQ 		expr { Binop($1, Peq,   $3)   }
 	| expr NEQ    expr { Binop($1, Neq,   $3)   }
 	| expr LT     expr { Binop($1, Less,  $3)   }
 	| expr LEQ    expr { Binop($1, Leq,   $3)   }
@@ -109,10 +115,12 @@ expr:
 	| expr GEQ    expr { Binop($1, Geq,   $3)   }
 	| expr AND    expr { Binop($1, And,   $3)   }
 	| expr OR     expr { Binop($1, Or,    $3)   }
+	| expr CHAN   expr { Binop($1, Chan,  $3)   }
 	| MINUS expr %prec NEG { Unop(Neg, $2)      }
 	| NOT expr         { Unop(Not, $2)          }
-	| TRANSPOSE expr   { Unop(Trans_M, $2)		}
-	| ID ASSIGN expr   { Assign($1, $3)         }
+	| TRANSPOSE expr   { Unop(Trans_M, $2)			}
+	| INVERSE expr  	 { Unop(Inv_M, $2)        }
+	| ID ASSIGN expr   {  Assign($1, $3)        }
 	| ID LPAREN args_opt RPAREN { Call($1, $3)  }
 	| LPAREN expr RPAREN { $2                   }
 
@@ -123,3 +131,7 @@ args_opt:
 args_list:
 	expr 							{ [$1] }
 	| args_list COMMA expr 			{ $3 :: $1 }
+
+rows:
+	args_opt						{[$1]}
+| rows COLON args_opt 	{[$3 :: $2 :: $1]}

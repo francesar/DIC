@@ -2,12 +2,11 @@
 
 (* Operators *)
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
-type op = Add | Sub | Mult | Div | Equal | Neq | Less |
-          Leq | Greater | Geq | And | Or | Mod |
-          CmpStruct | CmpPhys |
-          Add_M | Sub_M | Mult_M | Dot_M | Div_M
+type op = Add | Sub | Mult | Div | Assign | Eq | Peq | Neq | Less |
+          Leq | Greater | Geq | And | Or | Mod | Dot_M | Chan
 
-type uop = Neg | Not | Trans_M
+
+type uop = Neg | Not | Trans_M | Inv_M
 
 (* Primitive Types *)
 type typ = Int | Bool | Char | Float | Null

@@ -14,7 +14,8 @@ rule token = parse
 | '{'      { LBRACE }
 | '}'      { RBRACE }
 | '['      { LBRACK }
-| ']'      { RBRACK}
+| ']'      { RBRACK }
+| ':'      { COLON }
 | ';'      { SEMI }
 | ','      { COMMA }
 (* OPERATORS *)
@@ -23,7 +24,7 @@ rule token = parse
 | '-'      { MINUS }
 | '*'      { TIMES }
 | "**"	   { DOT }
-| '~'	   { INVERSE }
+| '~'	     { INVERSE }
 | '/'      { DIVIDE }
 | '%'      { MOD }
 | '='      { ASSIGN }
