@@ -7,13 +7,15 @@ open Ast
 
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON
-%token PLUS MINUS TIMES DIVIDE ASSIGN MOD TRANSPOSE INVERSE CHAN DOT
+%token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE CHAN DOT
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID
+%token INT BOOL FLOAT VOID 
 %token <int> LITERAL
 %token <string> ID FLIT SLIT
 %token EOF
+
+ 
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -24,15 +26,16 @@ open Ast
 %left EQ NEQ PEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE MOD DOT CHAN
+%left TIMES DIVIDE MOD DOT CHAN TIMES_M DIVIDE_M
 %right NOT NEG TRANSPOSE INVERSE
 
 
- %start program
+
+/*%start expr_opt
+%type <Ast.expr_opt> expr_opt*/
+
+%start program
 %type <Ast.program> program
-/*
-%start expr
-%type <Ast.expr> expr */
 
 %%
 
@@ -78,13 +81,13 @@ stmt_list:
 	| stmt_list stmt { $2 :: $1 }
 
 stmt:
-	expr SEMI													{ Expr $1				  		}
+	  expr SEMI													{ Expr $1				  		}
 	| RETURN expr_opt SEMI						{ Return $2						}
 	| LBRACE stmt_list RBRACE					{ Block(List.rev $2)	}
 	| IF LPAREN expr RPAREN stmt %prec NOELSE	{ IF($3, $5, Block([])) }
 	| IF LPAREN expr RPAREN stmt ELSE stmt 		{ IF($3, $5, $7)		}
 	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
-																						{ For($3, $5, $7, $9)	}
+												{ For($3, $5, $7, $9)	}
 	| WHILE LPAREN expr RPAREN stmt 			{ While($3, $5)			}
 
 expr_opt:
@@ -92,7 +95,7 @@ expr_opt:
 	| expr 			{ $1 }
 
 expr:
-	| LITERAL          { Literal($1)            }
+	 LITERAL          { Literal($1)            }
 	| FLIT	     	   	 { Fliteral($1)           }
 	| TRUE 						 { BoolLit(true)					}
 	| FALSE 					 { BoolLit(false)					}
@@ -103,11 +106,13 @@ expr:
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
 	| expr TIMES  expr { Binop($1, Mult,  $3)   }
-	| expr DOT 	  expr { Binop($1, Dot_M, $3)	  }
+	| expr TIMES_M expr { Binop(%1, Mult_M, $3) }
+	| expr DOT 	  expr { Binop($1, Dot_M, $3)	}
 	| expr DIVIDE expr { Binop($1, Div,   $3)   }
-	| expr MOD 		expr { Binop($1, Mod,   $3)   }
+	| expr DIVIDE_M expr { Binop($1, Div_M, $3) }
+	| expr MOD 		expr { Binop($1, Mod,   $3) }
 	| expr EQ     expr { Binop($1, Eq,    $3)   }
-	| expr PEQ 		expr { Binop($1, Peq,   $3)   }
+	| expr PEQ 		expr { Binop($1, Peq,   $3) }
 	| expr NEQ    expr { Binop($1, Neq,   $3)   }
 	| expr LT     expr { Binop($1, Less,  $3)   }
 	| expr LEQ    expr { Binop($1, Leq,   $3)   }
@@ -134,4 +139,4 @@ args_list:
 
 rows:
 	args_opt						{[$1]}
-| rows COLON args_opt 	{[$3 :: $2 :: $1]}
+	| rows COLON args_opt 	{[$3 :: $2 :: $1]}

@@ -23,6 +23,8 @@ rule token = parse
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }
+| ".*"		{ MULT_M }
+| "./"		{ DIV_M }
 | "**"	   { DOT }
 | '~'	     { INVERSE }
 | '/'      { DIVIDE }
