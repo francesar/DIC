@@ -8,14 +8,14 @@ open Ast
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON
 %token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE CHAN DOT
-%token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL
+%token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID 
+%token INT BOOL FLOAT VOID
 %token <int> LITERAL
 %token <string> ID FLIT SLIT
 %token EOF
 
- 
+
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -45,7 +45,7 @@ program:
 decls:
 	/* nothing */ { ([], [])					}
 	| decls vdecl { (($2 :: fst $1), snd $1)	}
-	| decls fdecl { (fst $1, ($2 :: snd $1))	}
+	| decls FUNC fdecl { (fst $1, ($2 :: snd $1))	}
 
 fdecl:
 	typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
