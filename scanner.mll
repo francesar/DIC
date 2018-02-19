@@ -47,6 +47,7 @@ rule token = parse
 | "for"    { FOR }
 | "while"  { WHILE }
 | "return" { RETURN }
+| "class"  { CLASS }
 | "int"    { INT }
 | "bool"   { BOOL }
 | "float"  { FLOAT }

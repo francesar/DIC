@@ -9,7 +9,7 @@ open Ast
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON
 %token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE CHAN DOT
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL
-%token RETURN IF ELSE FOR WHILE
+%token RETURN IF ELSE FOR WHILE CLASS
 %token INT BOOL FLOAT VOID 
 %token <int> LITERAL
 %token <string> ID FLIT SLIT
@@ -41,6 +41,7 @@ open Ast
 
 program:
 	decls EOF { $1 }
+	| CLASS ID LBRACE decls RBRACE EOF { $4 }
 
 decls:
 	/* nothing */ { ([], [])					}
@@ -130,7 +131,7 @@ expr:
 	| LPAREN expr RPAREN { $2                   }
 
 args_opt:
-	/* nothing */ { [] }
+	/* nothing  { [] }*/
 	| args_list { List.rev $1 }
 
 args_list:
