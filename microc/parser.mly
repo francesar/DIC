@@ -33,8 +33,8 @@ open Ast
 %type <Ast.expr> expr_opt
 */
 
- /* %start program
-%type <Ast.program> program*/
+%start program
+%type <Ast.program> program
 %%
 
 program:
