@@ -2,13 +2,23 @@
 # Target: toplevel.ml.depends, tags: { extension:ml, file:toplevel.ml, ocaml, ocamldep, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules toplevel.ml > toplevel.ml.depends # cached
 # Target: ast.ml.depends, tags: { extension:ml, file:ast.ml, ocaml, ocamldep, quiet }
-/Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules ast.ml > ast.ml.depends # cached
-# Target: ast.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
-/Users/armuhammad/.opam/4.05.0/bin/ocamlc.opt -c -o ast.cmo ast.ml # cached
+/Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules ast.ml > ast.ml.depends
 # Target: parser.mly, tags: { extension:mly, file:parser.mly, infer, ocaml, ocamlyacc, parser, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamlyacc parser.mly
 # Target: parser.mli.depends, tags: { extension:mli, file:parser.mli, ocaml, ocamldep, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules parser.mli > parser.mli.depends # cached
+# Target: ast.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
+/Users/armuhammad/.opam/4.05.0/bin/ocamlc.opt -c -o ast.cmo ast.ml
++ /Users/armuhammad/.opam/4.05.0/bin/ocamlc.opt -c -o ast.cmo ast.ml
+File "ast.ml", line 92, characters 25-546:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(MatLit _|MatIndex (_, _, _)|MatIndexAssign (_, _, _, _)|ListLit _|
+ListIndex (_, _)|ListIndexAssign (_, _, _))
+File "ast.ml", line 121, characters 20-108:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Char|String|List _|Matrix _)
 # Target: parser.cmi, tags: { byte, compile, extension:mli, file:parser.mli, interf, ocaml, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamlc.opt -c -o parser.cmi parser.mli # cached
 # Target: scanner.mll, tags: { extension:mll, file:scanner.mll, lexer, ocaml, ocamllex, quiet }
@@ -19,10 +29,20 @@
 /Users/armuhammad/.opam/4.05.0/bin/ocamlc.opt -c -o scanner.cmo scanner.ml # cached
 # Target: toplevel.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:toplevel.cmo, file:toplevel.ml, implem, ocaml, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamlc.opt -c -o toplevel.cmo toplevel.ml # cached
-# Target: ast.cmx, tags: { compile, extension:cmx, extension:ml, file:ast.cmx, file:ast.ml, implem, native, ocaml, quiet }
-/Users/armuhammad/.opam/4.05.0/bin/ocamlopt.opt -c -o ast.cmx ast.ml # cached
 # Target: parser.ml.depends, tags: { extension:ml, file:parser.ml, ocaml, ocamldep, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules parser.ml > parser.ml.depends
+# Target: ast.cmx, tags: { compile, extension:cmx, extension:ml, file:ast.cmx, file:ast.ml, implem, native, ocaml, quiet }
+/Users/armuhammad/.opam/4.05.0/bin/ocamlopt.opt -c -o ast.cmx ast.ml
++ /Users/armuhammad/.opam/4.05.0/bin/ocamlopt.opt -c -o ast.cmx ast.ml
+File "ast.ml", line 92, characters 25-546:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(MatLit _|MatIndex (_, _, _)|MatIndexAssign (_, _, _, _)|ListLit _|
+ListIndex (_, _)|ListIndexAssign (_, _, _))
+File "ast.ml", line 121, characters 20-108:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Char|String|List _|Matrix _)
 # Target: parser.cmx, tags: { compile, extension:cmx, extension:ml, file:parser.cmx, file:parser.ml, implem, native, ocaml, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamlopt.opt -c -o parser.cmx parser.ml
 # Target: scanner.cmx, tags: { compile, extension:cmx, extension:ml, file:scanner.cmx, file:scanner.ml, implem, native, ocaml, quiet }

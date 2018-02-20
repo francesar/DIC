@@ -1,1 +1,1 @@
-func int main () { a(5);}}}}}
+func int main () { a(5);}

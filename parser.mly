@@ -8,6 +8,7 @@ open Ast
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON
 %token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE CHAN DOT
+
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
 %token INT BOOL FLOAT VOID LIST DICT STRING
@@ -135,7 +136,7 @@ expr:
 	| LPAREN expr RPAREN { $2                   }
 
 args_opt:
-	/* nothing */ { [] }
+	/* nothing  { [] }*/
 	| args_list { List.rev $1 }
 
 args_list:
