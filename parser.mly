@@ -10,10 +10,10 @@ open Ast
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID LIST DICT STRING
+%token INT BOOL FLOAT VOID LIST DICT STRING CHAR
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT SLIT
+%token <string> ID FLIT SLIT CHLIT
 %token EOF
 
 %nonassoc NOELSE
@@ -64,11 +64,12 @@ formal_list:
 	| formal_list COMMA typ ID { ($3, $4) :: $1 }
 
 typ:
-	  INT 	{ Int 	}
-	| BOOL 	{ Bool 	}
-	| FLOAT { Float }
-	| VOID 	{ Void 	}
+	  INT 	 { Int 	}
+	| BOOL 	 { Bool 	}
+	| FLOAT  { Float }
+	| VOID 	 { Void 	}
   | STRING { String }
+  | CHAR   { Char }
 
 list_type:
   typ LBRACK RBRACK { List($1) }
@@ -102,6 +103,7 @@ expr_opt:
 
 expr:
 	  LITERAL          { Literal($1)            }
+  | CHLIT            { Cliteral($1)           }
 	| FLIT	     	   	 { Fliteral($1)           }
 	| TRUE 						 { BoolLit(true)					}
 	| FALSE 					 { BoolLit(false)					}
