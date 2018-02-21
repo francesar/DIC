@@ -1,1 +1,16 @@
-func int main(){
+class checkkeywords{
+  func int gcd(){
+    if (a == b){
+      return a;
+    }
+    else (a > b){
+      return b;
+    }
+    for(int x = 0; x < 1; x++){
+      return a;
+    }
+    while(x<y){
+      return 0;
+    }
+  }
+}
