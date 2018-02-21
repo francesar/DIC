@@ -1,0 +1,12 @@
+#!/bin/bash
+ocamlbuild toplevel.native
+./toplevel.native ./tests/pos1
+./toplevel.native ./tests/pos2
+./toplevel.native ./tests/pos3
+./toplevel.native ./tests/pos4
+./toplevel.native ./tests/pos5
+./toplevel.native ./tests/neg1
+./toplevel.native ./tests/neg2
+./toplevel.native ./tests/neg3
+./toplevel.native ./tests/neg4
+./toplevel.native ./tests/neg5

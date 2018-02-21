@@ -5,7 +5,7 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON QUOTE
 %token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE DOT
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
@@ -88,8 +88,8 @@ stmt:
 	| LBRACE stmt_list RBRACE					{ Block(List.rev $2)	}
 	| IF LPAREN expr RPAREN stmt %prec NOELSE	{ If($3, $5, Block([])) }
 	| IF LPAREN expr RPAREN stmt ELSE stmt 		{ If($3, $5, $7)		}
-	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
-												{ For($3, $5, $7, $9)	}
+	| FOR LPAREN vdecl expr SEMI expr_opt RPAREN stmt
+												{ For($3, $4, $6, $8)	}
 	| WHILE LPAREN expr RPAREN stmt 			{ While($3, $5)			}
 
 expr_opt:
@@ -101,9 +101,8 @@ expr:
 	| FLIT	     	   	 { Fliteral($1)           }
 	| TRUE 						 { BoolLit(true)					}
 	| FALSE 					 { BoolLit(false)					}
-	| SLIT 			   		 { StringLit($1)					}
+	| QUOTE SLIT QUOTE { StringLit($2)					}
 	| ID               { Id($1)                 }
-  | LBRACE list RBRACE { ListLit($2) }
 	| LBRACK rows	RBRACK { MatLit($2)						}
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
@@ -146,6 +145,3 @@ rows:
 	args_opt						{ [$1] }
 	| rows COLON args_opt 	{$3 :: $1}
 
-/* list_:
-  expr { [$1] }
-  |  */
