@@ -154,7 +154,7 @@ let rec string_of_stmt = function
 let rec string_of_typ = function
     Int -> "int"
   | Char -> "char"
-  | String -> "string" 
+  | String -> "string"
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
