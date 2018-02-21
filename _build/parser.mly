@@ -5,8 +5,9 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON QUOTE
-%token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE DOT
+
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON
+%token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE CHAN DOT
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
@@ -15,6 +16,8 @@ open Ast
 %token <bool> BLIT
 %token <string> ID FLIT SLIT
 %token EOF
+
+
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -25,9 +28,9 @@ open Ast
 %left EQ NEQ PEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE MOD DOT TIMES_M DIVIDE_M
+%left TIMES DIVIDE MOD DOT CHAN TIMES_M DIVIDE_M
 %left INC DEC
-%right NOT NEG TRANSPOSE INVERSE
+%right NOT NEG TRANSPOSE INVERSE 
 
 /*%start expr_opt
 %type <Ast.expr_opt> expr_opt*/
@@ -40,16 +43,19 @@ open Ast
 program:
   | decls EOF { $1 }
 
+/* cdels:
+  CLASS ID LBRACE decls RBRACE
+  { {cname = $2;
+     body = $4}} */
 
 decls:
 	/* nothing */ { ([], [])					}
-  | decls stmt  { ([], [])}
 	| decls vdecl { (($2 :: fst $1), snd $1)	}
 	| decls fdecl { (fst $1, ($2 :: snd $1))	}
 
 fdecl:
 	FUNC typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-		{{ typ = $2;
+		{ { typ = $2;
 			fname = $3;
 			formals = $5;
 			locals = List.rev $8;
@@ -70,17 +76,12 @@ typ:
 	| VOID 	{ Void 	}
   | STRING { String }
 
-list_type:
-  typ LBRACK RBRACK { List($1) }
-
 vdecl_list:
 	/* nothing */		{[]}
 	| vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
-	typ ID SEMI {	($1, $2, Noexpr) }
-  | list_type ID SEMI {	($1, $2, Noexpr) }
-  | typ ID ASSIGN expr SEMI { ($1, $2, $4) }
+	typ ID SEMI {	($1, $2)}
 
 stmt_list:
 	/* nothing */ { [] }
@@ -92,8 +93,8 @@ stmt:
 	| LBRACE stmt_list RBRACE					{ Block(List.rev $2)	}
 	| IF LPAREN expr RPAREN stmt %prec NOELSE	{ If($3, $5, Block([])) }
 	| IF LPAREN expr RPAREN stmt ELSE stmt 		{ If($3, $5, $7)		}
-	| FOR LPAREN vdecl expr SEMI expr_opt RPAREN stmt
-												{ For($3, $4, $6, $8)	}
+	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
+												{ For($3, $5, $7, $9)	}
 	| WHILE LPAREN expr RPAREN stmt 			{ While($3, $5)			}
 
 expr_opt:
@@ -101,19 +102,14 @@ expr_opt:
 	| expr 			{ $1 }
 
 expr:
-	  LITERAL          { Literal($1)            }
+	 LITERAL           { Literal($1)            }
 	| FLIT	     	   	 { Fliteral($1)           }
 	| TRUE 						 { BoolLit(true)					}
 	| FALSE 					 { BoolLit(false)					}
-	| QUOTE SLIT QUOTE { StringLit($2)					}
+	| SLIT 			   		 { StringLit($1)					}
 	| ID               { Id($1)                 }
-<<<<<<< HEAD
-  | LBRACK args_opt RBRACK { ListLit($2) }
-  | ID LBRACK expr RBRACK { ListIndex ($1, $3) }
-  | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6) }
-=======
->>>>>>> 9ce80eec503a0eb3c71ac5164bf7a77ff08917ee
 	| LBRACK rows	RBRACK { MatLit($2)						}
+	/* | NULL 						 { Null 									} */
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
 	| expr TIMES  expr { Binop($1, Mult,  $3)   }
@@ -131,6 +127,7 @@ expr:
 	| expr GEQ    expr { Binop($1, Geq,   $3)   }
 	| expr AND    expr { Binop($1, And,   $3)   }
 	| expr OR     expr { Binop($1, Or,    $3)   }
+	/* | expr CHAN   expr { Binop($1, Chan,  $3)   } */
 	| MINUS expr %prec NEG { Unop(Neg, $2)      }
 	| INC expr 			{ Unop(Increment, $2) }
 	| DEC expr          { Unop(Decrement, $2) }
@@ -144,7 +141,7 @@ expr:
 	| LPAREN expr RPAREN { $2                   }
 
 args_opt:
-	  { [Noexpr] }
+	/* nothing  { [] }*/
 	| args_list { List.rev $1 }
 
 args_list:
@@ -152,13 +149,5 @@ args_list:
 	| args_list COMMA expr 			{ $3 :: $1 }
 
 rows:
-
-	args_opt						{ [$1] }
-	| rows COLON args_opt 	{$3 :: $1}
-<<<<<<< HEAD
-
-/* list_:
-  expr { [$1] }
-  |  */
-=======
->>>>>>> 9ce80eec503a0eb3c71ac5164bf7a77ff08917ee
+	args_opt						{[$1]}
+	| rows COLON args_opt 	{ $3 :: $1 }

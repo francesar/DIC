@@ -1,0 +1,34 @@
+### Starting build.
+# Target: toplevel.ml.depends, tags: { extension:ml, file:toplevel.ml, ocaml, ocamldep, quiet }
+/usr/bin/ocamldep.opt -modules toplevel.ml > toplevel.ml.depends # cached
+# Target: ast.ml.depends, tags: { extension:ml, file:ast.ml, ocaml, ocamldep, quiet }
+/usr/bin/ocamldep.opt -modules ast.ml > ast.ml.depends # cached
+# Target: ast.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
+/usr/bin/ocamlc.opt -c -o ast.cmo ast.ml # cached
+# Target: parser.mly, tags: { extension:mly, file:parser.mly, infer, ocaml, ocamlyacc, parser, quiet }
+/usr/bin/ocamlyacc parser.mly # cached
+# Target: parser.mli.depends, tags: { extension:mli, file:parser.mli, ocaml, ocamldep, quiet }
+/usr/bin/ocamldep.opt -modules parser.mli > parser.mli.depends # cached
+# Target: parser.cmi, tags: { byte, compile, extension:mli, file:parser.mli, interf, ocaml, quiet }
+/usr/bin/ocamlc.opt -c -o parser.cmi parser.mli # cached
+# Target: scanner.mll, tags: { extension:mll, file:scanner.mll, lexer, ocaml, ocamllex, quiet }
+/usr/bin/ocamllex.opt -q scanner.mll # cached
+# Target: scanner.ml.depends, tags: { extension:ml, file:scanner.ml, ocaml, ocamldep, quiet }
+/usr/bin/ocamldep.opt -modules scanner.ml > scanner.ml.depends # cached
+# Target: scanner.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:scanner.cmo, file:scanner.ml, implem, ocaml, quiet }
+/usr/bin/ocamlc.opt -c -o scanner.cmo scanner.ml # cached
+# Target: toplevel.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:toplevel.cmo, file:toplevel.ml, implem, ocaml, quiet }
+/usr/bin/ocamlc.opt -c -o toplevel.cmo toplevel.ml # cached
+# Target: ast.cmx, tags: { compile, extension:cmx, extension:ml, file:ast.cmx, file:ast.ml, implem, native, ocaml, quiet }
+/usr/bin/ocamlopt.opt -c -o ast.cmx ast.ml # cached
+# Target: parser.ml.depends, tags: { extension:ml, file:parser.ml, ocaml, ocamldep, quiet }
+/usr/bin/ocamldep.opt -modules parser.ml > parser.ml.depends # cached
+# Target: parser.cmx, tags: { compile, extension:cmx, extension:ml, file:parser.cmx, file:parser.ml, implem, native, ocaml, quiet }
+/usr/bin/ocamlopt.opt -c -o parser.cmx parser.ml # cached
+# Target: scanner.cmx, tags: { compile, extension:cmx, extension:ml, file:scanner.cmx, file:scanner.ml, implem, native, ocaml, quiet }
+/usr/bin/ocamlopt.opt -c -o scanner.cmx scanner.ml # cached
+# Target: toplevel.cmx, tags: { compile, extension:cmx, extension:ml, file:toplevel.cmx, file:toplevel.ml, implem, native, ocaml, quiet }
+/usr/bin/ocamlopt.opt -c -o toplevel.cmx toplevel.ml # cached
+# Target: toplevel.native, tags: { dont_link_with, extension:native, file:toplevel.native, link, native, ocaml, program, quiet }
+/usr/bin/ocamlopt.opt ast.cmx parser.cmx scanner.cmx toplevel.cmx -o toplevel.native # cached
+# Compilation successful.

@@ -19,6 +19,7 @@ rule token = parse
 | ':'      { COLON  }
 | ';'      { SEMI   }
 | ','      { COMMA  }
+| '"'      { QUOTE  }
 (* Operators *)
 | '''      { TRANSPOSE }
 | '+'      { PLUS }

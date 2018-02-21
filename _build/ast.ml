@@ -4,7 +4,8 @@
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
 type op = Add | Sub | Mult | Div | Assign | Eq | Peq | Neq | Less |
           Leq | Greater | Geq | And | Or | Mod | Dot_M |
-          Mult_M | Div_M
+          Mult_M | Div_M | Chan
+
 
 
 type uop = Neg | Not | Trans_M | Inv_M | Increment | Decrement
@@ -40,21 +41,19 @@ type expr =
   | Call of string * expr list
   | Noexpr
 
-type var_decl =  typ * string * expr
-
 type stmt =
     Block of stmt list
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt
-  | For of var_decl * expr * expr * stmt
+  | For of expr * expr * expr * stmt
   | While of expr * stmt
 
 type func_decl = {
   typ: typ;
   fname: string;
   formals: bind list;
-  locals: var_decl list;
+  locals: bind list;
   body: stmt list;
 }
 
@@ -63,7 +62,7 @@ type func_decl = {
   vbody: func_decl list;
 } *)
 
-type program = var_decl list * func_decl list
+type program = bind list * func_decl list
 
 let string_of_op = function
     Add -> "+"
@@ -84,6 +83,7 @@ let string_of_op = function
   | Or -> "||"
   | Mod -> "%"
   | Dot_M -> "**"
+  | Chan -> "<~"
 
 let string_of_uop = function
     Neg -> "-"
@@ -109,29 +109,16 @@ let rec string_of_expr = function
         | h :: t -> string_of_expr h ^ "," ^ print_row t in
       fun anon -> print_row anon) rows)
       ^ "]"
+       
   | Id(s) -> s
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Punop(e, o) ->  string_of_expr e ^ string_of_uop o
+  | Punop(e, o) ->  string_of_expr e ^ string_of_uop o 
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
-  | ListLit(el) -> "[" ^ String.concat ", " (List.map string_of_expr el) ^ "]"
-  | ListIndex(v,e) -> v ^ "[" ^ string_of_expr e ^ "]"
-  | ListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2
-
-let string_of_typ = function
-    Int -> "int"
-  | Bool -> "bool"
-  | Float -> "float"
-  | Void -> "void"
-
-let string_of_vdecl = function 
-  | (t, id, exp) -> 
-    if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";" 
-    else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";"
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -141,36 +128,25 @@ let rec string_of_stmt = function
   | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
   | If(e, s1, s2) -> "if (" ^ string_of_expr e ^ ")\n" ^
       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
-  | For( v1, e2, e3, s) ->
-      "for (" ^ string_of_vdecl v1 ^ string_of_expr e2 ^ " ; " ^
+  | For(e1, e2, e3, s) ->
+      "for (" ^ string_of_expr e1 ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3 ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-<<<<<<< HEAD
-let rec string_of_typ = function
+let string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
-  | List(t) -> string_of_typ t ^ "[]"
 
-let string_of_vdecl = function
-  | (t, id, exp) ->
-    if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";\n"
-    else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";\n"
-
-let string_of_binding = function
-=======
-let string_of_binding = function 
->>>>>>> 9ce80eec503a0eb3c71ac5164bf7a77ff08917ee
-  | (t, id) -> string_of_typ t ^ " " ^ id ^ ""
+let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
 let string_of_fdecl fdecl =
   "func " ^ string_of_typ fdecl.typ ^ " " ^
-  fdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_binding fdecl.formals) ^
+  fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^ "\n" ^
-  String.concat "" (List.map string_of_stmt fdecl.body) ^ 
+  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
+  String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
 let string_of_program (vars, funcs) =
