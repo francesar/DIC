@@ -107,12 +107,9 @@ expr:
 	| FALSE 					 { BoolLit(false)					}
 	| QUOTE SLIT QUOTE { StringLit($2)					}
 	| ID               { Id($1)                 }
-<<<<<<< HEAD
   | LBRACK args_opt RBRACK { ListLit($2) }
   | ID LBRACK expr RBRACK { ListIndex ($1, $3) }
   | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6) }
-=======
->>>>>>> 9ce80eec503a0eb3c71ac5164bf7a77ff08917ee
 	| LBRACK rows	RBRACK { MatLit($2)						}
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
@@ -155,10 +152,3 @@ rows:
 
 	args_opt						{ [$1] }
 	| rows COLON args_opt 	{$3 :: $1}
-<<<<<<< HEAD
-
-/* list_:
-  expr { [$1] }
-  |  */
-=======
->>>>>>> 9ce80eec503a0eb3c71ac5164bf7a77ff08917ee

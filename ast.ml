@@ -99,11 +99,11 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | StringLit(s) -> s
-  | MatLit(rows) -> 
+  | MatLit(rows) ->
       "[" ^
       let rec print_list input_list = match (List.rev input_list) with
       | [s] -> s
-      | e :: l -> e ^ ":" ^ print_list (List.rev l) in 
+      | e :: l -> e ^ ":" ^ print_list (List.rev l) in
       print_list (List.map ( let rec print_row = function
         | [s] -> string_of_expr s
         | h :: t -> string_of_expr h ^ "," ^ print_row t in
@@ -128,9 +128,9 @@ let string_of_typ = function
   | Float -> "float"
   | Void -> "void"
 
-let string_of_vdecl = function 
-  | (t, id, exp) -> 
-    if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";" 
+let string_of_vdecl = function
+  | (t, id, exp) ->
+    if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";"
     else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";"
 
 let rec string_of_stmt = function
@@ -146,7 +146,6 @@ let rec string_of_stmt = function
       string_of_expr e3 ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-<<<<<<< HEAD
 let rec string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
@@ -160,17 +159,15 @@ let string_of_vdecl = function
     else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";\n"
 
 let string_of_binding = function
-=======
-let string_of_binding = function 
->>>>>>> 9ce80eec503a0eb3c71ac5164bf7a77ff08917ee
   | (t, id) -> string_of_typ t ^ " " ^ id ^ ""
+
 
 let string_of_fdecl fdecl =
   "func " ^ string_of_typ fdecl.typ ^ " " ^
   fdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_binding fdecl.formals) ^
   ")\n{\n" ^
   String.concat "" (List.map string_of_vdecl fdecl.locals) ^ "\n" ^
-  String.concat "" (List.map string_of_stmt fdecl.body) ^ 
+  String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
 let string_of_program (vars, funcs) =
