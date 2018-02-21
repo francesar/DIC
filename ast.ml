@@ -40,6 +40,8 @@ type expr =
   | Call of string * expr list
   | Noexpr
 
+type var_decl =  typ * string * expr
+
 type stmt =
     Block of stmt list
   | Expr of expr
@@ -52,7 +54,7 @@ type func_decl = {
   typ: typ;
   fname: string;
   formals: bind list;
-  locals: bind list;
+  locals: var_decl list;
   body: stmt list;
 }
 
@@ -61,7 +63,7 @@ type func_decl = {
   vbody: func_decl list;
 } *)
 
-type program = bind list * func_decl list
+type program = var_decl list * func_decl list
 
 let string_of_op = function
     Add -> "+"
@@ -128,11 +130,15 @@ let string_of_typ = function
   | Float -> "float"
   | Void -> "void"
 
-let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
+let string_of_vdecl = function 
+  | (t, id, exp) -> string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";\n"
+
+let string_of_binding = function 
+  | (t, id) -> string_of_typ t ^ " " ^ id ^ ""
 
 let string_of_fdecl fdecl =
   "func " ^ string_of_typ fdecl.typ ^ " " ^
-  fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
+  fdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_binding fdecl.formals) ^
   ")\n{\n" ^
   String.concat "" (List.map string_of_vdecl fdecl.locals) ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^

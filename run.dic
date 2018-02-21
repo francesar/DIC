@@ -1,0 +1,5 @@
+func int main(int x, int y) {
+    int a = 1;
+    int b;
+    c(b);
+}
