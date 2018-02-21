@@ -1034,7 +1034,7 @@ let yyact = [|
     let _3 = (Parsing.peek_val __caml_parser_env 0 : 'args_opt) in
     Obj.repr(
 # 153 "parser.mly"
-                        (_3 :: _1)
+                        ( _3 :: _1 )
 # 1039 "parser.ml"
                : 'rows))
 (* Entry program *)

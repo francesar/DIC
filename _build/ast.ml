@@ -37,6 +37,7 @@ type expr =
   | Punop of expr * uop
   | Unop of uop * expr
   | Assign of string * expr
+
   | Call of string * expr list
   | Noexpr
 
@@ -98,7 +99,17 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | StringLit(s) -> s
-  (* | MatLit(rows) -> "[" ^ rows ^ "]" *)
+  | MatLit(rows) -> 
+      "[" ^
+      let rec print_list input_list = match (List.rev input_list) with
+      | [s] -> s
+      | e :: l -> e ^ ":" ^ print_list (List.rev l) in 
+      print_list (List.map ( let rec print_row = function
+        | [s] -> string_of_expr s
+        | h :: t -> string_of_expr h ^ "," ^ print_row t in
+      fun anon -> print_row anon) rows)
+      ^ "]"
+       
   | Id(s) -> s
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2

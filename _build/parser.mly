@@ -150,4 +150,4 @@ args_list:
 
 rows:
 	args_opt						{[$1]}
-	| rows COLON args_opt 	{$3 :: $1}
+	| rows COLON args_opt 	{ $3 :: $1 }
