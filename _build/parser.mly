@@ -71,7 +71,8 @@ typ:
   | STRING { String }
 
 list_type:
-  typ LBRACK RBRACK { List($1) }
+    typ LBRACK RBRACK { List($1) }
+  | typ LBRACK RBRACK LBRACK RBRACK { Matrix($1) }
 
 vdecl_list:
 	/* nothing */		{[]}
@@ -81,6 +82,7 @@ vdecl:
 	typ ID SEMI {	($1, $2, Noexpr) }
   | list_type ID SEMI {	($1, $2, Noexpr) }
   | typ ID ASSIGN expr SEMI { ($1, $2, $4) }
+  | list_type ID ASSIGN expr SEMI { ($1, $2, $4) }
 
 stmt_list:
 	/* nothing */ { [] }
@@ -111,6 +113,8 @@ expr:
   | ID LBRACK expr RBRACK { ListIndex ($1, $3) }
   | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6) }
 	| LBRACK rows	RBRACK { MatLit($2)						}
+  | ID LBRACK expr RBRACK LBRACK expr RBRACK { MatIndex ($1, $3, $6) }
+  | ID LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr { MatIndexAssign ($1, $3, $6, $9) }
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
 	| expr TIMES  expr { Binop($1, Mult,  $3)   }

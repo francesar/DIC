@@ -1,8 +1,8 @@
 ### Starting build.
 # Target: toplevel.ml.depends, tags: { extension:ml, file:toplevel.ml, ocaml, ocamldep, quiet }
-/Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules toplevel.ml > toplevel.ml.depends # cached
+/Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules toplevel.ml > toplevel.ml.depends
 # Target: ast.ml.depends, tags: { extension:ml, file:ast.ml, ocaml, ocamldep, quiet }
-/Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules ast.ml > ast.ml.depends # cached
+/Users/armuhammad/.opam/4.05.0/bin/ocamldep.opt -modules ast.ml > ast.ml.depends
 # Target: parser.mly, tags: { extension:mly, file:parser.mly, infer, ocaml, ocamlyacc, parser, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamlyacc parser.mly
 + /Users/armuhammad/.opam/4.05.0/bin/ocamlyacc parser.mly
@@ -12,26 +12,22 @@
 # Target: ast.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ast.cmo, file:ast.ml, implem, ocaml, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamlc.opt -c -o ast.cmo ast.ml
 + /Users/armuhammad/.opam/4.05.0/bin/ocamlc.opt -c -o ast.cmo ast.ml
-File "ast.ml", line 104, characters 38-141:
+File "ast.ml", line 116, characters 38-141:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 []
-File "ast.ml", line 107, characters 49-150:
+File "ast.ml", line 119, characters 49-150:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 []
-File "ast.ml", line 96, characters 25-1173:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-(MatIndex (_, _, _)|MatIndexAssign (_, _, _, _))
-File "ast.ml", line 125, characters 20-108:
+File "ast.ml", line 128, characters 20-108:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Char|String|List _|Matrix _)
-File "ast.ml", line 149, characters 24-151:
+File "ast.ml", line 152, characters 24-194:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
-(Char|String|Matrix _)
+(Char|String)
 # Target: scanner.mll, tags: { extension:mll, file:scanner.mll, lexer, ocaml, ocamllex, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamllex.opt -q scanner.mll
 # Target: scanner.ml.depends, tags: { extension:ml, file:scanner.ml, ocaml, ocamldep, quiet }
@@ -47,26 +43,22 @@ Here is an example of a case that is not matched:
 # Target: ast.cmx, tags: { compile, extension:cmx, extension:ml, file:ast.cmx, file:ast.ml, implem, native, ocaml, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamlopt.opt -c -o ast.cmx ast.ml
 + /Users/armuhammad/.opam/4.05.0/bin/ocamlopt.opt -c -o ast.cmx ast.ml
-File "ast.ml", line 104, characters 38-141:
+File "ast.ml", line 116, characters 38-141:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 []
-File "ast.ml", line 107, characters 49-150:
+File "ast.ml", line 119, characters 49-150:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 []
-File "ast.ml", line 96, characters 25-1173:
-Warning 8: this pattern-matching is not exhaustive.
-Here is an example of a case that is not matched:
-(MatIndex (_, _, _)|MatIndexAssign (_, _, _, _))
-File "ast.ml", line 125, characters 20-108:
+File "ast.ml", line 128, characters 20-108:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
 (Char|String|List _|Matrix _)
-File "ast.ml", line 149, characters 24-151:
+File "ast.ml", line 152, characters 24-194:
 Warning 8: this pattern-matching is not exhaustive.
 Here is an example of a case that is not matched:
-(Char|String|Matrix _)
+(Char|String)
 # Target: parser.cmx, tags: { compile, extension:cmx, extension:ml, file:parser.cmx, file:parser.ml, implem, native, ocaml, quiet }
 /Users/armuhammad/.opam/4.05.0/bin/ocamlopt.opt -c -o parser.cmx parser.ml
 # Target: scanner.cmx, tags: { compile, extension:cmx, extension:ml, file:scanner.cmx, file:scanner.ml, implem, native, ocaml, quiet }

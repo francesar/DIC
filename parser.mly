@@ -10,10 +10,10 @@ open Ast
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID LIST DICT STRING
+%token INT BOOL FLOAT VOID LIST DICT STRING CHAR
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT SLIT
+%token <string> ID FLIT SLIT CHLIT
 %token CLASS EOF
 
 %nonassoc NOELSE
@@ -64,14 +64,16 @@ formal_list:
 	| formal_list COMMA typ ID { ($3, $4) :: $1 }
 
 typ:
-	  INT 	{ Int 	}
-	| BOOL 	{ Bool 	}
-	| FLOAT { Float }
-	| VOID 	{ Void 	}
+	  INT 	 { Int 	}
+	| BOOL 	 { Bool 	}
+	| FLOAT  { Float }
+	| VOID 	 { Void 	}
   | STRING { String }
+  | CHAR   { Char }
 
 list_type:
-  typ LBRACK RBRACK { List($1) }
+    typ LBRACK RBRACK { List($1) }
+  | typ LBRACK RBRACK LBRACK RBRACK { Matrix($1) }
 
 vdecl_list:
 	/* nothing */		{[]}
@@ -81,6 +83,7 @@ vdecl:
 	typ ID SEMI {	($1, $2, Noexpr) }
   | list_type ID SEMI {	($1, $2, Noexpr) }
   | typ ID ASSIGN expr SEMI { ($1, $2, $4) }
+  | list_type ID ASSIGN expr SEMI { ($1, $2, $4) }
 
 stmt_list:
 	/* nothing */ { [] }
@@ -102,6 +105,7 @@ expr_opt:
 
 expr:
 	  LITERAL          { Literal($1)            }
+  | CHLIT            { Cliteral($1)           }
 	| FLIT	     	   	 { Fliteral($1)           }
 	| TRUE 						 { BoolLit(true)					}
 	| FALSE 					 { BoolLit(false)					}
@@ -111,6 +115,8 @@ expr:
   | ID LBRACK expr RBRACK { ListIndex ($1, $3) }
   | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6) }
 	| LBRACK rows	RBRACK { MatLit($2)						}
+  | ID LBRACK expr RBRACK LBRACK expr RBRACK { MatIndex ($1, $3, $6) }
+  | ID LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr { MatIndexAssign ($1, $3, $6, $9) }
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
 	| expr TIMES  expr { Binop($1, Mult,  $3)   }
