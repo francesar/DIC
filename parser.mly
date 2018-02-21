@@ -14,7 +14,7 @@ open Ast
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT
-%token EOF
+%token CLASS EOF
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -38,7 +38,7 @@ open Ast
 %%
 
 program:
-  | decls EOF { $1 }
+  | CLASS ID LBRACE decls RBRACE EOF { ($2, $4) }
 
 
 decls:
