@@ -44,6 +44,7 @@ rule token = parse
 | "||"     { OR }
 | "!"      { NOT }
 (* Control *)
+| "class"  { CLASS }
 | "func"   { FUNC }
 | "if"     { IF }
 | "else"   { ELSE }
