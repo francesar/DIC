@@ -1,6 +1,8 @@
-func int GCD(int a, int b) {
-  if (b == 0) {
-    return a;
+class GCD{
+  func int GCD(int a, int b) {
+    if (b == 0) {
+      return a;
+    }
+    GCD(b, a%b);
   }
-  GCD(b, a%b);
 }
