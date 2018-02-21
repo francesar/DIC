@@ -6,8 +6,6 @@ type op = Add | Sub | Mult | Div | Assign | Eq | Peq | Neq | Less |
           Leq | Greater | Geq | And | Or | Mod | Dot_M |
           Mult_M | Div_M | Chan
 
-
-
 type uop = Neg | Not | Trans_M | Inv_M | Increment | Decrement
 
 (* Primitive Types *)
@@ -131,7 +129,9 @@ let string_of_typ = function
   | Void -> "void"
 
 let string_of_vdecl = function 
-  | (t, id, exp) -> string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";\n"
+  | (t, id, exp) -> 
+    if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";\n" 
+    else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";\n"
 
 let string_of_binding = function 
   | (t, id) -> string_of_typ t ^ " " ^ id ^ ""

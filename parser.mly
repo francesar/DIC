@@ -5,9 +5,8 @@
 open Ast
 %}
 
-
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON
-%token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE CHAN DOT
+%token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE DOT
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
@@ -16,8 +15,6 @@ open Ast
 %token <bool> BLIT
 %token <string> ID FLIT SLIT
 %token EOF
-
-
 
 %nonassoc NOELSE
 %nonassoc ELSE
@@ -28,7 +25,7 @@ open Ast
 %left EQ NEQ PEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE MOD DOT CHAN TIMES_M DIVIDE_M
+%left TIMES DIVIDE MOD DOT TIMES_M DIVIDE_M
 %left INC DEC
 %right NOT NEG TRANSPOSE INVERSE 
 
@@ -50,6 +47,7 @@ program:
 
 decls:
 	/* nothing */ { ([], [])					}
+  | decls stmt  { ([], [])}
 	| decls vdecl { (($2 :: fst $1), snd $1)	}
 	| decls fdecl { (fst $1, ($2 :: snd $1))	}
 
@@ -110,7 +108,6 @@ expr:
 	| SLIT 			   		 { StringLit($1)					}
 	| ID               { Id($1)                 }
 	| LBRACK rows	RBRACK { MatLit($2)						}
-	/* | NULL 						 { Null 									} */
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
 	| expr TIMES  expr { Binop($1, Mult,  $3)   }
@@ -128,7 +125,6 @@ expr:
 	| expr GEQ    expr { Binop($1, Geq,   $3)   }
 	| expr AND    expr { Binop($1, And,   $3)   }
 	| expr OR     expr { Binop($1, Or,    $3)   }
-	/* | expr CHAN   expr { Binop($1, Chan,  $3)   } */
 	| MINUS expr %prec NEG { Unop(Neg, $2)      }
 	| INC expr 			{ Unop(Increment, $2) }
 	| DEC expr          { Unop(Decrement, $2) }
@@ -142,7 +138,7 @@ expr:
 	| LPAREN expr RPAREN { $2                   }
 
 args_opt:
-	/* nothing  { [] }*/
+	  { [Noexpr] }
 	| args_list { List.rev $1 }
 
 args_list:
