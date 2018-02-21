@@ -4,7 +4,7 @@
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
 type op = Add | Sub | Mult | Div | Assign | Eq | Peq | Neq | Less |
           Leq | Greater | Geq | And | Or | Mod | Dot_M |
-          Mult_M | Div_M 
+          Mult_M | Div_M
 
 
 type uop = Neg | Not | Trans_M | Inv_M | Increment | Decrement
@@ -103,11 +103,14 @@ let rec string_of_expr = function
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Punop(e, o) ->  string_of_expr e ^ string_of_uop o 
+  | Punop(e, o) ->  string_of_expr e ^ string_of_uop o
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
+  | ListLit(el) -> "[" ^ String.concat ", " (List.map string_of_expr el) ^ "]"
+  | ListIndex(v,e) -> v ^ "[" ^ string_of_expr e ^ "]"
+  | ListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -122,18 +125,19 @@ let rec string_of_stmt = function
       string_of_expr e3 ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_typ = function
+let rec string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
+  | List(t) -> string_of_typ t ^ "[]"
 
-let string_of_vdecl = function 
-  | (t, id, exp) -> 
-    if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";\n" 
+let string_of_vdecl = function
+  | (t, id, exp) ->
+    if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";\n"
     else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";\n"
 
-let string_of_binding = function 
+let string_of_binding = function
   | (t, id) -> string_of_typ t ^ " " ^ id ^ ""
 
 let string_of_fdecl fdecl =

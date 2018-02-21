@@ -27,7 +27,7 @@ open Ast
 %left PLUS MINUS
 %left TIMES DIVIDE MOD DOT TIMES_M DIVIDE_M
 %left INC DEC
-%right NOT NEG TRANSPOSE INVERSE 
+%right NOT NEG TRANSPOSE INVERSE
 
 /*%start expr_opt
 %type <Ast.expr_opt> expr_opt*/
@@ -68,7 +68,10 @@ typ:
 	| BOOL 	{ Bool 	}
 	| FLOAT { Float }
 	| VOID 	{ Void 	}
-  | STRING { String } 
+  | STRING { String }
+
+list_type:
+  typ LBRACK RBRACK { List($1) }
 
 vdecl_list:
 	/* nothing */		{[]}
@@ -76,6 +79,7 @@ vdecl_list:
 
 vdecl:
 	typ ID SEMI {	($1, $2, Noexpr) }
+  | list_type ID SEMI {	($1, $2, Noexpr) }
   | typ ID ASSIGN expr SEMI { ($1, $2, $4) }
 
 stmt_list:
@@ -97,13 +101,15 @@ expr_opt:
 	| expr 			{ $1 }
 
 expr:
-	 LITERAL           { Literal($1)            }
+	  LITERAL          { Literal($1)            }
 	| FLIT	     	   	 { Fliteral($1)           }
 	| TRUE 						 { BoolLit(true)					}
 	| FALSE 					 { BoolLit(false)					}
 	| SLIT 			   		 { StringLit($1)					}
 	| ID               { Id($1)                 }
-  | LBRACE list RBRACE { ListLit($2) }
+  | LBRACK args_opt RBRACK { ListLit($2) }
+  | ID LBRACK expr RBRACK { ListIndex ($1, $3) }
+  | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6) }
 	| LBRACK rows	RBRACK { MatLit($2)						}
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }

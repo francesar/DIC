@@ -1,0 +1,7 @@
+func int main () { 
+  int[] l;
+  l = [1,2,3];
+  int x = l[0];
+  l[0] = 5;
+}
+

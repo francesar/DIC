@@ -23,7 +23,7 @@ rule token = parse
 | '''      { TRANSPOSE }
 | '+'      { PLUS }
 | "++"	   { INC }
-| "--"      { DEC }
+| "--"     { DEC }
 | '-'      { MINUS }
 | '*'      { TIMES }
 | ".*"		 { TIMES_M }
