@@ -99,16 +99,6 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | StringLit(s) -> s
-  | MatLit(rows) ->
-      "[" ^
-      let rec print_list input_list = match (List.rev input_list) with
-      | [s] -> s
-      | e :: l -> e ^ ":" ^ print_list (List.rev l) in
-      print_list (List.map ( let rec print_row = function
-        | [s] -> string_of_expr s
-        | h :: t -> string_of_expr h ^ "," ^ print_row t in
-      fun anon -> print_row anon) rows)
-      ^ "]"
   | Id(s) -> s
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
@@ -121,6 +111,19 @@ let rec string_of_expr = function
   | ListLit(el) -> "[" ^ String.concat ", " (List.map string_of_expr el) ^ "]"
   | ListIndex(v,e) -> v ^ "[" ^ string_of_expr e ^ "]"
   | ListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2
+  | MatLit(rows) ->
+      "[" ^
+      let rec print_list input_list = match (List.rev input_list) with
+      | [s] -> s
+      | e :: l -> e ^ ":" ^ print_list (List.rev l) in
+      print_list (List.map ( let rec print_row = function
+        | [s] -> string_of_expr s
+        | h :: t -> string_of_expr h ^ "," ^ print_row t in
+      fun anon -> print_row anon) rows)
+      ^ "]"
+  | MatIndex (v, e1, e2) -> v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "]"
+  | MatIndexAssign (v, e1, e2, e3) ->
+    v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "] = " ^ string_of_expr e3
 
 let string_of_typ = function
     Int -> "int"
@@ -152,6 +155,7 @@ let rec string_of_typ = function
   | Float -> "float"
   | Void -> "void"
   | List(t) -> string_of_typ t ^ "[]"
+  | Matrix(t) -> string_of_typ t ^ "[][]"
 
 let string_of_vdecl = function
   | (t, id, exp) ->
