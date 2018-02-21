@@ -4,7 +4,8 @@
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
 type op = Add | Sub | Mult | Div | Assign | Eq | Peq | Neq | Less |
           Leq | Greater | Geq | And | Or | Mod | Dot_M |
-          Mult_M | Div_M | Chan
+          Mult_M | Div_M 
+
 
 type uop = Neg | Not | Trans_M | Inv_M | Increment | Decrement
 
@@ -82,7 +83,6 @@ let string_of_op = function
   | Or -> "||"
   | Mod -> "%"
   | Dot_M -> "**"
-  | Chan -> "<~"
 
 let string_of_uop = function
     Neg -> "-"

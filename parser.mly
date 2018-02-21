@@ -40,10 +40,6 @@ open Ast
 program:
   | decls EOF { $1 }
 
-/* cdels:
-  CLASS ID LBRACE decls RBRACE
-  { {cname = $2;
-     body = $4}} */
 
 decls:
 	/* nothing */ { ([], [])					}
@@ -53,7 +49,7 @@ decls:
 
 fdecl:
 	FUNC typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-		{ { typ = $2;
+		{{ typ = $2;
 			fname = $3;
 			formals = $5;
 			locals = List.rev $8;
@@ -72,7 +68,7 @@ typ:
 	| BOOL 	{ Bool 	}
 	| FLOAT { Float }
 	| VOID 	{ Void 	}
-  | STRING { String }
+  | STRING { String } 
 
 vdecl_list:
 	/* nothing */		{[]}
@@ -107,6 +103,7 @@ expr:
 	| FALSE 					 { BoolLit(false)					}
 	| SLIT 			   		 { StringLit($1)					}
 	| ID               { Id($1)                 }
+  | LBRACE list RBRACE { ListLit($2) }
 	| LBRACK rows	RBRACK { MatLit($2)						}
 	| expr PLUS   expr { Binop($1, Add,   $3)   }
 	| expr MINUS  expr { Binop($1, Sub,   $3)   }
@@ -146,5 +143,9 @@ args_list:
 	| args_list COMMA expr 			{ $3 :: $1 }
 
 rows:
-	args_opt						{[$1]}
+	args_opt						{ [$1] }
 	| rows COLON args_opt 	{$3 :: $1}
+
+/* list_:
+  expr { [$1] }
+  |  */
