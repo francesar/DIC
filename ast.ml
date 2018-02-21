@@ -22,6 +22,7 @@ type bind = typ * string
 
 type expr =
     Literal of int
+  | Cliteral of string
   | Fliteral of string
   | BoolLit of bool
   | StringLit of string
@@ -95,6 +96,7 @@ let string_of_uop = function
 
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
+  | Cliteral(c) -> c
   | Fliteral(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
@@ -151,6 +153,8 @@ let rec string_of_stmt = function
 
 let rec string_of_typ = function
     Int -> "int"
+  | Char -> "char"
+  | String -> "string" 
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"

@@ -19,7 +19,6 @@ rule token = parse
 | ':'      { COLON  }
 | ';'      { SEMI   }
 | ','      { COMMA  }
-| '"'      { QUOTE  }
 (* Operators *)
 | '''      { TRANSPOSE }
 | '+'      { PLUS }
@@ -52,7 +51,8 @@ rule token = parse
 | "while"  { WHILE }
 | "return" { RETURN }
 (* Types *)
-| "int"    { INT }
+| "int"    { INT  }
+| "char"   { CHAR }
 | "bool"   { BOOL }
 | "float"  { FLOAT }
 | "void"   { VOID }
@@ -64,6 +64,8 @@ rule token = parse
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
+| '"' ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* '"' as lxm {SLIT(lxm)} 
+| ''' ['a'-'z' 'A'-'Z' '0'-'9' '_'] ''' as lxm {CHLIT(lxm)} 
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
