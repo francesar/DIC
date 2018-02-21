@@ -6,7 +6,6 @@ type op = Add | Sub | Mult | Div | Assign | Eq | Peq | Neq | Less |
           Leq | Greater | Geq | And | Or | Mod | Dot_M |
           Mult_M | Div_M
 
-
 type uop = Neg | Not | Trans_M | Inv_M | Increment | Decrement
 
 (* Primitive Types *)
@@ -14,9 +13,6 @@ type typ =
     Int | Bool | Char | Float | Void | String
   | List of typ
   | Matrix of typ
-
-(* Data Types
-   type datatyp = String | List | Dict | Matrix *)
 
 type bind = typ * string
 
@@ -58,11 +54,6 @@ type func_decl = {
   locals: var_decl list;
   body: stmt list;
 }
-
-(* type class_decl = {
-  cname: string;
-  vbody: func_decl list;
-} *)
 
 type program = var_decl list * func_decl list
 
@@ -117,9 +108,11 @@ let rec string_of_expr = function
       "[" ^
       let rec print_list input_list = match (List.rev input_list) with
       | [s] -> s
+      | [] -> ""
       | e :: l -> e ^ ":" ^ print_list (List.rev l) in
       print_list (List.map ( let rec print_row = function
         | [s] -> string_of_expr s
+        | [] -> ""
         | h :: t -> string_of_expr h ^ "," ^ print_row t in
       fun anon -> print_row anon) rows)
       ^ "]"
