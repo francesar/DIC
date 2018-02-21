@@ -2,30 +2,30 @@
 ocamlbuild toplevel.native
 printf "Positive Test 1 contents:i\n"
 cat ./tests/pos1
-sleep 2
+sleep 1
 printf "\n./toplevel.native ./tests/pos1\n"
 sleep 2
 ./toplevel.native ./tests/pos1
 sleep 2
 printf "Positive Test 2 contents:\n"
 cat ./tests/pos2
-sleep 2
+sleep 1
 printf "\n./toplevel.native ./tests/pos2\n"
 sleep 2
 ./toplevel.native ./tests/pos2
 sleep 2
 printf "Positive Test 3 contents:\n"
 cat ./tests/pos3
-sleep 2
+sleep 1
 printf "\n./toplevel.native ./tests/pos3\n"
-sleep 2
+sleep 1
 ./toplevel.native ./tests/pos3
 sleep 2
 printf "Positive Test 4 contents:\n"
 cat ./tests/pos4
 sleep 2
 printf "\n./toplevel.native ./tests/pos4\n"
-sleep 2
+sleep 1
 ./toplevel.native ./tests/pos4
 sleep 2
 printf "Positive Test 5 contents:\n"
@@ -34,7 +34,7 @@ sleep 2
 printf "\n./toplevel.native ./tests/pos5\n"
 sleep 2
 cat ./tests/pos5
-sleep 2
+sleep 1
 ./toplevel.native ./tests/pos5
 sleep 2
 printf "Negative Test 1 contents:\n"
