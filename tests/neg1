@@ -1,1 +1,6 @@
-func int main(){
+func int GCD(int a, int b) {
+  if (b == 0) {
+    return a;
+  }
+  GCD(b, a%b);
+}
