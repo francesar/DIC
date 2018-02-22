@@ -1,4 +1,0 @@
-func int main () { 
-  char c = 'c';
-}
-
