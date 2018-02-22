@@ -122,7 +122,7 @@ let rec string_of_expr = function
 let rec string_of_typ = function
     Int -> "int"
   | Char -> "char"
-  | String -> "string" 
+  | String -> "string"
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
@@ -154,7 +154,6 @@ let string_of_vdecl = function
 
 let string_of_binding = function
   | (t, id) -> string_of_typ t ^ " " ^ id ^ ""
-
 
 let string_of_fdecl fdecl =
   "func " ^ string_of_typ fdecl.typ ^ " " ^

@@ -1,5 +1,4 @@
 #!/bin/bash
-ocamlbuild toplevel.native
 printf "Positive Test 1 tests functions with arguments:\n"
 cat ./tests/pos1
 sleep 2
