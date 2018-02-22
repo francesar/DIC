@@ -120,11 +120,15 @@ let rec string_of_expr = function
   | MatIndexAssign (v, e1, e2, e3) ->
     v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "] = " ^ string_of_expr e3
 
-let string_of_typ = function
+let rec string_of_typ = function
     Int -> "int"
+  | Char -> "char"
+  | String -> "string" 
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
+  | List(t) -> string_of_typ t ^ "[]"
+  | Matrix(t) -> string_of_typ t ^ "[][]"
 
 let string_of_vdecl = function
   | (t, id, exp) ->
@@ -143,16 +147,6 @@ let rec string_of_stmt = function
       "for (" ^ string_of_vdecl v1 ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3 ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let rec string_of_typ = function
-    Int -> "int"
-  | Char -> "char"
-  | String -> "string" 
-  | Bool -> "bool"
-  | Float -> "float"
-  | Void -> "void"
-  | List(t) -> string_of_typ t ^ "[]"
-  | Matrix(t) -> string_of_typ t ^ "[][]"
 
 let string_of_vdecl = function
   | (t, id, exp) ->

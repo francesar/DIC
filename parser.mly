@@ -29,9 +29,6 @@ open Ast
 %left INC DEC
 %right NOT NEG TRANSPOSE INVERSE
 
-/*%start expr_opt
-%type <Ast.expr_opt> expr_opt*/
-
 %start program
 %type <Ast.program> program
 
