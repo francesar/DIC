@@ -33,7 +33,6 @@ type expr =
   | Punop of expr * uop
   | Unop of uop * expr
   | Assign of string * expr
-
   | Call of string * expr list
   | Noexpr
 
@@ -118,7 +117,7 @@ let rec string_of_expr = function
       ^ "]"
   | MatIndex (v, e1, e2) -> v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "]"
   | MatIndexAssign (v, e1, e2, e3) ->
-    v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "] = " ^ string_of_expr e3
+      v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "] = " ^ string_of_expr e3
 
 let rec string_of_typ = function
     Int -> "int"
@@ -150,8 +149,8 @@ let rec string_of_stmt = function
 
 let string_of_vdecl = function
   | (t, id, exp) ->
-    if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";\n"
-    else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";\n"
+      if exp = Noexpr then string_of_typ t ^ " " ^ id ^ ";\n"
+      else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";\n"
 
 let string_of_binding = function
   | (t, id) -> string_of_typ t ^ " " ^ id ^ ""

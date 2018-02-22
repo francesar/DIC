@@ -8,57 +8,57 @@ let digits = digit+
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*"     { comment lexbuf }           (* Comments *)
-| "//"     { inline lexbuf }            (* Inline*)
+| "//"     { inline lexbuf  }           (* Inline*)
 (* Syntax *)
-| '('      { LPAREN }
-| ')'      { RPAREN }
-| '{'      { LBRACE }
-| '}'      { RBRACE }
-| '['      { LBRACK }
-| ']'      { RBRACK }
-| ':'      { COLON  }
-| ';'      { SEMI   }
-| ','      { COMMA  }
+| '('      { LPAREN      }
+| ')'      { RPAREN      }
+| '{'      { LBRACE      }
+| '}'      { RBRACE      }
+| '['      { LBRACK      }
+| ']'      { RBRACK      }
+| ':'      { COLON       }
+| ';'      { SEMI        }
+| ','      { COMMA       }
 (* Operators *)
-| '''      { TRANSPOSE }
-| '+'      { PLUS }
-| "++"	   { INC }
-| "--"     { DEC }
-| '-'      { MINUS }
-| '*'      { TIMES }
-| ".*"		 { TIMES_M }
-| "./"		 { DIVIDE_M }
-| "**"	   { DOT }
-| '~'	     { INVERSE }
-| '/'      { DIVIDE }
-| '%'      { MOD }
-| '='      { ASSIGN }
-| "=="     { EQ }
-| "==="    { PEQ}
-| "!="     { NEQ }
-| '<'      { LT }
-| "<="     { LEQ }
-| ">"      { GT }
-| ">="     { GEQ }
-| "&&"     { AND }
-| "||"     { OR }
-| "!"      { NOT }
+| '''      { TRANSPOSE   }
+| '+'      { PLUS        }
+| "++"     { INC         }
+| "--"     { DEC         }
+| '-'      { MINUS       }
+| '*'      { TIMES       }
+| ".*"     { TIMES_M     }
+| "./"     { DIVIDE_M    }
+| "**"     { DOT         }
+| '~'      { INVERSE     }
+| '/'      { DIVIDE      }
+| '%'      { MOD         }
+| '='      { ASSIGN      }
+| "=="     { EQ          }
+| "==="    { PEQ         }
+| "!="     { NEQ         }
+| '<'      { LT          }
+| "<="     { LEQ         }
+| ">"      { GT          }
+| ">="     { GEQ         }
+| "&&"     { AND         }
+| "||"     { OR          }
+| "!"      { NOT         }
 (* Control *)
-| "class"  { CLASS }
-| "func"   { FUNC }
-| "if"     { IF }
-| "else"   { ELSE }
-| "for"    { FOR }
-| "while"  { WHILE }
-| "return" { RETURN }
+| "class"  { CLASS       }
+| "func"   { FUNC        }
+| "if"     { IF          }
+| "else"   { ELSE        }
+| "for"    { FOR         }
+| "while"  { WHILE       }
+| "return" { RETURN      }
 (* Types *)
-| "int"    { INT  }
-| "char"   { CHAR }
-| "bool"   { BOOL }
-| "float"  { FLOAT }
-| "void"   { VOID }
-| "list"   { LIST }
-| "string" { STRING }
+| "int"    { INT         }
+| "char"   { CHAR        }
+| "bool"   { BOOL        }
+| "float"  { FLOAT       }
+| "void"   { VOID        }
+| "list"   { LIST        }
+| "string" { STRING      }
 (* Literals *)
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
@@ -71,9 +71,9 @@ rule token = parse
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
 and comment = parse
-  "*/" { token lexbuf }
+  "*/" { token lexbuf   }
 | _    { comment lexbuf }
 
 and inline = parse
-  '\n' { token lexbuf }
-| _    { inline lexbuf }
+  '\n' { token lexbuf   }
+| _    { inline lexbuf  }
