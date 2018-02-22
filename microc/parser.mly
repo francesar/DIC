@@ -15,6 +15,9 @@ open Ast
 %start program
 %type <Ast.program> program
 
+/* %start expr
+%type <Ast.expr> expr */
+
 %nonassoc NOELSE
 %nonassoc ELSE
 %right ASSIGN
@@ -26,7 +29,12 @@ open Ast
 %left TIMES DIVIDE
 %right NOT NEG
 
+/*%start expr_opt
+%type <Ast.expr> expr_opt
+*/
 
+%start program
+%type <Ast.program> program
 %%
 
 program:
@@ -82,7 +90,7 @@ stmt:
 
 expr_opt:
     /* nothing */ { Noexpr }
-  | expr          { $1 }
+  | expr         { $1 }
 
 expr:
     LITERAL          { Literal($1)            }

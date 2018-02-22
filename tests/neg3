@@ -1,0 +1,10 @@
+class checkassigns{
+  func int gcd(){
+    int i = 3;
+    float f = 7.0;
+    char c = 'a';
+    string s = hello";
+    int l = [1,2,3,4];
+    int m = [1,2:3,4];
+  }
+}

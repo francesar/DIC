@@ -1,0 +1,13 @@
+class calculateGCD{
+  func GCD(int a, int b) {
+    if (b == 0) {
+      return a;
+    }
+    GCD(b, a%b);
+  }
+  func int main() {
+    int gcd = GCD(6,21);
+    print(gcd);
+    return 1;
+  }
+}
