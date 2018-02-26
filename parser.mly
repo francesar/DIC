@@ -108,7 +108,7 @@ expr:
   | FALSE                             { BoolLit(false)                  }
   | SLIT                              { StringLit($1)                   }
   | ID                                { Id($1)                          }
-  | LBRACK args_opt RBRACK            { ListLit($2)                     }
+  /*| LBRACK args_opt RBRACK            { ListLit($2)                     }*/
   | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
   | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
