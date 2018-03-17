@@ -7,6 +7,18 @@ type func_symbol = func_decl StringMap.t
 (* args here might need to change since we accept classes OR statment blocks as valid programs *)
 let check (class, functions) = 
 
+  (* FUNCTIONS *)
+  let built_in_decls = 
+    let add_bind = map (ty, name) = StringMap.add name {
+      typ = Void;
+      fname = name;
+      formals = [(ty, "x")];
+      locals = []; 
+      body = []
+    } map 
+    (* Add built in function declarations into arr here *)
+    in List.fold_left add_bind StringMap.empty [(Int, "print");]
+
   (* adding functions to symbol table *)
   let add_func map fd = 
     let built_in_err = "function " ^ fd.name ^ " may not be defined"
