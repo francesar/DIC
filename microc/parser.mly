@@ -15,9 +15,6 @@ open Ast
 %start program
 %type <Ast.program> program
 
-/* %start expr
-%type <Ast.expr> expr */
-
 %nonassoc NOELSE
 %nonassoc ELSE
 %right ASSIGN
@@ -29,12 +26,7 @@ open Ast
 %left TIMES DIVIDE
 %right NOT NEG
 
-/*%start expr_opt
-%type <Ast.expr> expr_opt
-*/
 
-%start program
-%type <Ast.program> program
 %%
 
 program:
@@ -49,13 +41,13 @@ fdecl:
    typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { typ = $1;
 	 fname = $2;
-	 formals = $4;
+	 formals = List.rev $4;
 	 locals = List.rev $7;
 	 body = List.rev $8 } }
 
 formals_opt:
     /* nothing */ { [] }
-  | formal_list   { List.rev $1 }
+  | formal_list   { $1 }
 
 formal_list:
     typ ID                   { [($1,$2)]     }
@@ -90,7 +82,7 @@ stmt:
 
 expr_opt:
     /* nothing */ { Noexpr }
-  | expr         { $1 }
+  | expr          { $1 }
 
 expr:
     LITERAL          { Literal($1)            }
