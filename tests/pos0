@@ -2,6 +2,9 @@ class GCD{
   func int GCD(int a, int b) {
     int a = 1;
     if (a == 2) {
+    	if (b == 3) {
+    		int y;
+    	}
     	int z;
     }
     int b;
