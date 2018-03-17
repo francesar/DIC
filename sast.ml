@@ -1,31 +1,30 @@
-(* Semantically-checked Abstract Syntax Tree and functions for printing it *)
-
 open Ast
+
 type sexpr = typ * sx
 and sx =
-  SLiteral of int
-| SCliteral of string
-| SFliteral of string
-| SBoolLit of bool
-| SStringLit of string
-| SMatLit of sexpr list list (* Matrix literal *)
-| SMatIndex of string * sexpr * sexpr (* Matrix Access Index *)
-| SMatIndexAssign of string * sexpr * sexpr * sexpr (* Assign a Matrix Index *)
-| SListLit of sexpr list
-| SListIndex of string * sexpr
-| SListIndexAssign of string * sexpr * sexpr
-| SId of string
-| SBinop of sexpr * op * sexpr
-| SPunop of sexpr * uop
-| SUnop of uop * sexpr
-| SAssign of string * sexpr
-| SCall of string * sexpr list
-| SNoexpr
+  | SLit of int
+  | SCLit of string
+  | SFLit of string
+  | SBoolLit of bool
+  | SStringLit of string
+  | SMatLit of sexpr list list
+  | SMatIndex of string * sexpr * sexpr
+  | SMatIndexAssign of string * sexpr * sexpr * sexpr
+  | SListLit of sexpr list
+  | SListIndex of string * sexpr
+  | SListIndexAssign of string * sexpr * sexpr
+  | SId of string
+  | SBinop of sexpr * op * sexpr
+  | SPunop of sexpr * uop
+  | SUnop of uop * sexpr
+  | SAssign of string * sexpr
+  | SCall of string * sexpr list
+  | SNoExpr
 
-type svar_decl =  typ * string * sexpr
+type svar_decl = typ * string * sexpr
 
-type stmt =
-    SBlock of sstmt list
+type sstmt =
+  | SBlock of sstmt list
   | SExpr of sexpr
   | SReturn of sexpr
   | SIf of sexpr * sstmt * sstmt
