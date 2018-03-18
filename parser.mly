@@ -42,19 +42,19 @@ decls:
   /* nothing */ { ([], [])                  }
   | decls stmt  { ([], [])                  }
   | decls vdecl { (($2 :: fst $1), snd $1)  }
-  | decls fdecl { (fst $1, ($2 :: snd $1))  }
+  | decls fdecl { (fst $1, List.rev ($2 :: snd $1))  }
 
 fdecl:
-  FUNC typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+  FUNC typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
     {{  typ = $2;
         fname = $3;
         formals = $5;
-        locals = List.rev $8;
-        body = List.rev $9  }}
+        body = List.rev $8  }}
 
 formals_opt:
   /* nothing */ { []          }
   | formal_list { List.rev $1 }
+
 
 formal_list:
   typ ID                     { [($1, $2)]     }
@@ -72,22 +72,25 @@ list_type:
     typ LBRACK RBRACK               { List($1)    }
   | typ LBRACK RBRACK LBRACK RBRACK { Matrix($1)  }
 
+/*
 vdecl_list:
-  /* nothing */      { []       }
-  | vdecl_list vdecl { $2 :: $1 }
+  /* nothing      { []       }
+  | vdecl_list vdecl { $2 :: $1 }*/
 
 vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }
   | list_type ID SEMI             { ($1, $2, Noexpr)  }
-  | typ ID ASSIGN expr SEMI       { ($1, $2, $4)      }
+  | typ ID ASSIGN expr SEMI      { ($1, $2, $4)      }
   | list_type ID ASSIGN expr SEMI { ($1, $2, $4)      }
 
 stmt_list:
   /* nothing */    { []       }
   | stmt_list stmt { $2 :: $1 }
+  | stmt_list vdecl { Vdecl($2) :: $1}
+
 
 stmt:
-    expr SEMI                                 { Expr $1                 }
+  | expr SEMI                                 { Expr $1                 }
   | RETURN expr_opt SEMI                      { Return $2               }
   | LBRACE stmt_list RBRACE                   { Block(List.rev $2)      }
   | IF LPAREN expr RPAREN stmt %prec NOELSE   { If($3, $5, Block([]))   }
@@ -95,6 +98,7 @@ stmt:
   | FOR LPAREN vdecl expr SEMI expr_opt RPAREN stmt 
                                               { For($3, $4, $6, $8)     }
   | WHILE LPAREN expr RPAREN stmt             { While($3, $5)           }
+
 
 expr_opt:
     /* nothing */ { Noexpr }

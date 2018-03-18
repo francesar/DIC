@@ -1,4 +1,9 @@
 #!/bin/bash
+printf "Positive Test 0 tests variable/statement ordering:\n"
+cat ./tests/pos0
+sleep 2
+printf "output: \n"
+./toplevel.native ./tests/pos0
 printf "Positive Test 1 tests functions with arguments:\n"
 cat ./tests/pos1
 sleep 2
