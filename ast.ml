@@ -45,12 +45,12 @@ type stmt =
   | If of expr * stmt * stmt
   | For of var_decl * expr * expr * stmt
   | While of expr * stmt
+  | Vdecl of var_decl
 
 type func_decl = {
   typ: typ;
   fname: string;
   formals: bind list;
-  locals: var_decl list;
   body: stmt list;
 }
 
@@ -135,7 +135,9 @@ let string_of_vdecl = function
     else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";"
 
 let rec string_of_stmt = function
-    Block(stmts) ->
+  | Vdecl(vdecls) ->
+      string_of_vdecl vdecls ^ "\n"
+  | Block(stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | Expr(expr) -> string_of_expr expr ^ ";\n";
   | Return(expr) -> "return " ^ string_of_expr expr ^ "; \n";
@@ -159,7 +161,6 @@ let string_of_fdecl fdecl =
   "func " ^ string_of_typ fdecl.typ ^ " " ^
   fdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_binding fdecl.formals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^ "\n" ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
