@@ -2,7 +2,7 @@
 
 (* Operators *)
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
-type op = Add | Sub | Mult | Div | Assign | Eq | Peq | Neq | Less |
+type op = Add | Sub | Mult | Div | Assign | Eq | Neq | Less |
           Leq | Greater | Geq | And | Or | Mod | Dot_M |
           Mult_M | Div_M
 
