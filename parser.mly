@@ -36,7 +36,7 @@ open Ast
 
 program:
 | CLASS ID LBRACE decls RBRACE EOF { ($2, $4) }
-
+| decls                            { ( $1 )}
 
 decls:
   /* nothing */ { ([], [])                  }
@@ -80,7 +80,7 @@ vdecl_list:
 vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }
   | list_type ID SEMI             { ($1, $2, Noexpr)  }
-  | typ ID ASSIGN expr SEMI      { ($1, $2, $4)      }
+  | typ ID ASSIGN expr SEMI       { ($1, $2, $4)      }
   | list_type ID ASSIGN expr SEMI { ($1, $2, $4)      }
 
 stmt_list:

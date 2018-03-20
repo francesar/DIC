@@ -54,7 +54,18 @@ type func_decl = {
   body: stmt list;
 }
 
-type program = string * (var_decl list * func_decl list)
+type class_decl = {
+  class_name: string;
+  instance_vars: var_decl list;
+  constructor: func_decl;
+  methods: func_decl list;
+} 
+
+type program = 
+  | Script of string * (var_decl list * func_decl list) 
+  | Clss of class_decl 
+
+(* type program = string * (var_decl list * func_decl list) *)
 
 let string_of_op = function
     Add -> "+"
@@ -135,8 +146,8 @@ let string_of_vdecl = function
     else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_expr exp ^ ";"
 
 let rec string_of_stmt = function
-  | Vdecl(vdecls) ->
-      string_of_vdecl vdecls ^ "\n"
+  | Vdecl(vdecl) ->
+      string_of_vdecl vdecl ^ "\n"
   | Block(stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | Expr(expr) -> string_of_expr expr ^ ";\n";
@@ -164,8 +175,14 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_program (name, (vars, funcs)) =
-  "class " ^ name ^ " {" ^
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_fdecl funcs) ^
-  "}\n"
+let string_of_classdecl class_decl = 
+  "class " ^ class_decl.class_name ^ " \n" ^
+  "instance_vars " ^ String.concat ", " (List.map string_of_vdecl class_decl.instance_vars) ^ " \n" ^
+  "constructor " ^ string_of_fdecl class_decl.constructor ^ " \n" ^
+  "methods " ^ String.concat ", " (List.map string_of_fdecl class_decl.methods) ^ "\n"
+
+let string_of_program program = function
+  | Script(name, (vars, funcs)) -> String.concat ", " (List.map string_of_vdecl vars) ^ "\n" ^ 
+    String.concat ", " (List.map string_of_fdecl funcs) ^ "\n"
+  | Clss(clss) -> string_of_classdecl clss
+

@@ -5,7 +5,7 @@ module StringMap = Map.Make(String)
 type func_symbol = func_decl StringMap.t
 
 (* args here might need to change since we accept classes OR statment blocks as valid programs *)
-let check (class, functions) = 
+(* let check (class, functions) = 
 
   (* FUNCTIONS *)
   let built_in_decls = 
@@ -117,6 +117,6 @@ let check (class, functions) =
         in 
         let args' = List.map2 check_call fd.formals args
         in (fd.typ, SCall(fname, args'))
-  in
+  in  *)
 
   (* lots of code moreee *)
