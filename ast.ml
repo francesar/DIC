@@ -10,9 +10,9 @@ type uop = Neg | Not | Trans_M | Inv_M | Increment | Decrement
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String
-  | List of typ
-  | Matrix of typ
+    Int | Bool | Char | Float | Void | String | List | Matrix
+  (* | List of typ
+  | Matrix of typ *)
 
 type bind = typ * string
 
@@ -65,7 +65,6 @@ let string_of_op = function
   | Div_M -> "./"
   | Assign -> "="
   | Eq -> "=="
-  | Peq -> "==="
   | Neq -> "!="
   | Less -> "<"
   | Leq -> "<="
@@ -126,8 +125,10 @@ let rec string_of_typ = function
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
-  | List(t) -> string_of_typ t ^ "[]"
-  | Matrix(t) -> string_of_typ t ^ "[][]"
+  | List ->  "list"
+  | Matrix -> "matrix"
+  (* | List(t) -> string_of_typ t ^ "[]"
+  | Matrix(t) -> string_of_typ t ^ "[][]" *)
 
 let string_of_vdecl = function
   | (t, id, exp) ->
