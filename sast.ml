@@ -30,12 +30,12 @@ type sstmt =
   | SIf of sexpr * sstmt * sstmt
   | SFor of svar_decl * sexpr * sexpr * sstmt
   | SWhile of sexpr * sstmt
+  | SVdecl of svar_decl
 
 type sfunc_decl = {
   styp: typ;
   sfname: string;
   sformals: bind list;
-  slocals: svar_decl list;
   sbody: sstmt list;
 }
 
