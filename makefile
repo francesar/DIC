@@ -4,6 +4,9 @@ build:
 test: build
 	./testscript
 
+menhir:
+	menhir --interpret --interpret-show-cst parser.mly
+
 .PHONY: clean
 
 clean:

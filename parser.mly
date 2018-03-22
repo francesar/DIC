@@ -35,14 +35,24 @@ open Ast
 %%
 
 program:
-| CLASS ID LBRACE decls RBRACE EOF { ($2, $4) }
-| decls                            { ( $1 )}
+  | class_decl EOF { Clss(fst $1, snd $1) }
+  | script_decls EOF { Script($1) }
 
-decls:
+script_decls:
   /* nothing */ { ([], [])                  }
-  | decls stmt  { ([], [])                  }
-  | decls vdecl { (($2 :: fst $1), snd $1)  }
-  | decls fdecl { (fst $1, List.rev ($2 :: snd $1))  }
+  | script_decls stmt  { ([], [])                  }
+  | script_decls vdecl { (($2 :: fst $1), snd $1)  }
+  | script_decls fdecl { (fst $1, List.rev ($2 :: snd $1))  }
+
+class_body:
+  | /* nothing */ { ([], [])                  }
+  | class_body vdecl { (($2 :: fst $1), snd $1) }
+  | class_body fdecl { (fst $1, List.rev ($2 :: snd $1)) }
+
+class_decl: 
+  CLASS ID LBRACE class_body RBRACE EOF   { ($2, $4)} 
+    /* {{ class_name = $2 
+       body = $4  }} */
 
 fdecl:
   FUNC typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
@@ -72,11 +82,6 @@ list_type:
     typ LBRACK RBRACK               { List($1)    }
   | typ LBRACK RBRACK LBRACK RBRACK { Matrix($1)  }
 
-/*
-vdecl_list:
-  /* nothing      { []       }
-  | vdecl_list vdecl { $2 :: $1 }*/
-
 vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }
   | list_type ID SEMI             { ($1, $2, Noexpr)  }
@@ -88,17 +93,15 @@ stmt_list:
   | stmt_list stmt { $2 :: $1 }
   | stmt_list vdecl { Vdecl($2) :: $1}
 
-
 stmt:
   | expr SEMI                                 { Expr $1                 }
   | RETURN expr_opt SEMI                      { Return $2               }
   | LBRACE stmt_list RBRACE                   { Block(List.rev $2)      }
-  | IF LPAREN expr RPAREN stmt %prec NOELSE   { If($3, $5, Block([]))   }
-  | IF LPAREN expr RPAREN stmt ELSE stmt      { If($3, $5, $7)          }
-  | FOR LPAREN vdecl expr SEMI expr_opt RPAREN stmt 
-                                              { For($3, $4, $6, $8)     }
+  | IF LPAREN expr_opt RPAREN stmt %prec NOELSE   { If($3, $5, Block([]))   }
+  | IF LPAREN expr_opt RPAREN stmt ELSE stmt      { If($3, $5, $7)          }
+  | FOR LPAREN vdecl SEMI expr SEMI expr_opt RPAREN stmt 
+                                              { For($3, $5, $7, $9)     }
   | WHILE LPAREN expr RPAREN stmt             { While($3, $5)           }
-
 
 expr_opt:
     /* nothing */ { Noexpr }
