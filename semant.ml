@@ -157,10 +157,11 @@ let rec check_stmt = function
         Failure ("return gives " ^ string_of_typ t ^ " expected " ^
                  string_of_typ func.typ ^ " in " ^ string_of_expr e))
   (* Check bindings and add to symbol table *)
-  | VDecl(ty, s, e) -> let [(ty, s)] = local_bind in
+  | VDecl(ty, s, e) -> let (t,e') = expr e in
+    if t = ty then let local_bind = [(ty, s)] in
     let local' = check_binds "local" local_bind in
     let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
-    symbols (local')
+        symbols (local') in  SVdecl(ty,s,e')
   (* A block is correct if each statement is correct and nothing
      follows any Return statement.  Nested blocks are flattened. *)
   | Block sl ->
