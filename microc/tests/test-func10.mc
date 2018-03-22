@@ -1,4 +1,4 @@
-void foo(int a)
+float foo(int a)
 {
   print(a + 3);
 }
