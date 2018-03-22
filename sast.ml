@@ -39,7 +39,9 @@ type sfunc_decl = {
   sbody: sstmt list;
 }
 
-type sprogram = string * (svar_decl list * sfunc_decl list)
+type sprogram = 
+  | Clss  of string * (svar_decl list * sfunc_decl list)
+  | Script of (var_decl list * func_decl list)
 
 (* Pretty printing functions *)
 
@@ -107,8 +109,11 @@ let string_of_sfdecl fdecl =
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
-let string_of_sprogram (name, (vars, funcs)) =
-  "class " ^ name ^ " {" ^
-  String.concat "" (List.map string_of_svdecl vars) ^ "\n" ^
+let string_of_sprogram program =
+  match program with
+  | Clss(name, (vars, funcs)) -> "class " ^ name ^ " {" ^
+  String.concat ", " (List.map string_of_svdecl vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_sfdecl funcs) ^
   "}\n"
+  | Script(vars, funcs) -> String.concat ", " (List.map string_of_vdecl vars) ^ "\n" ^
+  String.concat ", " (List.map string_of_fdecl funcs) ^ "\n"
