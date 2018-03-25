@@ -9,16 +9,16 @@ let check (var_decls, func_decls) =
 
   (* Check if a certain kind of binding has void type or is a duplicate
      of another, previously checked binding *)
-     let check_binds (kind : string) (to_check : bind list) = 
+     let check_binds (kind : string) (to_check : var_decl list) = 
       let check_it checked binding = 
         let void_err = "illegal void " ^ kind ^ " " ^ snd binding
         and dup_err = "duplicate " ^ kind ^ " " ^ snd binding
         in match binding with
           (* No void bindings *)
-          (Void, _) -> raise (Failure void_err)
-        | (_, n1) -> match checked with
+        | (Void, _, _) -> raise (Failure void_err)
+        | (_, n1, _) -> match checked with
                       (* No duplicate bindings *)
-                        ((_, n2) :: _) when n1 = n2 -> raise (Failure dup_err)
+                      | ((_, n2, _) :: _) when n1 = n2 -> raise (Failure dup_err)
                       | _ -> binding :: checked
       in let _ = List.fold_left check_it [] (List.sort compare to_check) 
          in to_check
@@ -64,6 +64,7 @@ let check (var_decls, func_decls) =
   (* Make sure main function is defined *)
   let _ = find_func "main"
   in
+
   let check_function func =
     let formals' = check_binds "formal" func.formals in
 
@@ -164,10 +165,10 @@ let check (var_decls, func_decls) =
 
     let rec check_stmt = function 
       | Expr e -> SExpr (expr e)
-      | Vdecl(typ, id, e) -> 
+      | Vdecl (typ, id, expr) -> check_binds "locals" (typ, id, expr)
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
       | For(e1, e2, e3, st) ->
-	  SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
+	  SFor(check_binds "local_for" e1, check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
         if t = func.typ then SReturn (t, e') 
