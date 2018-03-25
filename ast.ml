@@ -65,7 +65,6 @@ let string_of_op = function
   | Div_M -> "./"
   | Assign -> "="
   | Eq -> "=="
-  | Peq -> "==="
   | Neq -> "!="
   | Less -> "<"
   | Leq -> "<="

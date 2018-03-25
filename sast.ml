@@ -30,6 +30,7 @@ type sstmt =
   | SIf of sexpr * sstmt * sstmt
   | SFor of svar_decl * sexpr * sexpr * sstmt
   | SWhile of sexpr * sstmt
+  | SVdecl of svar_decl
 
 type sfunc_decl = {
   styp: typ;
@@ -45,9 +46,9 @@ type sprogram = string * (svar_decl list * sfunc_decl list)
 
 let rec string_of_sexpr (t, e) =
   "(" ^ string_of_typ t ^ " : " ^ (match e with
-    SLiteral(l) -> string_of_int l
-  | SCliteral(c) -> c
-  | SFliteral(l) -> l
+    SLit(l) -> string_of_int l
+  | SCLit(c) -> c
+  | SFLit(l) -> l
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
   | SStringLit(s) -> s
@@ -59,7 +60,7 @@ let rec string_of_sexpr (t, e) =
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
   | SCall(f, el) ->
     f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
-  | SNoexpr -> ""
+  | SNoExpr -> ""
   | SListLit(el) -> "[" ^ String.concat ", " (List.map string_of_sexpr el) ^ "]"
   | SListIndex(v,e) -> v ^ "[" ^ string_of_sexpr e ^ "]"
   | SListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
@@ -80,18 +81,16 @@ let rec string_of_sexpr (t, e) =
     v ^ "[" ^ string_of_sexpr e1 ^ "]" ^ "[" ^ string_of_sexpr e2 ^ "] = " ^ string_of_sexpr e3
   ) ^ ")"
 
-(* Not sure if I did this correctly, will revisit *)
+(* Awkard dangling = if exp is NoExpr *)
 let string_of_svdecl = function
-  | (t, id, exp) ->
-    if exp = SNoexpr then string_of_typ t ^ " " ^ id ^ ";"
-    else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr exp ^ ";"
+  | (t, id, exp) -> string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr exp ^ ";"
 
 let rec string_of_sstmt = function
     SBlock(stmts) ->
     "{\n" ^ String.concat "" (List.map string_of_sstmt stmts) ^ "}\n"
   | SExpr(expr) -> string_of_sexpr expr ^ ";\n";
   | SReturn(expr) -> "return " ^ string_of_sexpr expr ^ "; \n";
-  | SIf(e, s, Block([])) -> "if (" ^ string_of_sexpr e ^ ")\n" ^ string_of_sstmt s
+  | SIf(e, s, SBlock([])) -> "if (" ^ string_of_sexpr e ^ ")\n" ^ string_of_sstmt s
   | SIf(e, s1, s2) -> "if (" ^ string_of_sexpr e ^ ")\n" ^
                      string_of_sstmt s1 ^ "else\n" ^ string_of_sstmt s2
   | SFor( v1, e2, e3, s) ->

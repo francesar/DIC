@@ -5,26 +5,46 @@ module StringMap = Map.Make(String)
 type func_symbol = func_decl StringMap.t
 
 (* args here might need to change since we accept classes OR statment blocks as valid programs *)
-let check (class, functions) =
+let check (var_decls, func_decls) =
+
+  (* Check if a certain kind of binding has void type or is a duplicate
+     of another, previously checked binding *)
+     let check_binds (kind : string) (to_check : bind list) = 
+      let check_it checked binding = 
+        let void_err = "illegal void " ^ kind ^ " " ^ snd binding
+        and dup_err = "duplicate " ^ kind ^ " " ^ snd binding
+        in match binding with
+          (* No void bindings *)
+          (Void, _) -> raise (Failure void_err)
+        | (_, n1) -> match checked with
+                      (* No duplicate bindings *)
+                        ((_, n2) :: _) when n1 = n2 -> raise (Failure dup_err)
+                      | _ -> binding :: checked
+      in let _ = List.fold_left check_it [] (List.sort compare to_check) 
+         in to_check
+    in 
+
+    let var_decls = check_binds "var_decls" var_decls in 
 
   (* FUNCTIONS *)
   let built_in_decls =
-    let add_bind = map (ty, name) = StringMap.add name {
+    let add_bind map (ty, name) = StringMap.add name {
       typ = Void;
       fname = name;
       formals = [(ty, "x")];
-      locals = [];
       body = []
     } map
     (* Add built in function declarations into arr here *)
     in List.fold_left add_bind StringMap.empty [(Int, "print");]
 
+  in
+
   (* adding functions to symbol table *)
   let add_func map fd =
-    let built_in_err = "function " ^ fd.name ^ " may not be defined"
-    and dup_err = "duplicate function " ^ fd.name
+    let built_in_err = "function " ^ fd.fname ^ " may not be defined"
+    and dup_err = "duplicate function " ^ fd.fname
     and make_err err = raise (Failure err)
-    and n = fd.name
+    and n = fd.fname
     in match fd with
       | _ when StringMap.mem n built_in_decls -> make_err built_in_err
       | _ when StringMap.mem n map -> make_err dup_err
@@ -32,13 +52,13 @@ let check (class, functions) =
   in
 
   (* Add functions to function symbol table *)
-  let function_decls = List.fold_left add_func built_in_decls functions
+  let function_decls = List.fold_left add_func built_in_decls func_decls
   in
 
   (* Finds and returns functions in function symbol table *)
   let find_func s =
     try StringMap.find s function_decls
-    with Not_Found -> raise (Failure ("unrecognized function " ^ s))
+    with Not_found -> raise (Failure ("unrecognized function " ^ s))
   in
 
   (* Make sure main function is defined *)
@@ -46,7 +66,6 @@ let check (class, functions) =
   in
   let check_function func =
     let formals' = check_binds "formal" func.formals in
-    let locals' = check_binds "local" func.locals in
 
   (* Raise an exception if the given rvalue type cannot be assigned to
       the given lvalue type *)
@@ -56,7 +75,8 @@ let check (class, functions) =
 
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
-                  StringMap.empty (globals' @ formals' @ locals' )
+                  StringMap.empty (formals')
+                  (* StringMap.empty (globals' @ formals' @ locals' ) *)
     in
 
     (* Return a variable from our local symbol table *)
@@ -67,12 +87,12 @@ let check (class, functions) =
 
     (* Return a semantically-checked expression*)
     let rec expr = function
-        Literal l   -> (Int, SLiteral l)
-      | Cliteral l  -> (Char, SCliteral l)
-      | Fliteral l  -> (Float, SFliteral l)
+        Literal l   -> (Int, SLit l)
+      | Cliteral l  -> (Char, SCLit l)
+      | Fliteral l  -> (Float, SFLit l)
       | BoolLit l   -> (Bool, SBoolLit l)
       | StringLit s -> (String, SStringLit s)
-      | Noexpr      -> (Void, SNoexpr)
+      | Noexpr      -> (Void, SNoExpr)
       | Id s        -> (type_of_identifier s, SId s)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var
@@ -80,7 +100,8 @@ let check (class, functions) =
         let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^
           string_of_typ rt ^ " in " ^ string_of_expr ex
         in (check_assign lt rt err, SAssign(var, (rt, e')))
-      | Punop(op, e) as ex ->
+      (* temporarily closed:
+        | Punop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
             Neg when t = Int || t = Float -> t
@@ -88,18 +109,18 @@ let check (class, functions) =
           | _ -> raise (Failure ("illegal unary operator" ^
                                  string_of_uop ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
-        in (ty, SPunop(op, (t, e')))
-      | Unop(e, op) as ex ->
+        in (ty, SPunop(op, (t, e'))) *)
+      | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
-            Trans_M when t = Matrix -> t
-          | Inv_M when t = Matrix -> t
+            (* Trans_M when t = Matrix -> t
+          | Inv_M when t = Matrix -> t *)
           | Increment when t = Int || t = Float -> t
           | Decrement when t = Int || t = Float -> t
           | _ -> raise (Failure ("illegal unary operator" ^
-                                 string_of_uop ^ string_of_typ t ^
+                                 string_of_uop op ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
-        in (ty, Sunop(op, (t, e')))
+        in (ty, SUnop(op, (t, e')))
       | Binop(e1, op, e2) as e ->
         let (t1, e1') = expr e1
         and (t2, e2') = expr e2 in
@@ -109,7 +130,7 @@ let check (class, functions) =
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div when same && t1 = Float -> Float
-          | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix
+          (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
           | Eq | Neq            when same               -> Bool
           | Less | Leq | Greater | Geq
             when same && (t1 = Int || t1 = Float) -> Bool
@@ -133,3 +154,44 @@ let check (class, functions) =
           in
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+    in 
+
+    let check_bool_expr e = 
+      let (t', e') = expr e 
+      and err = "expected Boolean expression in " ^ string_of_expr e
+      in if t' != Bool then raise (Failure err) else (t', e')
+    in 
+
+    let rec check_stmt = function 
+      | Expr e -> SExpr (expr e)
+      | Vdecl(typ, id, e) -> 
+      | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
+      | For(e1, e2, e3, st) ->
+	  SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
+      | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
+      | Return e -> let (t, e') = expr e in
+        if t = func.typ then SReturn (t, e') 
+        else raise (
+	  Failure ("return gives " ^ string_of_typ t ^ " expected " ^
+		   string_of_typ func.typ ^ " in " ^ string_of_expr e))
+	    
+	    (* A block is correct if each statement is correct and nothing
+	       follows any Return statement.  Nested blocks are flattened. *)
+      | Block sl -> 
+          let rec check_stmt_list = function
+              [Return _ as s] -> [check_stmt s]
+            | Return _ :: _   -> raise (Failure "nothing may follow a return")
+            | Block sl :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
+            | s :: ss         -> check_stmt s :: check_stmt_list ss
+            | []              -> []
+          in SBlock(check_stmt_list sl)
+    in (* body of check_function *)
+      { styp = func.typ;
+        sfname = func.fname;
+        sformals = formals';
+        sbody = match check_stmt (Block func.body) with
+    SBlock(sl) -> sl
+        | _ -> let err = "internal error: block didn't become a block?"
+        in raise (Failure err)
+      }
+    in (var_decls', List.map check_function func_decls)
