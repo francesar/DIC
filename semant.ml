@@ -5,14 +5,14 @@ module StringMap = Map.Make(String)
 type func_symbol = func_decl StringMap.t
 
 (* args here might need to change since we accept classes OR statment blocks as valid programs *)
-let check (var_decls, func_decls) =
+let check (pname, var_decls, func_decls) =
 
   (* Check if a certain kind of binding has void type or is a duplicate
      of another, previously checked binding *)
-     let check_binds (kind : string) (to_check : var_decl list) = 
-      let check_it checked binding = 
-        let void_err = "illegal void " ^ kind ^ " " ^ snd binding
-        and dup_err = "duplicate " ^ kind ^ " " ^ snd binding
+     (* let check_var_decls (kind : string) (to_check : var_decl list) = 
+      let check_it checked (binding :var_decl) = 
+        let void_err = "illegal void "
+        and dup_err = "duplicate " (* ^ kind ^ " " ^ snd binding *)
         in match binding with
           (* No void bindings *)
         | (Void, _, _) -> raise (Failure void_err)
@@ -20,11 +20,34 @@ let check (var_decls, func_decls) =
                       (* No duplicate bindings *)
                       | ((_, n2, _) :: _) when n1 = n2 -> raise (Failure dup_err)
                       | _ -> binding :: checked
+      in let _ = List.fold_left check_it [] (List.sort compare to_check)
+         in to_check
+    in 
+    let var_decls' = check_var_decls "var_decls" var_decls in  *)
+
+
+
+    let check_binds (kind : string) (to_check : bind list) =
+      let check_it checked binding = 
+        let void_err = "illegal void " ^ kind ^ " " ^ snd binding
+        and dup_err = "duplicate " ^ kind ^ " " ^ snd binding
+        in match binding with
+          (* No void bindings *)
+        | (Void, _) -> raise (Failure void_err)
+        | (_, n1) -> match checked with
+                      (* No duplicate bindings *)
+                      | ((_, n2) :: _) when n1 = n2 -> raise (Failure dup_err)
+                      | _ -> binding :: checked
       in let _ = List.fold_left check_it [] (List.sort compare to_check) 
          in to_check
     in 
 
-    let var_decls = check_binds "var_decls" var_decls in 
+    let convert_var_decl (kind : string) (input_list : var_decl list) = 
+      let to_bind (ty, s, e) = (ty, s) in 
+      let new_list = List.map to_bind input_list in
+      check_binds kind new_list
+    in
+    let var_decls' = convert_var_decl "var_decls" var_decls in
 
   (* FUNCTIONS *)
   let built_in_decls =
@@ -163,12 +186,26 @@ let check (var_decls, func_decls) =
       in if t' != Bool then raise (Failure err) else (t', e')
     in 
 
+    let check_vdecl = function
+      | (typ, id, e) -> 
+        let _ = convert_var_decl "locals" [(typ, id, e)] in
+          (typ, id, expr e)
+
+    in 
+
     let rec check_stmt = function 
       | Expr e -> SExpr (expr e)
-      | Vdecl (typ, id, expr) -> check_binds "locals" (typ, id, expr)
+      | Vdecl (typ, id, e) -> (* 
+          check_vdecl(typ, id, e) *)
+          let _ = convert_var_decl "locals" [(typ, id, e)] in
+          SVdecl(typ, id, expr e)
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
-      | For(e1, e2, e3, st) ->
-	  SFor(check_binds "local_for" e1, check_bool_expr e2, expr e3, check_stmt st)
+      | For(v1, e2, e3, st) ->
+       (* let _ = convert_var_decl "local_for" [v1] in
+       let p = match v1 with
+       | (typ, id, e) -> SVdecl(typ, id, expr e)
+     in *)
+	  SFor( check_vdecl v1, check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
         if t = func.typ then SReturn (t, e') 
@@ -195,4 +232,4 @@ let check (var_decls, func_decls) =
         | _ -> let err = "internal error: block didn't become a block?"
         in raise (Failure err)
       }
-    in (var_decls', List.map check_function func_decls)
+    in (pname, var_decls', List.map check_function func_decls)

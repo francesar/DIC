@@ -36,7 +36,7 @@ type sfunc_decl = {
   styp: typ;
   sfname: string;
   sformals: bind list;
-  slocals: svar_decl list;
+  (* slocals: svar_decl list; *)
   sbody: sstmt list;
 }
 
@@ -102,7 +102,7 @@ let string_of_sfdecl fdecl =
   "func " ^ string_of_typ fdecl.styp ^ " " ^
   fdecl.sfname ^ "(" ^ String.concat ", " (List.map string_of_binding fdecl.sformals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_svdecl fdecl.slocals) ^ "\n" ^
+  (* String.concat "" (List.map string_of_svdecl fdecl.slocals) ^ "\n" ^ *)
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
