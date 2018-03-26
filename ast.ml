@@ -165,6 +165,6 @@ let string_of_fdecl fdecl =
 
 let string_of_program (name, (vars, funcs)) =
   "class " ^ name ^ " {" ^
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+  String.concat "" (List.map string_of_binding vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs) ^
   "}\n"

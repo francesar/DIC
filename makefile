@@ -1,5 +1,5 @@
 build:
-	ocamlbuild toplevel.native
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 toplevel.native
 
 test: build
 	./testscript
