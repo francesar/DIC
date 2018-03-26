@@ -5,7 +5,7 @@ module StringMap = Map.Make(String)
 type func_symbol = func_decl StringMap.t
 
 (* args here might need to change since we accept classes OR statment blocks as valid programs *)
-let check (pname, var_decls, func_decls) =
+let check (pname, (var_decls, func_decls)) =
 
   (* Check if a certain kind of binding has void type or is a duplicate
      of another, previously checked binding *)
@@ -58,7 +58,7 @@ let check (pname, var_decls, func_decls) =
       body = []
     } map
     (* Add built in function declarations into arr here *)
-    in List.fold_left add_bind StringMap.empty [(Int, "print");]
+    in List.fold_left add_bind StringMap.empty [(Int, "print");(String, "printstr");]
 
   in
 

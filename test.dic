@@ -1,0 +1,5 @@
+class Test {
+    func void main() {
+        print(1);
+    }
+}

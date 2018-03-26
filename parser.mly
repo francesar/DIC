@@ -128,8 +128,7 @@ expr:
   | expr DIVIDE   expr                { Binop($1, Div,   $3)            }
   | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            }
   | expr MOD      expr                { Binop($1, Mod,   $3)            }
-  | expr EQ       expr                { Binop($1, Eq,    $3)            }
-  | expr PEQ      expr                { Binop($1, Peq,   $3)            }
+  | expr EQ       expr                { Binop($1, Eq,    $3)            }       
   | expr NEQ      expr                { Binop($1, Neq,   $3)            }
   | expr LT       expr                { Binop($1, Less,  $3)            }
   | expr LEQ      expr                { Binop($1, Leq,   $3)            }

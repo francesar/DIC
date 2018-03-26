@@ -106,8 +106,10 @@ let string_of_sfdecl fdecl =
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
-let string_of_sprogram (name, (vars, funcs)) =
+
+let string_of_sprogram (name, vars, funcs) =
   "class " ^ name ^ " {" ^
-  String.concat "" (List.map string_of_svdecl vars) ^ "\n" ^
+  String.concat "" (List.map string_of_binding vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_sfdecl funcs) ^
   "}\n"
+  (* not converting list of bindings to list of svdecl *)

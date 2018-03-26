@@ -18,7 +18,7 @@ let translate (globals, functions) =
   and the_module = L.create_module context "DIC" in
 
   let ltype_of_typ = function
-  	| A.Int    -> i32_t
+  | A.Int    -> i32_t
 	| A.Bool   -> i1_t
 	| A.Float  -> float_t
 	| A.Void   -> void_t
