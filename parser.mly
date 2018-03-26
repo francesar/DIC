@@ -110,7 +110,7 @@ expr:
   | FLIT                              { Fliteral($1)                    }
   | TRUE                              { BoolLit(true)                   }
   | FALSE                             { BoolLit(false)                  }
-  | SLIT                              { StringLit($1)                   }
+  | QUOTE ID QUOTE                    { StringLit($2)                   }
   | ID                                { Id($1)                          }
   /*| LBRACK args_opt RBRACK            { ListLit($2)                     }*/
   | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }

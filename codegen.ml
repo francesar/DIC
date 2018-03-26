@@ -38,11 +38,11 @@ let translate (name, globals, functions) =
      * Adding a new instruction mutates both the_module and builder. *) 
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let string_format_str = L.build_global_stringptr ("%s\n") "fmt" builder in
+    let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
 
     let rec expr builder ((_, e) : sexpr) = match e with 
       | SLit i -> L.const_int i32_t i
-      | SStringLit s -> string_format_str  
+      | SStringLit s -> L.build_global_stringptr s "tmp" builder 
       | SCall("printstr", [e]) -> 
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
       | _ -> to_imp (string_of_sexpr (A.Int, e))
