@@ -1,6 +1,6 @@
 class test{
   func int main() {
-    printstr("test");
+    printstr("hello world");
     return 0;        
   }
 }
