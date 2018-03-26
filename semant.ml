@@ -57,7 +57,9 @@ let check (pname, (var_decls, func_decls)) =
       formals = [(ty, "x")];
       body = []
     } map
-    (* Add built in function declarations into arr here *)
+    (* Add built in function declarations into arr here 
+      Convert any datatype into string for print
+    *)
     in List.fold_left add_bind StringMap.empty [(Int, "print");(String, "printstr");]
 
   in
