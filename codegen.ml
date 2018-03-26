@@ -15,6 +15,7 @@ let translate (name, globals, functions) =
   and the_module = L.create_module context "DIC" in
 
   let ltype_of_typ = function 
+    | A.Int -> i32_t
     | A.String -> i8_t 
     | A.Void  -> void_t
     | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet"))
@@ -37,23 +38,24 @@ let translate (name, globals, functions) =
      * Adding a new instruction mutates both the_module and builder. *) 
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
+    let string_format_str = L.build_global_stringptr ("%s\n") "fmt" builder in
 
     let rec expr builder ((_, e) : sexpr) = match e with 
+      | SLit i -> L.const_int i32_t i
       | SStringLit s -> string_format_str  
       | SCall("printstr", [e]) -> 
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
-      | _ -> to_imp (string_of_sexpr (A.String, e))
+      | _ -> to_imp (string_of_sexpr (A.Int, e))
     in 
-
+  
     let rec stmt builder = function
       | SExpr e -> let _ = expr builder e in builder 
       | SBlock sl -> List.fold_left stmt builder sl
       (* return 0;  ----->  ret i32 0 *)
       | SReturn e -> let _ = match fdecl.styp with
-                            A.String -> L.build_ret (expr builder e) builder 
-                          | _ -> to_imp (A.string_of_typ fdecl.styp)
-                  in builder
+                              A.Int -> L.build_ret (expr builder e) builder 
+                            | _ -> to_imp (A.string_of_typ fdecl.styp)
+                     in builder
       | s -> to_imp (string_of_sstmt s)
       in ignore (stmt builder (SBlock fdecl.sbody))
 

@@ -52,7 +52,7 @@ let check (pname, (var_decls, func_decls)) =
   (* FUNCTIONS *)
   let built_in_decls =
     let add_bind map (ty, name) = StringMap.add name {
-      typ = Void;
+      typ = Int;
       fname = name;
       formals = [(ty, "x")];
       body = []
