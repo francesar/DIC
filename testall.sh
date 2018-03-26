@@ -14,6 +14,14 @@ globalerror=0
 
 keep=0
 
+Run() {
+    echo $* 1>&2
+    eval $* || {
+	SignalError "$1 failed on $*"
+	return 1
+    }
+}
+
 Check() {
     error=0
     basename=`echo $1 | sed 's/.*\\///

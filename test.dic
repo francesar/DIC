@@ -1,5 +1,5 @@
-class Test {
-    func void main() {
+class test{
+func void main() {
         printstr("test");
-    }
+}
 }

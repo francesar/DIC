@@ -6,4 +6,4 @@ let () =
   let ast = Parser.program Scanner.token lexbuf in
   let sast = Semant.check ast in 
   let lir = Llvm.string_of_llmodule (Codegen.translate sast) in
-  print_string (test)
+  print_string (lir)
