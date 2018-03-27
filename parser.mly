@@ -68,9 +68,9 @@ typ:
   | STRING { String }
   | CHAR   { Char   }
 
-list_type:
+/* list_type:
     typ LBRACK RBRACK               { List($1)    }
-  | typ LBRACK RBRACK LBRACK RBRACK { Matrix($1)  }
+  | typ LBRACK RBRACK LBRACK RBRACK { Matrix($1)  } */
 
 /*
 vdecl_list:
@@ -79,9 +79,9 @@ vdecl_list:
 
 vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }
-  | list_type ID SEMI             { ($1, $2, Noexpr)  }
+  /* | list_type ID SEMI             { ($1, $2, Noexpr)  } */
   | typ ID ASSIGN expr SEMI      { ($1, $2, $4)      }
-  | list_type ID ASSIGN expr SEMI { ($1, $2, $4)      }
+  /* | list_type ID ASSIGN expr SEMI { ($1, $2, $4)      } */
 
 stmt_list:
   /* nothing */    { []       }
@@ -123,10 +123,10 @@ expr:
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
   | expr TIMES    expr                { Binop($1, Mult,  $3)            }
-  | expr TIMES_M  expr                { Binop($1, Mult_M, $3)           }
-  | expr DOT      expr                { Binop($1, Dot_M, $3)            }
+  /* | expr TIMES_M  expr                { Binop($1, Mult_M, $3)           } */
+  /* | expr DOT      expr                { Binop($1, Dot_M, $3)            } */
   | expr DIVIDE   expr                { Binop($1, Div,   $3)            }
-  | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            }
+  /* | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            } */
   | expr MOD      expr                { Binop($1, Mod,   $3)            }
   | expr EQ       expr                { Binop($1, Eq,    $3)            }       
   | expr NEQ      expr                { Binop($1, Neq,   $3)            }
@@ -136,15 +136,15 @@ expr:
   | expr GEQ      expr                { Binop($1, Geq,   $3)            }
   | expr AND      expr                { Binop($1, And,   $3)            }
   | expr OR       expr                { Binop($1, Or,    $3)            }
-  | MINUS expr %prec NEG              { Unop(Neg, $2)                   }
-  | INC expr                          { Unop(Increment, $2)             }
-  | DEC expr                          { Unop(Decrement, $2)             }
+  /* | MINUS expr %prec NEG              { Unop(Neg, $2)                   } */
+  /* | INC expr                          { Unop(Increment, $2)             } */
+  /* | DEC expr                          { Unop(Decrement, $2)             } */
   /* | expr INC                          { Punop($1, Increment)            } */
   /* | expr DEC                          { Punop( $1, Decrement)           } */
-  | NOT expr                          { Unop(Not, $2)                   }
-  | TRANSPOSE expr                    { Unop(Trans_M, $2)               }
-  | INVERSE expr                      { Unop(Inv_M, $2)                 }
-  | ID ASSIGN expr                    { Assign($1, $3)                  }
+  /* | NOT expr                          { Unop(Not, $2)                   } */
+  /* | TRANSPOSE expr                    { Unop(Trans_M, $2)               } */
+  /* | INVERSE expr                      { Unop(Inv_M, $2)                 } */
+  /* | ID ASSIGN expr                    { Assign($1, $3)                  } */
   | ID LPAREN args_opt RPAREN         { Call($1, $3)                    }
   | LPAREN expr RPAREN                { $2                              }
 
@@ -154,8 +154,8 @@ args_opt:
 
 args_list:
   expr                   { [$1]     }
-  | args_list COMMA expr { $3 :: $1 }
+  | args_list COMMA expr { $3 :: $1 } 
 
-rows:
+/* rows:
   args_opt              { [$1]    }
-  | rows COLON args_opt {$3 :: $1 }
+  | rows COLON args_opt {$3 :: $1 } */

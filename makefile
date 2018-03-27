@@ -4,7 +4,10 @@ build:
 test: build
 	./testscript
 
+test-helloworld: build
+	./testhelloworld.sh
+
 .PHONY: clean
 
 clean:
-	rm toplevel.native && rm -rf _build
+	rm toplevel.native && rm -rf _build && rm test.ll test.exe test.s

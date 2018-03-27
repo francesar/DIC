@@ -4,6 +4,9 @@
 ## Usage
 In order to build the **DIC** compiler, run `make build`. Running `make build` uses `ocamlbuild` to generate a `toplevel.native` file, which serves as the driver for the **DIC**. Once built, you can pass a `.dic` file to be read by the compiler. 
 
+## Running Hello World 👋🏽
+In order to run hello world using **DIC**, make sure that LLVM is installed correctly (we tested ours using opam LLVM3.7). If everything is configured correctly, run `$ chmod u+x testhelloworld.sh` to make the script into an executable. Finally run `make test-helloworld` (which compiles the DIC compile and runs it on the test.dic file) and you should see **hello world**.
+
 ## Progress
 Currently, all currently agreed upon syntax has been implemented. We do however have small bug in the variable declaration list inside of our functions. All `vdecl`'s (variable declarations) must happen before any `stmt` (statement) blocks. A bugfix is coming soon 🙊.
 

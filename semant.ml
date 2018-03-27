@@ -120,12 +120,12 @@ let check (pname, (var_decls, func_decls)) =
       | StringLit s -> (String, SStringLit s)
       | Noexpr      -> (Void, SNoExpr)
       | Id s        -> (type_of_identifier s, SId s)
-      | Assign(var, e) as ex ->
+      (* | Assign(var, e) as ex ->
         let lt = type_of_identifier var
         and (rt, e') = expr e in
         let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^
           string_of_typ rt ^ " in " ^ string_of_expr ex
-        in (check_assign lt rt err, SAssign(var, (rt, e')))
+        in (check_assign lt rt err, SAssign(var, (rt, e'))) *)
       (* temporarily closed:
         | Punop(op, e) as ex ->
         let (t, e') = expr e in
