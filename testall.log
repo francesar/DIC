@@ -1,9 +1,0 @@
-
-###### Testing test
-./toplevel.native test.dic > test.ll
-llc test.ll > test.s
-llc: test.ll:10:1: error: expected instruction opcode
-}
-^
-./testall.sh: line 20: SignalError: command not found
-###### SUCCESS
