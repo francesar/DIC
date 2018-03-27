@@ -43,7 +43,7 @@ let check (pname, (var_decls, func_decls)) =
     in 
 
     let convert_var_decl (kind : string) (input_list : var_decl list) = 
-      let to_bind (ty, s, e) = (ty, s) in 
+      let to_bind (ty, s, _) = (ty, s) in 
       let new_list = List.map to_bind input_list in
       check_binds kind new_list
     in

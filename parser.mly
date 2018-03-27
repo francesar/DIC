@@ -113,13 +113,13 @@ expr:
   | SLIT                              { StringLit($1)                   }
   | ID                                { Id($1)                          }
   /*| LBRACK args_opt RBRACK            { ListLit($2)                     }*/
-  | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
+  /* | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
   | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
   | ID LBRACK expr RBRACK LBRACK expr RBRACK 
                                       { MatIndex ($1, $3, $6)           }
   | ID LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr 
-                                      { MatIndexAssign ($1, $3, $6, $9) }
+                                      { MatIndexAssign ($1, $3, $6, $9) } */
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
   | expr TIMES    expr                { Binop($1, Mult,  $3)            }
@@ -139,8 +139,8 @@ expr:
   | MINUS expr %prec NEG              { Unop(Neg, $2)                   }
   | INC expr                          { Unop(Increment, $2)             }
   | DEC expr                          { Unop(Decrement, $2)             }
-  | expr INC                          { Punop($1, Increment)            }
-  | expr DEC                          { Punop( $1, Decrement)           }
+  /* | expr INC                          { Punop($1, Increment)            } */
+  /* | expr DEC                          { Punop( $1, Decrement)           } */
   | NOT expr                          { Unop(Not, $2)                   }
   | TRANSPOSE expr                    { Unop(Trans_M, $2)               }
   | INVERSE expr                      { Unop(Inv_M, $2)                 }

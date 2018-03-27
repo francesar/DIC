@@ -22,15 +22,15 @@ type expr =
   | Fliteral of string
   | BoolLit of bool
   | StringLit of string
-  | MatLit of expr list list (* Matrix literal *)
+  (* | MatLit of expr list list (* Matrix literal *)
   | MatIndex of string * expr * expr (* Matrix Access Index *)
   | MatIndexAssign of string * expr * expr * expr (* Assign a Matrix Index *)
   | ListLit of expr list
   | ListIndex of string * expr
-  | ListIndexAssign of string * expr * expr
+  | ListIndexAssign of string * expr * expr *)
   | Id of string
   | Binop of expr * op * expr
-  | Punop of expr * uop
+  (* | Punop of expr * uop *)
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
@@ -60,9 +60,9 @@ let string_of_op = function
     Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
-  | Mult_M -> ".*"
+  (* | Mult_M -> ".*" *)
   | Div -> "/"
-  | Div_M -> "./"
+  (* | Div_M -> "./" *)
   | Assign -> "="
   | Eq -> "=="
   | Neq -> "!="
@@ -73,13 +73,13 @@ let string_of_op = function
   | And -> "&&"
   | Or -> "||"
   | Mod -> "%"
-  | Dot_M -> "**"
+  (* | Dot_M -> "**" *)
 
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
-  | Trans_M -> "'"
-  | Inv_M -> "~"
+  (* | Trans_M -> "'"
+  | Inv_M -> "~" *)
   | Increment -> "++"
   | Decrement -> "--"
 
@@ -94,15 +94,15 @@ let rec string_of_expr = function
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Punop(e, o) ->  string_of_expr e ^ string_of_uop o
+  (* | Punop(e, o) ->  string_of_expr e ^ string_of_uop o *)
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
-  | ListLit(el) -> "[" ^ String.concat ", " (List.map string_of_expr el) ^ "]"
-  | ListIndex(v,e) -> v ^ "[" ^ string_of_expr e ^ "]"
-  | ListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2
-  | MatLit(rows) ->
+  (* | ListLit(el) -> "[" ^ String.concat ", " (List.map string_of_expr el) ^ "]" *)
+  (* | ListIndex(v,e) -> v ^ "[" ^ string_of_expr e ^ "]" *)
+  (* | ListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2 *)
+  (* | MatLit(rows) ->
       "[" ^
       let rec print_list input_list = match (List.rev input_list) with
       | [s] -> s
@@ -116,7 +116,7 @@ let rec string_of_expr = function
       ^ "]"
   | MatIndex (v, e1, e2) -> v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "]"
   | MatIndexAssign (v, e1, e2, e3) ->
-      v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "] = " ^ string_of_expr e3
+      v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "] = " ^ string_of_expr e3 *)
 
 let rec string_of_typ = function
     Int -> "int"
@@ -125,8 +125,8 @@ let rec string_of_typ = function
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
-  | List(t) -> string_of_typ t ^ "[]"
-  | Matrix(t) -> string_of_typ t ^ "[][]"
+  (* | List(t) -> string_of_typ t ^ "[]"
+  | Matrix(t) -> string_of_typ t ^ "[][]" *)
 
 let string_of_vdecl = function
   | (t, id, exp) ->

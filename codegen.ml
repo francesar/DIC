@@ -4,7 +4,7 @@ open Sast
 
 module StringMap = Map.Make(String)
 
-let translate (name, globals, functions) =
+let translate (_, _, functions) =
   let context    = L.global_context () in
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t      = L.i32_type    context
