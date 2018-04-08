@@ -1,0 +1,8 @@
+class test{
+  func int main() {
+    if (2 > 6) {
+        6*2;
+    }
+    int i = 1;
+    }
+}

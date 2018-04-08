@@ -9,8 +9,8 @@ let check (pname, (var_decls, func_decls)) =
 
   (* Check if a certain kind of binding has void type or is a duplicate
      of another, previously checked binding *)
-     (* let check_var_decls (kind : string) (to_check : var_decl list) = 
-      let check_it checked (binding :var_decl) = 
+     (* let check_var_decls (kind : string) (to_check : var_decl list) =
+      let check_it checked (binding :var_decl) =
         let void_err = "illegal void "
         and dup_err = "duplicate " (* ^ kind ^ " " ^ snd binding *)
         in match binding with
@@ -22,13 +22,13 @@ let check (pname, (var_decls, func_decls)) =
                       | _ -> binding :: checked
       in let _ = List.fold_left check_it [] (List.sort compare to_check)
          in to_check
-    in 
+    in
     let var_decls' = check_var_decls "var_decls" var_decls in  *)
 
 
 
     let check_binds (kind : string) (to_check : bind list) =
-      let check_it checked binding = 
+      let check_it checked binding =
         let void_err = "illegal void " ^ kind ^ " " ^ snd binding
         and dup_err = "duplicate " ^ kind ^ " " ^ snd binding
         in match binding with
@@ -38,12 +38,12 @@ let check (pname, (var_decls, func_decls)) =
                       (* No duplicate bindings *)
                       | ((_, n2) :: _) when n1 = n2 -> raise (Failure dup_err)
                       | _ -> binding :: checked
-      in let _ = List.fold_left check_it [] (List.sort compare to_check) 
+      in let _ = List.fold_left check_it [] (List.sort compare to_check)
          in to_check
-    in 
+    in
 
-    let convert_var_decl (kind : string) (input_list : var_decl list) = 
-      let to_bind (ty, s, _) = (ty, s) in 
+    let convert_var_decl (kind : string) (input_list : var_decl list) =
+      let to_bind (ty, s, _) = (ty, s) in
       let new_list = List.map to_bind input_list in
       check_binds kind new_list
     in
@@ -57,7 +57,7 @@ let check (pname, (var_decls, func_decls)) =
       formals = [(ty, "x")];
       body = []
     } map
-    (* Add built in function declarations into arr here 
+    (* Add built in function declarations into arr here
       Convert any datatype into string for print
     *)
     in List.fold_left add_bind StringMap.empty [(Int, "print");(String, "printstr");]
@@ -100,14 +100,19 @@ let check (pname, (var_decls, func_decls)) =
     in
 
     (* Build local symbol table of variables for this function *)
-    let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
-                  StringMap.empty (formals')
+    let symbols = Hashtbl.create 123456 in
+    let f (ty, name) = Hashtbl.add symbols name ty in
+    let p (_, name) = Printf.printf "%s\n" name in
+    let _ = List.iter p (formals')in
+    let _ = List.iter f (formals')
+    (* let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
+                  StringMap.empty (formals') *)
                   (* StringMap.empty (globals' @ formals' @ locals' ) *)
     in
 
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
-      try StringMap.find s symbols
+      try Hashtbl.find symbols s
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
@@ -120,12 +125,12 @@ let check (pname, (var_decls, func_decls)) =
       | StringLit s -> (String, SStringLit s)
       | Noexpr      -> (Void, SNoExpr)
       | Id s        -> (type_of_identifier s, SId s)
-      (* | Assign(var, e) as ex ->
+      | Assign(var, e) as ex ->
         let lt = type_of_identifier var
         and (rt, e') = expr e in
         let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^
-          string_of_typ rt ^ " in " ^ string_of_expr ex
-        in (check_assign lt rt err, SAssign(var, (rt, e'))) *)
+                  string_of_typ rt ^ " in " ^ string_of_expr ex
+        in (check_assign lt rt err, SAssign(var, (rt, e')))
       (* temporarily closed:
         | Punop(op, e) as ex ->
         let (t, e') = expr e in
@@ -180,26 +185,27 @@ let check (pname, (var_decls, func_decls)) =
           in
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
-    in 
+    in
 
-    let check_bool_expr e = 
-      let (t', e') = expr e 
+    let check_bool_expr e =
+      let (t', e') = expr e
       and err = "expected Boolean expression in " ^ string_of_expr e
       in if t' != Bool then raise (Failure err) else (t', e')
-    in 
+    in
 
     let check_vdecl = function
-      | (typ, id, e) -> 
+      | (typ, id, e) ->
         let _ = convert_var_decl "locals" [(typ, id, e)] in
           (typ, id, expr e)
 
-    in 
+    in
 
-    let rec check_stmt = function 
+    let rec check_stmt = function
       | Expr e -> SExpr (expr e)
-      | Vdecl (typ, id, e) -> (* 
+      | Vdecl (typ, id, e) -> (*
           check_vdecl(typ, id, e) *)
-          let _ = convert_var_decl "locals" [(typ, id, e)] in
+        let _ = convert_var_decl "locals" [(typ, id, e)] in
+        Hashtbl.add symbols id typ ;
           SVdecl(typ, id, expr e)
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
       | For(v1, e2, e3, st) ->
@@ -210,14 +216,14 @@ let check (pname, (var_decls, func_decls)) =
 	  SFor( check_vdecl v1, check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
-        if t = func.typ then SReturn (t, e') 
+        if t = func.typ then SReturn (t, e')
         else raise (
 	  Failure ("return gives " ^ string_of_typ t ^ " expected " ^
 		   string_of_typ func.typ ^ " in " ^ string_of_expr e))
-	    
+
 	    (* A block is correct if each statement is correct and nothing
 	       follows any Return statement.  Nested blocks are flattened. *)
-      | Block sl -> 
+      | Block sl ->
           let rec check_stmt_list = function
               [Return _ as s] -> [check_stmt s]
             | Return _ :: _   -> raise (Failure "nothing may follow a return")

@@ -17,7 +17,7 @@ and sx =
   | SBinop of sexpr * op * sexpr
   (* | SPunop of sexpr * uop *)
   | SUnop of uop * sexpr
-  (* | SAssign of string * sexpr *)
+  | SAssign of string * sexpr
   | SCall of string * sexpr list
   | SNoExpr
 
@@ -57,7 +57,7 @@ let rec string_of_sexpr (t, e) =
     string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
   | SUnop(o, e) -> string_of_uop o ^ string_of_sexpr e
   (* | SPunop(e, o) ->  string_of_sexpr e ^ string_of_uop o *)
-  (* | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e *)
+  | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
   | SCall(f, el) ->
     f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoExpr -> ""
@@ -83,7 +83,9 @@ let rec string_of_sexpr (t, e) =
 
 (* Awkard dangling = if exp is NoExpr *)
 let string_of_svdecl = function
-  | (t, id, exp) -> string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr exp ^ ";"
+  | (t, id, exp) ->
+    if exp = SNoExpr then string_of_typ t ^ " " ^ id ^ ";"
+    else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr exp ^ ";"
 
 let rec string_of_sstmt = function
     SBlock(stmts) ->
@@ -108,9 +110,9 @@ let string_of_sfdecl fdecl =
   "}\n"
 
 
-let string_of_sprogram (name, vars, funcs) =
-  "class " ^ name ^ " {" ^
-  String.concat "" (List.map string_of_binding vars) ^ "\n" ^
+let string_of_sprogram (name, (vars, funcs)) =
+  "class " ^ name ^ " {" ^ ""
+  String.concat "" (List.map string_of_svdecl vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_sfdecl funcs) ^
   "}\n"
   (* not converting list of bindings to list of svdecl *)
