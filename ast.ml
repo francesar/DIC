@@ -36,7 +36,7 @@ type expr =
   | Binop of expr * op * expr
   (* | Punop of expr * uop *)
   | Unop of uop * expr
-  (* | Assign of string * expr *)
+  | Assign of string * expr
   | Call of string * expr list
   | Noexpr
 
@@ -47,7 +47,7 @@ type stmt =
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt
-  | For of var_decl * expr * expr * stmt
+  | For of stmt * expr * expr * stmt
   | While of expr * stmt
   | Vdecl of var_decl
 
@@ -99,7 +99,7 @@ let rec string_of_expr = function
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   (* | Punop(e, o) ->  string_of_expr e ^ string_of_uop o *)
-  (* | Assign(v, e) -> v ^ " = " ^ string_of_expr e *)
+  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
@@ -148,7 +148,7 @@ let rec string_of_stmt = function
   | If(e, s1, s2) -> "if (" ^ string_of_expr e ^ ")\n" ^
       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
   | For( v1, e2, e3, s) ->
-      "for (" ^ string_of_vdecl v1 ^ string_of_expr e2 ^ " ; " ^
+      "for (" ^ string_of_stmt v1 ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3 ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 

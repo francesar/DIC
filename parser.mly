@@ -68,20 +68,9 @@ typ:
   | STRING { String }
   | CHAR   { Char   }
 
-/* list_type:
-    typ LBRACK RBRACK               { List($1)    }
-  | typ LBRACK RBRACK LBRACK RBRACK { Matrix($1)  } */
-
-/*
-vdecl_list:
-  /* nothing      { []       }
-  | vdecl_list vdecl { $2 :: $1 }*/
-
 vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }
-  /* | list_type ID SEMI             { ($1, $2, Noexpr)  } */
   | typ ID ASSIGN expr SEMI      { ($1, $2, $4)      }
-  /* | list_type ID ASSIGN expr SEMI { ($1, $2, $4)      } */
 
 stmt_list:
   /* nothing */    { []       }
@@ -95,8 +84,8 @@ stmt:
   | LBRACE stmt_list RBRACE                   { Block(List.rev $2)      }
   | IF LPAREN expr RPAREN stmt %prec NOELSE   { If($3, $5, Block([]))   }
   | IF LPAREN expr RPAREN stmt ELSE stmt      { If($3, $5, $7)          }
-  | FOR LPAREN vdecl expr SEMI expr_opt RPAREN stmt 
-                                              { For($3, $4, $6, $8)     }
+  | FOR LPAREN stmt SEMI expr SEMI expr_opt RPAREN stmt 
+                                              { For($3, $5, $7, $9)     }
   | WHILE LPAREN expr RPAREN stmt             { While($3, $5)           }
 
 
@@ -144,7 +133,7 @@ expr:
   /* | NOT expr                          { Unop(Not, $2)                   } */
   /* | TRANSPOSE expr                    { Unop(Trans_M, $2)               } */
   /* | INVERSE expr                      { Unop(Inv_M, $2)                 } */
-  /* | ID ASSIGN expr                    { Assign($1, $3)                  } */
+  | ID ASSIGN expr                    { Assign($1, $3)                  }
   | ID LPAREN args_opt RPAREN         { Call($1, $3)                    }
   | LPAREN expr RPAREN                { $2                              }
 
@@ -155,7 +144,3 @@ args_opt:
 args_list:
   expr                   { [$1]     }
   | args_list COMMA expr { $3 :: $1 } 
-
-/* rows:
-  args_opt              { [$1]    }
-  | rows COLON args_opt {$3 :: $1 } */

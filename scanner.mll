@@ -33,7 +33,7 @@ rule token = parse
 (* | '~'      { INVERSE     } *)
 | '/'      { DIVIDE      }
 | '%'      { MOD         }
-(* | '='      { ASSIGN      } *)
+| '='      { ASSIGN      }
 | "=="     { EQ          }
 (* | "==="    { PEQ         } *)
 | "!="     { NEQ         }
