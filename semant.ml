@@ -31,16 +31,25 @@ let check (pname, (var_decls, func_decls)) =
 
   (* FUNCTIONS *)
   let built_in_decls =
-    let add_bind map (ty, name) = StringMap.add name {
+    let rec test (inp : typ list) = 
+
+      match inp with
+      | [] -> [](* raise (Failure ("zero arg " ^ String.concat ", " (List.map string_of_typ inp))) *)
+      | hd :: tl -> (hd, "x") :: test tl (* raise (Failure ("zero arg " ^ String.concat ", " (List.map string_of_typ inp))) *)
+    in
+    let add_bind map ((ty ), name) = 
+      
+      StringMap.add name {
       typ = Int;
       fname = name;
-      formals = [(ty, "x")];
+      (* formals = [(ty, "x")]; *)
+      formals = test ty;
       body = []
     } map
     (* Add built in function declarations into arr here
       Convert any datatype into string for print
     *)
-    in List.fold_left add_bind StringMap.empty [(Int, "print");(String, "printstr");]
+    in List.fold_left add_bind StringMap.empty [([Int], "print");([String], "printstr");]
 
   in
 
@@ -50,10 +59,15 @@ let check (pname, (var_decls, func_decls)) =
     and dup_err = "duplicate function " ^ fd.fname
     and make_err err = raise (Failure err)
     and n = fd.fname
-    in match fd with
+    in 
+    
+    (* Printing the function name and corresponding args *)
+    (* let _ = Printf.printf "\n%s" ("fname: " ^ fd.fname ^ " args: "  ^(String.concat ", " (List.map string_of_binding fd.formals)) ^ "\n" ) in *)
+
+    match fd with
       | _ when StringMap.mem n built_in_decls -> make_err built_in_err
       | _ when StringMap.mem n map -> make_err dup_err
-      | _ -> StringMap.add n fd map
+      | _ -> StringMap.add n fd map 
   in
 
   (* Add functions to function symbol table *)
@@ -142,9 +156,15 @@ let check (pname, (var_decls, func_decls)) =
       | Call(fname, args) as call ->
         let fd = find_func fname in
         let param_length = List.length fd.formals in
-        if List.length args != param_length then
+        let matching = match args with
+          | [] -> ""
+          | hd :: _ -> string_of_expr hd
+        in
+        (* let convert = if List.length args = 1 && test = "" then 0 else List.length args in *)
+        let args = if List.length args = 1 && matching = "" then [] else args in
+        if List.length args <> param_length then
           raise (Failure ("expecting " ^ string_of_int param_length ^
-                          " arguments in " ^ string_of_expr call))
+                          " arguments in " ^ string_of_expr call ^ "\nwhere: args = " ^ string_of_int (List.length args)))
         else let check_call (ft, _) e =
                let (et, e') = expr e in
                let err = "illegal argument found " ^ string_of_typ et ^

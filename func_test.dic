@@ -1,0 +1,12 @@
+class func_test {
+	func int main(int b, int c) {
+		x(b, c);
+		return 0;
+
+	}
+
+	func int x( int e, int f) {
+		return f;
+	}
+
+}
