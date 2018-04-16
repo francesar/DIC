@@ -55,6 +55,7 @@ let rec string_of_sexpr (t, e) =
   | SId(s) -> s
   | SBinop(e1, o , e2) ->
     string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
+  | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr(e)
   | SUnop(o, e) -> string_of_uop o ^ string_of_sexpr e
   (* | SPunop(e, o) ->  string_of_sexpr e ^ string_of_uop o *)
   (* | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e *)
@@ -97,7 +98,7 @@ let rec string_of_sstmt = function
     "for (" ^ string_of_sstmt v1 ^ string_of_sexpr e2 ^ " ; " ^
     string_of_sexpr e3 ^ ") " ^ string_of_sstmt s
   | SWhile(e, s) -> "while (" ^ string_of_sexpr e ^ ") " ^ string_of_sstmt s
-  | SVdecl (t, id, exp) -> string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr (t, exp) ^ ";"
+  | SVdecl (t, id, exp) -> string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr (t, exp) ^ ";\n"
 
 let string_of_sfdecl fdecl =
   "func " ^ string_of_typ fdecl.styp ^ " " ^

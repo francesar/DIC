@@ -27,7 +27,20 @@ let check (pname, (var_decls, func_decls)) =
       let new_list = List.map to_bind input_list in
       check_binds kind new_list
     in
+
     let var_decls' = convert_var_decl "var_decls" var_decls in
+
+    let check_binds_in_stmts (kind: string) (to_check : stmt list) =
+      (* check whether each stmt is  *)
+      let rec check_type (inp : stmt list) = match inp with
+        | Vdecl a :: tl -> a :: check_type tl
+        | _ :: tl -> check_type tl
+        | [] -> []
+      in
+      let new_list = check_type to_check in
+      convert_var_decl kind new_list
+    
+    in
 
   (* FUNCTIONS *)
   let built_in_decls =
@@ -86,6 +99,7 @@ let check (pname, (var_decls, func_decls)) =
 
   let check_function func =
     let formals' = check_binds "formal" func.formals in
+    let locals' = check_binds_in_stmts "local" func.body in
 
   (* Raise an exception if the given rvalue type cannot be assigned to
       the given lvalue type *)
@@ -100,6 +114,7 @@ let check (pname, (var_decls, func_decls)) =
     let f (ty, name) = Hashtbl.add symbols name ty in
     let p (_, name) = Printf.printf "%s\n" name in
     let _ = List.iter p (formals') in
+    let _ = List.iter f (locals') in
     let _ = List.iter f (formals') in
 
     (* Return a variable from our local symbol table *)
