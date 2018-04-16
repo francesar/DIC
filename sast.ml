@@ -21,14 +21,14 @@ and sx =
   | SCall of string * sexpr list
   | SNoExpr
 
-type svar_decl = typ * string * sexpr
+type svar_decl = typ * string * sx
 
 type sstmt =
   | SBlock of sstmt list
   | SExpr of sexpr
   | SReturn of sexpr
   | SIf of sexpr * sstmt * sstmt
-  | SFor of svar_decl * sexpr * sexpr * sstmt
+  | SFor of sstmt * sexpr * sexpr * sstmt
   | SWhile of sexpr * sstmt
   | SVdecl of svar_decl
 
@@ -55,6 +55,7 @@ let rec string_of_sexpr (t, e) =
   | SId(s) -> s
   | SBinop(e1, o , e2) ->
     string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
+  | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr(e)
   | SUnop(o, e) -> string_of_uop o ^ string_of_sexpr e
   (* | SPunop(e, o) ->  string_of_sexpr e ^ string_of_uop o *)
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
@@ -83,9 +84,7 @@ let rec string_of_sexpr (t, e) =
 
 (* Awkard dangling = if exp is NoExpr *)
 let string_of_svdecl = function
-  | (t, id, exp) ->
-    if exp = SNoExpr then string_of_typ t ^ " " ^ id ^ ";"
-    else string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr exp ^ ";"
+  | (t, id, exp) -> string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr (t, exp) ^ ";"
 
 let rec string_of_sstmt = function
     SBlock(stmts) ->
@@ -96,10 +95,10 @@ let rec string_of_sstmt = function
   | SIf(e, s1, s2) -> "if (" ^ string_of_sexpr e ^ ")\n" ^
                      string_of_sstmt s1 ^ "else\n" ^ string_of_sstmt s2
   | SFor( v1, e2, e3, s) ->
-    "for (" ^ string_of_svdecl v1 ^ string_of_sexpr e2 ^ " ; " ^
+    "for (" ^ string_of_sstmt v1 ^ string_of_sexpr e2 ^ " ; " ^
     string_of_sexpr e3 ^ ") " ^ string_of_sstmt s
   | SWhile(e, s) -> "while (" ^ string_of_sexpr e ^ ") " ^ string_of_sstmt s
-  | SVdecl (s) -> string_of_svdecl s ^ "\n"
+  | SVdecl (t, id, exp) -> string_of_typ t ^ " " ^ id ^ " = " ^ string_of_sexpr (t, exp) ^ ";\n"
 
 let string_of_sfdecl fdecl =
   "func " ^ string_of_typ fdecl.styp ^ " " ^
@@ -110,9 +109,9 @@ let string_of_sfdecl fdecl =
   "}\n"
 
 
-let string_of_sprogram (name, (vars, funcs)) =
-  "class " ^ name ^ " {" ^ ""
-  String.concat "" (List.map string_of_svdecl vars) ^ "\n" ^
+let string_of_sprogram (name, _, funcs) =
+  "class " ^ name ^ " {" ^
+  (* String.concat "" (List.map string_of_binding vars) ^ "\n" ^ *)
   String.concat "\n" (List.map string_of_sfdecl funcs) ^
   "}\n"
   (* not converting list of bindings to list of svdecl *)

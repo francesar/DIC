@@ -4,6 +4,9 @@ build:
 test: build
 	./testscript
 
+test-menhir:build
+	menhir --interpret --interpret-show-cst parser.mly
+
 test-helloworld: build
 	./testhelloworld.sh
 

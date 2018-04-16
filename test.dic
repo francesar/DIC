@@ -1,6 +1,12 @@
-class test{
+class test {
   func int main() {
-    printstr("hello world");
-    return 0;        
+    int i = 0;
+    printstr("kgc");
+    x();
+    return 0;   
+  }
+
+  func int x() {
+      return "hello";
   }
 }
