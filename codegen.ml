@@ -28,6 +28,10 @@ let translate (_, _, functions) =
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
 
+  let printf_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_intfunc = L.declare_function "printf" printf_int the_module in
+
+
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
 
   let build_function fdecl =
@@ -40,14 +44,36 @@ let translate (_, _, functions) =
      * Adding a new instruction mutates both the_module and builder. *)
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
+    let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder
+    and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
 
     let rec expr builder ((_, e) : sexpr) = match e with
       | SLit i -> L.const_int i32_t i
       | SStringLit s -> L.build_global_stringptr s "tmp" builder
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
+      | SBinop (e1, op, e2) -> 
+(*           let (t, _) = e1 *)          
+          let e1' = expr builder e1
+          and e2' = expr builder e2 in
+          (match op with
+          | A.Add     -> L.build_add
+          | A.Sub     -> L.build_sub
+          | A.Mult    -> L.build_mul
+          | A.Div     -> L.build_sdiv
+(*           | A.Mod     -> L.build_mod *)
+          | A.And     -> L.build_and
+          | A.Or      -> L.build_or
+(*           | A.Equal   -> L.build_icmp L.Icmp.Eq *)
+          | A.Neq     -> L.build_icmp L.Icmp.Ne
+          | A.Less    -> L.build_icmp L.Icmp.Slt
+          | A.Leq     -> L.build_icmp L.Icmp.Sle
+          | A.Greater -> L.build_icmp L.Icmp.Sgt
+          | A.Geq     -> L.build_icmp L.Icmp.Sge
+          ) e1' e2' "tmp" builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
+      | SCall ("print", [e]) ->
+        L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
       | _ -> to_imp (string_of_sexpr (A.Int, e))
     in
 
@@ -66,6 +92,22 @@ let translate (_, _, functions) =
                               A.Int -> L.build_ret (expr builder e) builder
                             | _ -> to_imp (A.string_of_typ fdecl.styp)
                      in builder
+      | SIf(predicate, then_stmt, else_stmt) -> 
+        let bool_val = expr builder predicate in 
+        let merge_bb = L.append_block context "merge" the_function in 
+        let branch_instr = L.build_br merge_bb in 
+
+        let then_bb = L.append_block context "then" the_function in 
+        let then_builder = stmt (L.builder_at_end context then_bb) then_stmt in 
+        let () = add_terminal then_builder branch_instr in 
+
+        let else_bb = L.append_block context "else" the_function in 
+        let else_builder = stmt (L.builder_at_end context else_bb) else_stmt in 
+        let () = add_terminal else_builder branch_instr in 
+
+        let _ = L.build_cond_br bool_val then_bb else_bb builder in 
+          L.builder_at_end context merge_bb
+        
       | SWhile(predicate, body) -> 
         let pred_bb = L.append_block context "while" the_function in
       (* In current block, branch to predicate to execute the condition *)
