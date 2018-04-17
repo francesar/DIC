@@ -84,13 +84,8 @@ stmt:
   | LBRACE stmt_list RBRACE                   { Block(List.rev $2)      }
   | IF LPAREN expr RPAREN stmt %prec NOELSE   { If($3, $5, Block([]))   }
   | IF LPAREN expr RPAREN stmt ELSE stmt      { If($3, $5, $7)          }
-<<<<<<< HEAD
-  | FOR LPAREN vdecl expr SEMI expr_opt RPAREN stmt
-                                              { For($3, $4, $6, $8)     }
-=======
-  | FOR LPAREN stmt SEMI expr SEMI expr_opt RPAREN stmt 
+  | FOR LPAREN stmt SEMI expr SEMI expr_opt RPAREN stmt
                                               { For($3, $5, $7, $9)     }
->>>>>>> 12e324fe5c4295f986fc9596a8edc82d5a0fdaf9
   | WHILE LPAREN expr RPAREN stmt             { While($3, $5)           }
 
 
@@ -148,12 +143,4 @@ args_opt:
 
 args_list:
   expr                   { [$1]     }
-<<<<<<< HEAD
   | args_list COMMA expr { $3 :: $1 }
-
-/* rows:
-  args_opt              { [$1]    }
-  | rows COLON args_opt {$3 :: $1 } */
-=======
-  | args_list COMMA expr { $3 :: $1 } 
->>>>>>> 12e324fe5c4295f986fc9596a8edc82d5a0fdaf9

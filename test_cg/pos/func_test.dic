@@ -15,5 +15,6 @@ class func_test {
 		x = 3;
 		return x;
 	}
+int[] a = [1,2];
 
 }
