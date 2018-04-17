@@ -1,16 +1,30 @@
 class func_test {
-	func int main(int b, int c) {
+	func void main(int b, int c) {
 		int d = 3;
-		d = 4;
-		d = 5;
-		int e = 2;
-		x(d, e);
+		char aasdf = 'e';
+		string test = "this is a test";
+		int e = 0;
+		for (e = 0; e < 2; e = d + 1) {
+			int p = 1;
+		}
+		float testing = 2.3;
 		print(c);
-		return 0;
+		tester();
+		d = x(test, c);
+		y();
 
+		tester();
 	}
 
-	func int x( int e, int f) {
+	func void tester() {
+		return;
+	}
+
+	func int y() {
+		return 0;
+	}
+
+	func int x( string e, int f) {
 		int x = 2;
 		x = 3;
 		return x;
