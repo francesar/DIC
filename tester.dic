@@ -1,0 +1,12 @@
+class func_test {
+	func int main(int a) {
+		int z;
+		int y = 0;
+		
+	}
+
+	func int test(int b) {
+		b= 2;
+	}
+
+}
