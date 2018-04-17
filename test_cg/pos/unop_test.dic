@@ -1,0 +1,5 @@
+class unop_test {
+  func int main() {
+    int i = -1;
+  }
+}
