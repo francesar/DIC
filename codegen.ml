@@ -66,6 +66,22 @@ let translate (_, _, functions) =
                               A.Int -> L.build_ret (expr builder e) builder
                             | _ -> to_imp (A.string_of_typ fdecl.styp)
                      in builder
+      | SIf(predicate, then_stmt, else_stmt) -> 
+        let bool_val = expr builder predicate in 
+        let merge_bb = L.append_block context "merge" the_function in 
+        let branch_instr = L.build_br merge_bb in 
+
+        let then_bb = L.append_block context "then" the_function in 
+        let then_builder = stmt (L.builder_at_end context then_bb) then_stmt in 
+        let () = add_terminal then_builder branch_instr in 
+
+        let else_bb = L.append_block context "else" the_function in 
+        let else_builder = stmt (L.builder_at_end context else_bb) else_stmt in 
+        let () = add_terminal else_builder branch_instr in 
+
+        let _ = L.build_cond_br bool_val then_bb else_bb builder in 
+          L.builder_at_end context merge_bb
+        
       | SWhile(predicate, body) -> 
         let pred_bb = L.append_block context "while" the_function in
       (* In current block, branch to predicate to execute the condition *)
