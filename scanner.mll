@@ -54,6 +54,8 @@ rule token = parse
 | "return" { RETURN      }
 (* Types *)
 | "int"    { INT         }
+| "int[]"  { INTM		 }
+(*| "int[" digits "]" ('[' digits ']')* as lxm { INTM(lxm) }*)
 | "char"   { CHAR        }
 | "bool"   { BOOL        }
 | "float"  { FLOAT       }
