@@ -68,8 +68,8 @@ rule token = parse
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
-| '"'[^'"']* '"' as lxm {SLIT(String.sub lxm 1 ((String.length lxm )- 2))} 
-| ''' ['a'-'z' 'A'-'Z' '0'-'9' '_'] ''' as lxm {CHLIT(lxm)} 
+| '"'[^'"']* '"' as lxm {SLIT(String.sub lxm 1 ((String.length lxm )- 2))}
+| ''' ['a'-'z' 'A'-'Z' '0'-'9' '_'] ''' as lxm {CHLIT(lxm)}
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 

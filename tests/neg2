@@ -1,5 +1,0 @@
-class donothing{
-  func int donothing() {
-    return 0
-  }
-}

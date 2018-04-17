@@ -39,19 +39,19 @@ let check (pname, (var_decls, func_decls)) =
       in
       let new_list = check_type to_check in
       convert_var_decl kind new_list
-    
+
     in
 
   (* FUNCTIONS *)
   let built_in_decls =
-    let rec test (inp : typ list) = 
+    let rec test (inp : typ list) =
 
       match inp with
       | [] -> [](* raise (Failure ("zero arg " ^ String.concat ", " (List.map string_of_typ inp))) *)
       | hd :: tl -> (hd, "x") :: test tl (* raise (Failure ("zero arg " ^ String.concat ", " (List.map string_of_typ inp))) *)
     in
-    let add_bind map ((ty ), name) = 
-      
+    let add_bind map ((ty ), name) =
+
       StringMap.add name {
       typ = Int;
       fname = name;
@@ -72,15 +72,15 @@ let check (pname, (var_decls, func_decls)) =
     and dup_err = "duplicate function " ^ fd.fname
     and make_err err = raise (Failure err)
     and n = fd.fname
-    in 
-    
+    in
+
     (* Printing the function name and corresponding args *)
     (* let _ = Printf.printf "\n%s" ("fname: " ^ fd.fname ^ " args: "  ^(String.concat ", " (List.map string_of_binding fd.formals)) ^ "\n" ) in *)
 
     match fd with
       | _ when StringMap.mem n built_in_decls -> make_err built_in_err
       | _ when StringMap.mem n map -> make_err dup_err
-      | _ -> StringMap.add n fd map 
+      | _ -> StringMap.add n fd map
   in
 
   (* Add functions to function symbol table *)
@@ -104,7 +104,7 @@ let check (pname, (var_decls, func_decls)) =
   (* Raise an exception if the given rvalue type cannot be assigned to
       the given lvalue type *)
     let check_assign lvaluet rvaluet err =
-       if lvaluet = rvaluet then lvaluet 
+       if lvaluet = rvaluet then lvaluet
        else if rvaluet == Void then lvaluet
        else raise (Failure err)
     in
@@ -198,14 +198,15 @@ let check (pname, (var_decls, func_decls)) =
 
     let rec check_stmt = function
       | Expr e -> SExpr (expr e)
-      | Vdecl(typ, id, e) -> 
+      | Vdecl(typ, id, e) ->
         let (rt, e') = expr e in
-        let err = "illegal assignment of " ^ string_of_typ typ ^  " " ^ id ^ 
+        let err = "illegal assignment of " ^ string_of_typ typ ^  " " ^ id ^
         " to type " ^ string_of_typ rt
         in Hashtbl.add symbols id (check_assign typ rt err) ; SVdecl(typ, id, e')
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
       | For(v, e2, e3, st) -> 
           let _ = check_stmt v in
+
           SFor(check_stmt v, check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in

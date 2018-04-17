@@ -111,9 +111,15 @@ expr:
   /* | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
   | LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
+<<<<<<< HEAD
   | LBRACK expr RBRACK LBRACK expr RBRACK 
                                       { MatIndex ($1, $3, $6)           }
   | LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr 
+=======
+  | ID LBRACK expr RBRACK LBRACK expr RBRACK
+                                      { MatIndex ($1, $3, $6)           }
+  | ID LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
+>>>>>>> 964da3b4815b001faf5e2f57ea6a3db1259228f5
                                       { MatIndexAssign ($1, $3, $6, $9) } */
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
@@ -123,7 +129,7 @@ expr:
   | expr DIVIDE   expr                { Binop($1, Div,   $3)            }
   /* | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            } */
   | expr MOD      expr                { Binop($1, Mod,   $3)            }
-  | expr EQ       expr                { Binop($1, Eq,    $3)            }       
+  | expr EQ       expr                { Binop($1, Eq,    $3)            }
   | expr NEQ      expr                { Binop($1, Neq,   $3)            }
   | expr LT       expr                { Binop($1, Less,  $3)            }
   | expr LEQ      expr                { Binop($1, Leq,   $3)            }
@@ -149,4 +155,4 @@ args_opt:
 
 args_list:
   expr                   { [$1]     }
-  | args_list COMMA expr { $3 :: $1 } 
+  | args_list COMMA expr { $3 :: $1 }

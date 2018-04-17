@@ -3,7 +3,7 @@
 (* Operators *)
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
 type op = Add | Sub | Mult | Div  | Eq | Neq | Less |
-          Leq | Greater | Geq | And | Or | Mod 
+          Leq | Greater | Geq | And | Or | Mod
           (* Assign *)
           (* Dot_M | *)
           (* Mult_M | Div_M *)
@@ -170,6 +170,6 @@ let string_of_fdecl fdecl =
 
 let string_of_program (name, (vars, funcs)) =
   "class " ^ name ^ " {" ^
-  String.concat "" (List.map string_of_binding vars) ^ "\n" ^
+  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs) ^
   "}\n"
