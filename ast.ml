@@ -14,7 +14,7 @@ type uop = Neg | Not
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String
+    Int | Bool | Char | Float | Void | String | IntM 
   (* | List of typ *)
   (* | Matrix of typ *)
 
@@ -129,6 +129,7 @@ let string_of_typ = function
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
+  | IntM -> "int[]"
   (* | List(t) -> string_of_typ t ^ "[]"
   | Matrix(t) -> string_of_typ t ^ "[][]" *)
 

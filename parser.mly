@@ -10,7 +10,7 @@ open Ast
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID LIST DICT STRING CHAR
+%token INT BOOL FLOAT VOID LIST DICT STRING CHAR INTM
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT CHLIT
@@ -62,6 +62,7 @@ formal_list:
 
 typ:
     INT    { Int    }
+  | INTM   { IntM   }
   | BOOL   { Bool   }
   | FLOAT  { Float  }
   | VOID   { Void   }
@@ -72,11 +73,16 @@ vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }
   | typ ID ASSIGN expr SEMI      { ($1, $2, $4)      }
 
+
 stmt_list:
   /* nothing */    { []       }
   | stmt_list stmt { $2 :: $1 }
   | stmt_list vdecl { Vdecl($2) :: $1}
 
+for_first_arg:
+  | vdecl          { Vdecl $1 }
+  | expr SEMI           { Expr $1  }
+  /* | expr_opt SEMI     { Expr $1  } */
 
 stmt:
   | expr SEMI                                 { Expr $1                 }
@@ -84,8 +90,8 @@ stmt:
   | LBRACE stmt_list RBRACE                   { Block(List.rev $2)      }
   | IF LPAREN expr RPAREN stmt %prec NOELSE   { If($3, $5, Block([]))   }
   | IF LPAREN expr RPAREN stmt ELSE stmt      { If($3, $5, $7)          }
-  | FOR LPAREN stmt SEMI expr SEMI expr_opt RPAREN stmt
-                                              { For($3, $5, $7, $9)     }
+  | FOR LPAREN for_first_arg expr SEMI expr_opt RPAREN stmt 
+                                              { For($3, $4, $6, $8)     }
   | WHILE LPAREN expr RPAREN stmt             { While($3, $5)           }
 
 
@@ -103,11 +109,17 @@ expr:
   | ID                                { Id($1)                          }
   /*| LBRACK args_opt RBRACK            { ListLit($2)                     }*/
   /* | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
-  | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
+  | LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
+<<<<<<< HEAD
+  | LBRACK expr RBRACK LBRACK expr RBRACK 
+                                      { MatIndex ($1, $3, $6)           }
+  | LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr 
+=======
   | ID LBRACK expr RBRACK LBRACK expr RBRACK
                                       { MatIndex ($1, $3, $6)           }
   | ID LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
+>>>>>>> 964da3b4815b001faf5e2f57ea6a3db1259228f5
                                       { MatIndexAssign ($1, $3, $6, $9) } */
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
