@@ -1,0 +1,6 @@
+class scope {
+  func int main() {
+      int i = j;
+      int j = i;
+  }
+}

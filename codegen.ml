@@ -11,7 +11,7 @@ let translate (_, _, functions) =
   and i8_t       = L.i8_type     context
   and string_t   = L.i8_type     context (* possibly very wrong*)
   and void_t     = L.void_type   context
-  and i1_t       = L.i1_type     context 
+  and i1_t       = L.i1_type     context
 
   and the_module = L.create_module context "DIC" in
 
@@ -51,8 +51,8 @@ let translate (_, _, functions) =
       | SLit i -> L.const_int i32_t i
       | SStringLit s -> L.build_global_stringptr s "tmp" builder
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
-      | SBinop (e1, op, e2) -> 
-(*           let (t, _) = e1 *)          
+      | SBinop (e1, op, e2) ->
+(*           let (t, _) = e1 *)
           let e1' = expr builder e1
           and e2' = expr builder e2 in
           (match op with
@@ -70,6 +70,13 @@ let translate (_, _, functions) =
           | A.Greater -> L.build_icmp L.Icmp.Sgt
           | A.Geq     -> L.build_icmp L.Icmp.Sge
           ) e1' e2' "tmp" builder
+      | SUnop(op, e) ->
+	        let (t, _) = e in
+          let e' = expr builder e in
+	        (match op with
+	           A.Neg when t = A.Float -> L.build_fneg
+	          | A.Neg                  -> L.build_neg
+            | A.Not                  -> L.build_not) e' "tmp" builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
       | SCall ("print", [e]) ->
@@ -92,23 +99,23 @@ let translate (_, _, functions) =
                               A.Int -> L.build_ret (expr builder e) builder
                             | _ -> to_imp (A.string_of_typ fdecl.styp)
                      in builder
-      | SIf(predicate, then_stmt, else_stmt) -> 
-        let bool_val = expr builder predicate in 
-        let merge_bb = L.append_block context "merge" the_function in 
-        let branch_instr = L.build_br merge_bb in 
+      | SIf(predicate, then_stmt, else_stmt) ->
+        let bool_val = expr builder predicate in
+        let merge_bb = L.append_block context "merge" the_function in
+        let branch_instr = L.build_br merge_bb in
 
-        let then_bb = L.append_block context "then" the_function in 
-        let then_builder = stmt (L.builder_at_end context then_bb) then_stmt in 
-        let () = add_terminal then_builder branch_instr in 
+        let then_bb = L.append_block context "then" the_function in
+        let then_builder = stmt (L.builder_at_end context then_bb) then_stmt in
+        let () = add_terminal then_builder branch_instr in
 
-        let else_bb = L.append_block context "else" the_function in 
-        let else_builder = stmt (L.builder_at_end context else_bb) else_stmt in 
-        let () = add_terminal else_builder branch_instr in 
+        let else_bb = L.append_block context "else" the_function in
+        let else_builder = stmt (L.builder_at_end context else_bb) else_stmt in
+        let () = add_terminal else_builder branch_instr in
 
-        let _ = L.build_cond_br bool_val then_bb else_bb builder in 
+        let _ = L.build_cond_br bool_val then_bb else_bb builder in
           L.builder_at_end context merge_bb
-        
-      | SWhile(predicate, body) -> 
+
+      | SWhile(predicate, body) ->
         let pred_bb = L.append_block context "while" the_function in
       (* In current block, branch to predicate to execute the condition *)
         let _ = L.build_br pred_bb builder in
