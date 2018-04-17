@@ -229,6 +229,7 @@ let check (pname, (var_decls, func_decls)) =
       { styp = func.typ;
         sfname = func.fname;
         sformals = formals';
+        (* slocals = locals'; *)
         sbody = match check_stmt (Block func.body) with
     SBlock(sl) -> sl
         | _ -> let err = "internal error: block didn't become a block?"
