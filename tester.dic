@@ -9,6 +9,9 @@ class func_test {
 		if (y != 1) {
 			int in = 2;
 		}
+		else {
+			int p = 3;
+		}
 		n = test2();
 		return 0;
 	}

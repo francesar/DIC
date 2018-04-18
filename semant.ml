@@ -113,7 +113,6 @@ let check (pname, (var_decls, func_decls)) =
     let symbols = Hashtbl.create 10 in
     let f (ty, name) = Hashtbl.add symbols name ty in
     let p (_, name) = Printf.printf "%s\n" name in
-    let _ = List.iter p (formals') in
     let _ = List.iter f (locals') in
     let _ = List.iter f (formals') in
 
@@ -242,7 +241,7 @@ let check (pname, (var_decls, func_decls)) =
           let rec check_stmt_list = function
               [Return _ as s] -> [check_stmt s]
             | Return _ :: _   -> raise (Failure "nothing may follow a return")
-            | Block fl :: ss  -> check_stmt_list (fl @ ss) (* Flatten blocks *)
+            | FBlock fl :: ss  -> check_stmt_list (fl @ ss) (* Flatten blocks *)
             | s :: ss         -> check_stmt s :: check_stmt_list ss
             | []              -> if func.typ <> Void then raise(Failure "Must have a return statement") else []
           in SBlock(check_stmt_list fl)

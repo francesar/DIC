@@ -87,7 +87,7 @@ let translate (_, _, functions) =
         | SNoExpr -> p 
         | sx -> L.set_value_name n p in *)
       let _ = L.set_value_name n p in 
-      let _ = Printf.printf "%s\n" n in
+      (* let _ = Printf.printf "%s\n" n in *)
       let local_var = L.build_alloca (ltype_of_typ t) n builder in
       (* let _ = match p with
         | NoExpr p -> p
