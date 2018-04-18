@@ -170,6 +170,10 @@ let translate (_, _, functions) =
       (* return 0;  ----->  ret i32 0 *)
       | SReturn e -> let _ = match fdecl.styp with
                               A.Int -> L.build_ret (expr builder e) builder
+                            | A.Bool -> L.build_ret (expr builder e) builder
+                            | A.Char -> L.build_ret (expr builder e) builder
+                            | A.String -> L.build_ret (expr builder e) builder
+                            | A.Float -> L.build_ret (expr builder e) builder
                             | _ -> to_imp (A.string_of_typ fdecl.styp)
                      in builder
       | SIf(predicate, then_stmt, else_stmt) ->

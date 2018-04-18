@@ -7,10 +7,12 @@ class func_test {
 		float n = 2.3;
 		char c = 'a';
 		n = test2();
+		return 0;
 	}
 
 	func float test2() {
 		bool a = true;
+		return 2.45;
 	}
 
 	func int test(int a) {

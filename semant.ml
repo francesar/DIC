@@ -236,7 +236,7 @@ let check (pname, (var_decls, func_decls)) =
             | Return _ :: _   -> raise (Failure "nothing may follow a return")
             | Block sl :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
             | s :: ss         -> check_stmt s :: check_stmt_list ss
-            | []              -> []
+            | []              -> if func.typ <> Void then raise(Failure "Must have a return statement") else []
           in SBlock(check_stmt_list sl)
     in (* body of check_function *)
       { styp = func.typ;
