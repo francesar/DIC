@@ -112,7 +112,7 @@ let check (pname, (var_decls, func_decls)) =
     (* Build local symbol table of variables for this function *)
     let symbols = Hashtbl.create 10 in
     let f (ty, name) = Hashtbl.add symbols name ty in
-    let p (_, name) = Printf.printf "%s\n" name in
+    (*let p (_, name) = Printf.printf "%s\n" name in*)
     let _ = List.iter f (locals') in
     let _ = List.iter f (formals') in
 

@@ -13,4 +13,4 @@ test-helloworld: build
 .PHONY: clean
 
 clean:
-	rm toplevel.native && rm -rf _build && rm test.ll test.exe test.s
+	rm toplevel.native && rm -rf _build 

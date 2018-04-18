@@ -159,7 +159,7 @@ let translate (_, _, functions) =
           | _ -> f ^ "_result") in
         L.build_call fdef (Array.of_list llargs) result builder
       (* | _ -> to_imp (string_of_sexpr (A.Int, e)) *)
-      | _ -> to_imp (string_of_sexpr (A.Int, e))
+      (*| _ -> to_imp (string_of_sexpr (A.Int, e))*)
     in
 
 
@@ -220,7 +220,7 @@ let translate (_, _, functions) =
         L.builder_at_end context merge_bb
       | SFor (e1, e2, e3, body) -> stmt builder
         ( SBlock [SBlock [e1] ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
-      | s -> to_imp (string_of_sstmt s)
+      (*| s -> to_imp (string_of_sstmt s)*)
     in ignore (stmt builder (SBlock fdecl.sbody))
 
   in List.iter build_function functions; the_module
