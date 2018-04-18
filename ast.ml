@@ -34,7 +34,7 @@ type expr =
   | ListIndexAssign of string * expr * expr *)
   | Id of string
   | Binop of expr * op * expr
-  (* | Punop of expr * uop *)
+  | Punop of expr * uop
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
@@ -44,6 +44,7 @@ type var_decl =  typ * string * expr
 
 type stmt =
     Block of stmt list
+  | FBlock of stmt list
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt
@@ -98,7 +99,7 @@ let rec string_of_expr = function
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  (* | Punop(e, o) ->  string_of_expr e ^ string_of_uop o *)
+  | Punop(e, o) ->  string_of_expr e ^ string_of_uop o
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"

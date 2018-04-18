@@ -1,0 +1,12 @@
+class unop_test {
+  func int main() {
+    if(!false) {
+      printstr("test ! operator");
+    }
+
+    if (-1 < 0) {
+      printstr("testing - operator");
+    }
+    return 0;
+  }
+}

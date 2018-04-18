@@ -111,15 +111,9 @@ expr:
   /* | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
   | LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
-<<<<<<< HEAD
   | LBRACK expr RBRACK LBRACK expr RBRACK 
                                       { MatIndex ($1, $3, $6)           }
   | LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr 
-=======
-  | ID LBRACK expr RBRACK LBRACK expr RBRACK
-                                      { MatIndex ($1, $3, $6)           }
-  | ID LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
->>>>>>> 964da3b4815b001faf5e2f57ea6a3db1259228f5
                                       { MatIndexAssign ($1, $3, $6, $9) } */
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
@@ -137,12 +131,12 @@ expr:
   | expr GEQ      expr                { Binop($1, Geq,   $3)            }
   | expr AND      expr                { Binop($1, And,   $3)            }
   | expr OR       expr                { Binop($1, Or,    $3)            }
-  /* | MINUS expr %prec NEG              { Unop(Neg, $2)                   } */
-  /* | INC expr                          { Unop(Increment, $2)             } */
-  /* | DEC expr                          { Unop(Decrement, $2)             } */
-  /* | expr INC                          { Punop($1, Increment)            } */
-  /* | expr DEC                          { Punop( $1, Decrement)           } */
-  /* | NOT expr                          { Unop(Not, $2)                   } */
+  | MINUS expr %prec NEG              { Unop(Neg, $2)                   }
+  | INC expr                          { Unop(Increment, $2)             }
+  | DEC expr                          { Unop(Decrement, $2)             }
+  | expr INC                          { Punop($1, Increment)            }
+  | expr DEC                          { Punop( $1, Decrement)           }
+  | NOT expr                          { Unop(Not, $2)                   }
   /* | TRANSPOSE expr                    { Unop(Trans_M, $2)               } */
   /* | INVERSE expr                      { Unop(Inv_M, $2)                 } */
   | ID ASSIGN expr                    { Assign($1, $3)                  }
