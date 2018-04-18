@@ -143,8 +143,6 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             (* Trans_M when t = Matrix -> t
           | Inv_M when t = Matrix -> t *)
-          | Increment when t = Int -> t
-          | Decrement when t = Int -> t
           | Neg when t = Int || t = Float -> t
           | Not when t = Bool -> t
           | _ -> raise (Failure ("illegal unary operator " ^
@@ -217,7 +215,7 @@ let check (pname, (var_decls, func_decls)) =
         " to type " ^ string_of_typ rt
         in Hashtbl.add symbols id (check_assign typ rt err) ; SVdecl(typ, id, e')
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
-      | For(v, e2, e3, st) -> 
+      | For(v, e2, e3, st) ->
           let _ = check_stmt v in
 
           SFor(check_stmt v, check_bool_expr e2, expr e3, check_stmt st)
