@@ -1,4 +1,4 @@
-class binop_test{
+class BinopTest{
 	func int main(){
 		printstr("Add 3+2 should be 5. Is... ");
 		printint(3+2);
@@ -51,7 +51,7 @@ class binop_test{
 		if (3 > 2 && 3 != 2){
 			printstr(">, &&, and != work together.");
 		}
-
+		printstr("success");
 		return 0;
 	}
 }

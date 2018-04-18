@@ -62,7 +62,7 @@ let check (pname, (var_decls, func_decls)) =
     (* Add built in function declarations into arr here
       Convert any datatype into string for print
     *)
-    in List.fold_left add_bind StringMap.empty [([Int], "print");([String], "printstr");]
+    in List.fold_left add_bind StringMap.empty [([Int], "printint");([String], "printstr");]
 
   in
 
@@ -142,8 +142,6 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             (* Trans_M when t = Matrix -> t
           | Inv_M when t = Matrix -> t *)
-          | Increment when t = Int -> t
-          | Decrement when t = Int -> t
           | Neg when t = Int || t = Float -> t
           | Not when t = Bool -> t
           | _ -> raise (Failure ("illegal unary operator " ^
@@ -158,7 +156,7 @@ let check (pname, (var_decls, func_decls)) =
           | Increment when t = Int -> t
           | Decrement when t = Int -> t
           | _ -> raise (Failure ("illegal unary operator " ^
-                                 string_of_uop op ^ " " ^ string_of_typ t ^
+                                 string_of_puop op ^ " " ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
         in (ty, SPunop((t, e'), op))
       | Binop(e1, op, e2) as e ->
@@ -169,11 +167,11 @@ let check (pname, (var_decls, func_decls)) =
         (* Determine expression type based on operator and operand types *)
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
-          | Add | Sub | Mult | Div when same && t1 = Float -> Float
+          | Add | Sub | Mult | Div       when same && t1 = Float -> Float
           (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
-          | Eq | Neq            when same               -> Bool
+          | Eq | Neq                     when same               -> Bool
           | Less | Leq | Greater | Geq
-            when same && (t1 = Int || t1 = Float) -> Bool
+                     when same && (t1 = Int || t1 = Float) -> Bool
           | And | Or when same && t1 = Bool -> Bool
           | _ -> raise (
               Failure ("illegal binary operator " ^
@@ -216,7 +214,7 @@ let check (pname, (var_decls, func_decls)) =
         " to type " ^ string_of_typ rt
         in Hashtbl.add symbols id (check_assign typ rt err) ; SVdecl(typ, id, e')
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
-      | For(v, e2, e3, st) -> 
+      | For(v, e2, e3, st) ->
           let _ = check_stmt v in
 
           SFor(check_stmt v, check_bool_expr e2, expr e3, check_stmt st)

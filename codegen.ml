@@ -40,10 +40,10 @@ let translate (_, _, functions) =
 
 
   (* Add function names and formas to the Stringmap *)
-  let function_decls : (L.llvalue * sfunc_decl) StringMap.t =  
+  let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
     let function_decl m fdecl =
       let name = fdecl.sfname
-      and formal_types = 
+      and formal_types =
   Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals)
       in let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types in
       StringMap.add name (L.define_function name ftype the_module, fdecl) m in
@@ -52,7 +52,7 @@ let translate (_, _, functions) =
 
   let build_function fdecl =
 
-    
+
     (* int main() {}  ----->  define i32 @main() {}  *)
 (*     let main_ty = L.function_type (ltype_of_typ fdecl.styp) [||] in
     let the_function = L.define_function "main" main_ty the_module in
@@ -71,7 +71,7 @@ let translate (_, _, functions) =
     let local_vars =
       (* Allocate space for any formally declared variables and initialize the value
        * and add the resulting registers to our map *)
-      let add_formal m (t, n) p = 
+      let add_formal m (t, n) p =
         let () = L.set_value_name n p in
         let local = L.build_alloca (ltype_of_typ t) n builder in
         let _ = L.build_store p local builder in
@@ -80,14 +80,15 @@ let translate (_, _, functions) =
         m
       in
       List.fold_left2 add_formal ht fdecl.sformals (Array.to_list (L.params the_function))
-    in 
+    in
 
     let add_local (t, n) p =
       (* let _ = match p with
-        | SNoExpr -> p 
+        | SNoExpr -> p
         | sx -> L.set_value_name n p in *)
       let _ = L.set_value_name n p in 
       (* let _ = Printf.printf "%s\n" n in *)
+
       let local_var = L.build_alloca (ltype_of_typ t) n builder in
       (* let _ = match p with
         | NoExpr p -> p
@@ -99,7 +100,7 @@ let translate (_, _, functions) =
 
 
 
-    let lookup n = try Hashtbl.find local_vars n 
+    let lookup n = try Hashtbl.find local_vars n
                       with Not_found -> raise(Failure("n: " ^ n))
                    (* with Not_found -> StringMap.find n global_vars *)
     in
@@ -124,10 +125,10 @@ let translate (_, _, functions) =
           | A.Sub     -> L.build_sub
           | A.Mult    -> L.build_mul
           | A.Div     -> L.build_sdiv
-(*           | A.Mod     -> L.build_mod *)
+          (* | A.Mod     -> L.build_mod *)
           | A.And     -> L.build_and
           | A.Or      -> L.build_or
-(*           | A.Equal   -> L.build_icmp L.Icmp.Eq *)
+          | A.Eq      -> L.build_icmp L.Icmp.Eq
           | A.Neq     -> L.build_icmp L.Icmp.Ne
           | A.Less    -> L.build_icmp L.Icmp.Slt
           | A.Leq     -> L.build_icmp L.Icmp.Sle
@@ -141,14 +142,19 @@ let translate (_, _, functions) =
 	           A.Neg when t = A.Float -> L.build_fneg
 	          | A.Neg                  -> L.build_neg
             | A.Not                  -> L.build_not) e' "tmp" builder
+      | SPunop(e, op) ->
+        let e' = expr builder e in
+        (match op with
+           A.Increment            -> L.build_add (L.const_int i32_t 1)
+         | A.Decrement            -> L.build_add (L.const_int i32_t (-1)))e' "tmp" builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
-      | SCall ("print", [e]) ->
+      | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (expr builder) (List.rev args)) in
-        let result = (match fdecl.styp with 
+        let result = (match fdecl.styp with
           A.Void -> ""
           | _ -> f ^ "_result") in
         L.build_call fdef (Array.of_list llargs) result builder

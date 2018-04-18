@@ -10,11 +10,11 @@ type op = Add | Sub | Mult | Div  | Eq | Neq | Less |
 
 type uop = Neg | Not
 (* Trans_M | Inv_M |  *)
-| Increment | Decrement
+type puop =  Increment | Decrement
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String | IntM 
+    Int | Bool | Char | Float | Void | String | IntM
   (* | List of typ *)
   (* | Matrix of typ *)
 
@@ -34,7 +34,7 @@ type expr =
   | ListIndexAssign of string * expr * expr *)
   | Id of string
   | Binop of expr * op * expr
-  | Punop of expr * uop
+  | Punop of expr * puop
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
@@ -84,8 +84,9 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
   (* | Trans_M -> "'"
-  | Inv_M -> "~" *)
-  | Increment -> "++"
+     | Inv_M -> "~" *)
+let string_of_puop = function
+    Increment -> "++"
   | Decrement -> "--"
 
 let rec string_of_expr = function
@@ -99,7 +100,7 @@ let rec string_of_expr = function
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Punop(e, o) ->  string_of_expr e ^ string_of_uop o
+  | Punop(e, o) ->  string_of_expr e ^ string_of_puop o
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
