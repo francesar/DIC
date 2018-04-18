@@ -2,11 +2,12 @@ class func_test {
 	func int main(int a) {
 		int z;
 		int y = 0;
-		
+		int p = test(z);
+
 	}
 
-	func int test(int b) {
-		b= 2;
+	func void test(int a) {
+		
 	}
 
 }

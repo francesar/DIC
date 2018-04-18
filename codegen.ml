@@ -107,6 +107,7 @@ let translate (_, _, functions) =
       | SStringLit s -> L.build_global_stringptr s "tmp" builder
       | SAssign (s, e) -> let e' = expr builder e in
                           let _ = L.build_store e' (lookup s) builder in e'
+      | SId s -> L.build_load (lookup s) s builder
       | SNoExpr -> L.const_null i32_t
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | SBinop (e1, op, e2) -> 
@@ -132,6 +133,14 @@ let translate (_, _, functions) =
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
       | SCall ("print", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
+      | SCall (f, args) ->
+        let (fdef, fdecl) = StringMap.find f function_decls in
+        let llargs = List.rev (List.map (expr builder) (List.rev args)) in
+        let result = (match fdecl.styp with 
+          A.Void -> ""
+          | _ -> f ^ "_result") in
+        L.build_call fdef (Array.of_list llargs) result builder
+      (* | _ -> to_imp (string_of_sexpr (A.Int, e)) *)
       | _ -> to_imp (string_of_sexpr (A.Int, e))
     in
 
