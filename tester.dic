@@ -6,6 +6,9 @@ class func_test {
 		p = test(z);
 		float n = 2.3;
 		char c = 'a';
+		if (y != 1) {
+			int in = 2;
+		}
 		n = test2();
 		return 0;
 	}
