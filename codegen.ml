@@ -218,6 +218,8 @@ let translate (_, _, functions) =
         let merge_bb = L.append_block context "merge" the_function in
         let _ = L.build_cond_br bool_val body_bb merge_bb pred_builder in
         L.builder_at_end context merge_bb
+      | SFor (e1, e2, e3, body) -> stmt builder
+        ( SBlock [SBlock [e1] ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
       | s -> to_imp (string_of_sstmt s)
     in ignore (stmt builder (SBlock fdecl.sbody))
 
