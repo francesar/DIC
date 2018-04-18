@@ -6,3 +6,5 @@ microc/_build/*
 *.log
 *.ll 
 *.s
+unop.sh
+scope

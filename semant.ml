@@ -143,12 +143,25 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             (* Trans_M when t = Matrix -> t
           | Inv_M when t = Matrix -> t *)
-          | Increment when t = Int || t = Float -> t
-          | Decrement when t = Int || t = Float -> t
-          | _ -> raise (Failure ("illegal unary operator" ^
-                                 string_of_uop op ^ string_of_typ t ^
+          | Increment when t = Int -> t
+          | Decrement when t = Int -> t
+          | Neg when t = Int || t = Float -> t
+          | Not when t = Bool -> t
+          | _ -> raise (Failure ("illegal unary operator " ^
+                                 string_of_uop op ^ " " ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
         in (ty, SUnop(op, (t, e')))
+      | Punop(e, op) as ex ->
+        let (t, e') = expr e in
+        let ty = match op with
+          (* Trans_M when t = Matrix -> t
+             | Inv_M when t = Matrix -> t *)
+          | Increment when t = Int -> t
+          | Decrement when t = Int -> t
+          | _ -> raise (Failure ("illegal unary operator " ^
+                                 string_of_uop op ^ " " ^ string_of_typ t ^
+                                 " in " ^ string_of_expr ex))
+        in (ty, SPunop((t, e'), op))
       | Binop(e1, op, e2) as e ->
         let (t1, e1') = expr e1
         and (t2, e2') = expr e2 in

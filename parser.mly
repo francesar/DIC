@@ -131,12 +131,12 @@ expr:
   | expr GEQ      expr                { Binop($1, Geq,   $3)            }
   | expr AND      expr                { Binop($1, And,   $3)            }
   | expr OR       expr                { Binop($1, Or,    $3)            }
-  /* | MINUS expr %prec NEG              { Unop(Neg, $2)                   } */
-  /* | INC expr                          { Unop(Increment, $2)             } */
-  /* | DEC expr                          { Unop(Decrement, $2)             } */
-  /* | expr INC                          { Punop($1, Increment)            } */
-  /* | expr DEC                          { Punop( $1, Decrement)           } */
-  /* | NOT expr                          { Unop(Not, $2)                   } */
+  | MINUS expr %prec NEG              { Unop(Neg, $2)                   }
+  | INC expr                          { Unop(Increment, $2)             }
+  | DEC expr                          { Unop(Decrement, $2)             }
+  | expr INC                          { Punop($1, Increment)            }
+  | expr DEC                          { Punop( $1, Decrement)           }
+  | NOT expr                          { Unop(Not, $2)                   }
   /* | TRANSPOSE expr                    { Unop(Trans_M, $2)               } */
   /* | INVERSE expr                      { Unop(Inv_M, $2)                 } */
   | ID ASSIGN expr                    { Assign($1, $3)                  }
