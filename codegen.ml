@@ -11,15 +11,18 @@ let translate (_, _, functions) =
   and i8_t       = L.i8_type     context
   and string_t   = L.i8_type     context (* possibly very wrong*)
   and void_t     = L.void_type   context
+  and float_t    = L.double_type context
   and i1_t       = L.i1_type     context
 
   and the_module = L.create_module context "DIC" in
 
   let ltype_of_typ = function
     | A.Int -> i32_t
-    | A.String -> i8_t
+    | A.String -> string_t
     | A.Void  -> void_t
     | A.Bool -> i1_t
+    | A.Float -> float_t
+    | A.Char -> i1_t
     | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet"))
   in
 
@@ -107,8 +110,11 @@ let translate (_, _, functions) =
       | SStringLit s -> L.build_global_stringptr s "tmp" builder
       | SAssign (s, e) -> let e' = expr builder e in
                           let _ = L.build_store e' (lookup s) builder in e'
+      | SId s -> L.build_load (lookup s) s builder
       | SNoExpr -> L.const_null i32_t
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
+      | SFLit l -> L.const_float_of_string float_t l
+      | SCLit c -> L.build_global_stringptr c "tmp" builder
       | SBinop (e1, op, e2) ->
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1
@@ -118,10 +124,10 @@ let translate (_, _, functions) =
           | A.Sub     -> L.build_sub
           | A.Mult    -> L.build_mul
           | A.Div     -> L.build_sdiv
-(*           | A.Mod     -> L.build_mod *)
+          (* | A.Mod     -> L.build_mod *)
           | A.And     -> L.build_and
           | A.Or      -> L.build_or
-(*           | A.Equal   -> L.build_icmp L.Icmp.Eq *)
+          | A.Eq      -> L.build_icmp L.Icmp.Eq
           | A.Neq     -> L.build_icmp L.Icmp.Ne
           | A.Less    -> L.build_icmp L.Icmp.Slt
           | A.Leq     -> L.build_icmp L.Icmp.Sle
@@ -142,8 +148,16 @@ let translate (_, _, functions) =
            A.Increment            -> L.build_add (L.const_int i32_t 1) e' "tmp" builder)
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
-      | SCall ("print", [e]) ->
+      | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
+      | SCall (f, args) ->
+        let (fdef, fdecl) = StringMap.find f function_decls in
+        let llargs = List.rev (List.map (expr builder) (List.rev args)) in
+        let result = (match fdecl.styp with 
+          A.Void -> ""
+          | _ -> f ^ "_result") in
+        L.build_call fdef (Array.of_list llargs) result builder
+      (* | _ -> to_imp (string_of_sexpr (A.Int, e)) *)
       | _ -> to_imp (string_of_sexpr (A.Int, e))
     in
 
@@ -161,6 +175,10 @@ let translate (_, _, functions) =
       (* return 0;  ----->  ret i32 0 *)
       | SReturn e -> let _ = match fdecl.styp with
                               A.Int -> L.build_ret (expr builder e) builder
+                            | A.Bool -> L.build_ret (expr builder e) builder
+                            | A.Char -> L.build_ret (expr builder e) builder
+                            | A.String -> L.build_ret (expr builder e) builder
+                            | A.Float -> L.build_ret (expr builder e) builder
                             | _ -> to_imp (A.string_of_typ fdecl.styp)
                      in builder
       | SIf(predicate, then_stmt, else_stmt) ->

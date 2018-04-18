@@ -44,6 +44,7 @@ type var_decl =  typ * string * expr
 
 type stmt =
     Block of stmt list
+  | FBlock of stmt list
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt
