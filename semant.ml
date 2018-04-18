@@ -62,7 +62,7 @@ let check (pname, (var_decls, func_decls)) =
     (* Add built in function declarations into arr here
       Convert any datatype into string for print
     *)
-    in List.fold_left add_bind StringMap.empty [([Int], "print");([String], "printstr");]
+    in List.fold_left add_bind StringMap.empty [([Int], "printint");([String], "printstr");]
 
   in
 
@@ -157,11 +157,11 @@ let check (pname, (var_decls, func_decls)) =
         (* Determine expression type based on operator and operand types *)
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
-          | Add | Sub | Mult | Div when same && t1 = Float -> Float
+          | Add | Sub | Mult | Div       when same && t1 = Float -> Float
           (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
-          | Eq | Neq            when same               -> Bool
+          | Eq | Neq                     when same               -> Bool
           | Less | Leq | Greater | Geq
-            when same && (t1 = Int || t1 = Float) -> Bool
+                     when same && (t1 = Int || t1 = Float) -> Bool
           | And | Or when same && t1 = Bool -> Bool
           | _ -> raise (
               Failure ("illegal binary operator " ^
