@@ -142,10 +142,10 @@ let translate (_, _, functions) =
 	          | A.Neg                  -> L.build_neg
             | A.Not                  -> L.build_not) e' "tmp" builder
       | SPunop(e, op) ->
-        let (t,_) = e in
         let e' = expr builder e in
         (match op with
-           A.Increment            -> L.build_add (L.const_int i32_t 1) e' "tmp" builder)
+           A.Increment            -> L.build_add (L.const_int i32_t 1)
+         | A.Decrement            -> L.build_add (L.const_int i32_t (-1)))e' "tmp" builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
       | SCall ("printint", [e]) ->
@@ -153,7 +153,7 @@ let translate (_, _, functions) =
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (expr builder) (List.rev args)) in
-        let result = (match fdecl.styp with 
+        let result = (match fdecl.styp with
           A.Void -> ""
           | _ -> f ^ "_result") in
         L.build_call fdef (Array.of_list llargs) result builder

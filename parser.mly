@@ -90,7 +90,7 @@ stmt:
   | LBRACE stmt_list RBRACE                   { Block(List.rev $2)      }
   | IF LPAREN expr RPAREN stmt %prec NOELSE   { If($3, $5, Block([]))   }
   | IF LPAREN expr RPAREN stmt ELSE stmt      { If($3, $5, $7)          }
-  | FOR LPAREN for_first_arg expr SEMI expr_opt RPAREN stmt 
+  | FOR LPAREN for_first_arg expr SEMI expr_opt RPAREN stmt
                                               { For($3, $4, $6, $8)     }
   | WHILE LPAREN expr RPAREN stmt             { While($3, $5)           }
 
@@ -111,9 +111,9 @@ expr:
   /* | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
   | LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
-  | LBRACK expr RBRACK LBRACK expr RBRACK 
+  | LBRACK expr RBRACK LBRACK expr RBRACK
                                       { MatIndex ($1, $3, $6)           }
-  | LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr 
+  | LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
                                       { MatIndexAssign ($1, $3, $6, $9) } */
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
@@ -132,8 +132,8 @@ expr:
   | expr AND      expr                { Binop($1, And,   $3)            }
   | expr OR       expr                { Binop($1, Or,    $3)            }
   | MINUS expr %prec NEG              { Unop(Neg, $2)                   }
-  | INC expr                          { Unop(Increment, $2)             }
-  | DEC expr                          { Unop(Decrement, $2)             }
+  /* | INC expr                          { Unop(Increment, $2)             } */
+  /* | DEC expr                          { Unop(Decrement, $2)             } */
   | expr INC                          { Punop($1, Increment)            }
   | expr DEC                          { Punop( $1, Decrement)           }
   | NOT expr                          { Unop(Not, $2)                   }

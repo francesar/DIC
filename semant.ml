@@ -157,7 +157,7 @@ let check (pname, (var_decls, func_decls)) =
           | Increment when t = Int -> t
           | Decrement when t = Int -> t
           | _ -> raise (Failure ("illegal unary operator " ^
-                                 string_of_uop op ^ " " ^ string_of_typ t ^
+                                 string_of_puop op ^ " " ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
         in (ty, SPunop((t, e'), op))
       | Binop(e1, op, e2) as e ->

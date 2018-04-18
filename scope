@@ -1,8 +1,0 @@
-class scope {
-  func int main() {
-      if (1 < 1++) {
-        printstr("increment test");
-      }
-      return 0;
-   }
-}

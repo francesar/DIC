@@ -1,18 +1,18 @@
 class unop_test {
   func int main() {
     if(!false) {
-      printstr("! operator test");
+      printstr("success");
     }
 
     if (-1 < 0) {
-      printstr("- operator test");
+      printstr("success");
     }
 
     if (2 == 1++) {
-      printstr("increment test");
+      printstr("success");
     }
     if (2 == 3--) {
-      printstr("decrement test");
+      printstr("success");
     }
 
     return 0;
