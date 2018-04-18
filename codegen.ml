@@ -11,15 +11,18 @@ let translate (_, _, functions) =
   and i8_t       = L.i8_type     context
   and string_t   = L.i8_type     context (* possibly very wrong*)
   and void_t     = L.void_type   context
+  and float_t    = L.double_type context
   and i1_t       = L.i1_type     context
 
   and the_module = L.create_module context "DIC" in
 
   let ltype_of_typ = function
     | A.Int -> i32_t
-    | A.String -> i8_t
+    | A.String -> string_t
     | A.Void  -> void_t
     | A.Bool -> i1_t
+    | A.Float -> float_t
+    | A.Char -> i1_t
     | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet"))
   in
 
@@ -110,6 +113,8 @@ let translate (_, _, functions) =
       | SId s -> L.build_load (lookup s) s builder
       | SNoExpr -> L.const_null i32_t
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
+      | SFLit l -> L.const_float_of_string float_t l
+      | SCLit c -> L.build_global_stringptr c "tmp" builder
       | SBinop (e1, op, e2) ->
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1

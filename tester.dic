@@ -2,12 +2,19 @@ class func_test {
 	func int main(int a) {
 		int z;
 		int y = 0;
-		int p = test(z);
-
+		int p = 2;
+		p = test(z);
+		float n = 2.3;
+		char c = 'a';
+		n = test2();
 	}
 
-	func void test(int a) {
-		
+	func float test2() {
+		bool a = true;
+	}
+
+	func int test(int a) {
+		return a;
 	}
 
 }
