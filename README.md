@@ -5,7 +5,7 @@
 In order to build the **DIC** compiler, run `make`. Running `make` uses `ocamlbuild` to generate a `toplevel.native` file, which serves as the driver for the **DIC**. Once built, you can pass a `.dic` file to be read by the compiler. 
 
 ## Running the tests
-Tests are defined in the `tests/` directory. Inside of `tests/` there is a directory for positive and negative tests. In order to run the tests, make sure to have `ocamlbuild` installed on your machine, and run `make clean` (in the case that **DIC** has been built before) followed by `make` in order to build the compiler. To run both positive and negative tests, run `make test`. When run, the file path and the test outcome will be outputed on the same line, either PASSED or FAILED. 
+Tests are defined in the `tests/` directory. Inside of `tests/` there is a directory for positive and negative tests. In order to run the tests, make sure to have `ocamlbuild` installed on your machine, and run `make test`. When run, the file path and the test outcome will be outputed on the same line, either PASSED or FAILED. 
 
 The positive tests the following 
 
