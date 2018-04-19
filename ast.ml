@@ -2,17 +2,21 @@
 
 (* Operators *)
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
-type op = Add | Sub | Mult | Div | Assign | Eq | Neq | Less |
-          Leq | Greater | Geq | And | Or | Mod | Dot_M |
-          Mult_M | Div_M
+type op = Add | Sub | Mult | Div  | Eq | Neq | Less |
+          Leq | Greater | Geq | And | Or | Mod
+          (* Assign *)
+          (* Dot_M | *)
+          (* Mult_M | Div_M *)
 
-type uop = Neg | Not | Trans_M | Inv_M | Increment | Decrement
+type uop = Neg | Not
+(* Trans_M | Inv_M |  *)
+type puop =  Increment | Decrement
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String
-  | List of typ
-  | Matrix of typ
+    Int | Bool | Char | Float | Void | String | IntM
+  (* | List of typ *)
+  (* | Matrix of typ *)
 
 type bind = typ * string
 
@@ -22,15 +26,15 @@ type expr =
   | Fliteral of string
   | BoolLit of bool
   | StringLit of string
-  | MatLit of expr list list (* Matrix literal *)
+  (* | MatLit of expr list list (* Matrix literal *)
   | MatIndex of string * expr * expr (* Matrix Access Index *)
   | MatIndexAssign of string * expr * expr * expr (* Assign a Matrix Index *)
   | ListLit of expr list
   | ListIndex of string * expr
-  | ListIndexAssign of string * expr * expr
+  | ListIndexAssign of string * expr * expr *)
   | Id of string
   | Binop of expr * op * expr
-  | Punop of expr * uop
+  | Punop of expr * puop
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
@@ -40,10 +44,11 @@ type var_decl =  typ * string * expr
 
 type stmt =
     Block of stmt list
+  | FBlock of stmt list
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt
-  | For of var_decl * expr * expr * stmt
+  | For of stmt * expr * expr * stmt
   | While of expr * stmt
   | Vdecl of var_decl
 
@@ -60,12 +65,11 @@ let string_of_op = function
     Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
-  | Mult_M -> ".*"
+  (* | Mult_M -> ".*" *)
   | Div -> "/"
-  | Div_M -> "./"
-  | Assign -> "="
+  (* | Div_M -> "./" *)
+  (* | Assign -> "=" *)
   | Eq -> "=="
-  | Peq -> "==="
   | Neq -> "!="
   | Less -> "<"
   | Leq -> "<="
@@ -74,14 +78,15 @@ let string_of_op = function
   | And -> "&&"
   | Or -> "||"
   | Mod -> "%"
-  | Dot_M -> "**"
+  (* | Dot_M -> "**" *)
 
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
-  | Trans_M -> "'"
-  | Inv_M -> "~"
-  | Increment -> "++"
+  (* | Trans_M -> "'"
+     | Inv_M -> "~" *)
+let string_of_puop = function
+    Increment -> "++"
   | Decrement -> "--"
 
 let rec string_of_expr = function
@@ -95,15 +100,15 @@ let rec string_of_expr = function
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Punop(e, o) ->  string_of_expr e ^ string_of_uop o
+  | Punop(e, o) ->  string_of_expr e ^ string_of_puop o
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
-  | ListLit(el) -> "[" ^ String.concat ", " (List.map string_of_expr el) ^ "]"
-  | ListIndex(v,e) -> v ^ "[" ^ string_of_expr e ^ "]"
-  | ListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2
-  | MatLit(rows) ->
+  (* | ListLit(el) -> "[" ^ String.concat ", " (List.map string_of_expr el) ^ "]" *)
+  (* | ListIndex(v,e) -> v ^ "[" ^ string_of_expr e ^ "]" *)
+  (* | ListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2 *)
+  (* | MatLit(rows) ->
       "[" ^
       let rec print_list input_list = match (List.rev input_list) with
       | [s] -> s
@@ -117,17 +122,18 @@ let rec string_of_expr = function
       ^ "]"
   | MatIndex (v, e1, e2) -> v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "]"
   | MatIndexAssign (v, e1, e2, e3) ->
-      v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "] = " ^ string_of_expr e3
+      v ^ "[" ^ string_of_expr e1 ^ "]" ^ "[" ^ string_of_expr e2 ^ "] = " ^ string_of_expr e3 *)
 
-let rec string_of_typ = function
+let string_of_typ = function
     Int -> "int"
   | Char -> "char"
   | String -> "string"
   | Bool -> "bool"
   | Float -> "float"
   | Void -> "void"
-  | List(t) -> string_of_typ t ^ "[]"
-  | Matrix(t) -> string_of_typ t ^ "[][]"
+  | IntM -> "int[]"
+  (* | List(t) -> string_of_typ t ^ "[]"
+  | Matrix(t) -> string_of_typ t ^ "[][]" *)
 
 let string_of_vdecl = function
   | (t, id, exp) ->
@@ -139,13 +145,14 @@ let rec string_of_stmt = function
       string_of_vdecl vdecls ^ "\n"
   | Block(stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
+  | FBlock(stmts) -> "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | Expr(expr) -> string_of_expr expr ^ ";\n";
   | Return(expr) -> "return " ^ string_of_expr expr ^ "; \n";
   | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
   | If(e, s1, s2) -> "if (" ^ string_of_expr e ^ ")\n" ^
       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
   | For( v1, e2, e3, s) ->
-      "for (" ^ string_of_vdecl v1 ^ string_of_expr e2 ^ " ; " ^
+      "for (" ^ string_of_stmt v1 ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3 ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 

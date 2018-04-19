@@ -1,0 +1,20 @@
+class unop_test {
+  func int main() {
+    if(!false) {
+      printstr("success");
+    }
+
+    if (-1 < 0) {
+      printstr("success");
+    }
+
+    if (2 == 1++) {
+      printstr("success");
+    }
+    if (2 == 3--) {
+      printstr("success");
+    }
+
+    return 0;
+  }
+}

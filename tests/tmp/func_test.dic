@@ -1,0 +1,34 @@
+class func_test {
+	func void main(int b, int c) {
+		int d = 3;
+		char aasdf = 'e';
+		string test = "this is a test";
+		int e = 0;
+		for (e = 0; e < 2; e = d + 1) {
+			int p = 1;
+		}
+		float testing = 2.3;
+		print(c);
+		tester();
+		d = x(test, c);
+		y();
+
+		tester();
+	}
+
+	func void tester() {
+		return;
+	}
+
+	func int y() {
+		return 0;
+	}
+
+	func int x( string e, int f) {
+		int x = 2;
+		x = 3;
+		return x;
+	}
+int[] a = [1,2];
+
+}

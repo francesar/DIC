@@ -1,3 +1,10 @@
 *.native 
 _build/*
 .DS_Store
+microc/_build/*
+*.exe
+*.log
+*.ll 
+*.s
+unop.sh
+scope
