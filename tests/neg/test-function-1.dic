@@ -1,0 +1,12 @@
+class FunctionTest {
+    func int main() {
+        // Function call with wrong number of args should throw error
+        hello(1);
+        printstr("should not get here");
+        return 0;
+    }
+
+    func int hello() {
+        return 0;
+    }
+}

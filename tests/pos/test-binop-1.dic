@@ -1,0 +1,57 @@
+class BinopTest{
+	func int main(){
+		printstr("Add 3+2 should be 5. Is... ");
+		printint(3+2);
+
+		printstr("Subtract 3-2 should be 1. Is... ");
+		printint(3-2);
+
+		printstr("Multiply 3*2 should be 6. Is... ");
+		printint(3*2);
+
+		printstr("Divide 3/2 should be 1. Is... ");
+		printint(3/2);
+
+		if(true && true){
+			printstr("&& works.");
+		}
+
+		if (true || false){
+			printstr("|| works.");
+		}
+
+		if (3 == 2){
+			printstr("== works.");
+		}
+
+		if (3 != 2){
+			printstr("!= works.");
+		}
+
+		if (2 < 3){
+			printstr("< works.");
+		}
+
+		if (2 <= 3){
+			printstr("<= works.");
+		}
+
+		if (3 > 2){
+			printstr("> works.");
+		}
+
+		if (3 < 2){
+			printstr("This shouldn't print.");
+		}
+
+		if (3 >= 2){
+			printstr(">= works.");
+		}
+
+		if (3 > 2 && 3 != 2){
+			printstr(">, &&, and != work together.");
+		}
+		printstr("success");
+		return 0;
+	}
+}

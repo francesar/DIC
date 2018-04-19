@@ -1,0 +1,2 @@
+Fatal error: exception Failure("expecting 0 arguments in hello(1)
+where: args = 1")

@@ -1,0 +1,8 @@
+class TestClass {
+    func int main() {
+        // Not allowed to have code outside of class
+        printstr("should throw error");
+    }
+}
+
+printstr("cant define things outside of class");
