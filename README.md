@@ -6,18 +6,30 @@ In order to build the **DIC** compiler, run `make`. Running `make` uses `ocamlbu
 
 ## Running the tests
 Tests are defined in the `tests/` directory. Inside of `tests/` there is a directory for positive and negative tests. In order to run the tests, make sure to have `ocamlbuild` installed on your machine, and run `make clean` (in the case that **DIC** has been built before) followed by `make` in order to build the compiler. To run both positive and negative tests, run `make test`. When run, the file path and the test outcome will be outputed on the same line, either PASSED or FAILED. 
+
 The positive tests the following 
+
     - test-binop-1: tests all binary operators
+
     - test-class-1: tests properly formatted class (not in microc)
+
     - test-control-1: tests if else statements
+
     - test-for-1: tests for loops
+
     - test-unop-1: tests ++, --, and - unops
+
     - test-vardecl-1: tests variable declaration and assignment inline (not in microc)
+
     - test-while-1: tests while loops
+
 The negative tests the following
     - test-class-1: tests for incorrect class structure
+
     - test-for-1: tests for incorrect conditional in for loop
+
     - test-function-1: tests for incorrect functional call for function that expects no arguments
+    
     - test-types-not-matching: tests for assignment of variable with incorrect declaration type.
 
 ## Authors 

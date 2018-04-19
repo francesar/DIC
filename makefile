@@ -1,7 +1,7 @@
 build:
 	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 toplevel.native
 
-test: 
+test: build
 	./run-all-tests.sh
 
 test-menhir:build
