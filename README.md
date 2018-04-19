@@ -2,16 +2,23 @@
 **Do it Carefully** is a programming languange that aims to provide developers with native support for matrix operations, while still following the object oriented mumbo jumbo that we all know and love. 
 
 ## Usage
-In order to build the **DIC** compiler, run `make build`. Running `make build` uses `ocamlbuild` to generate a `toplevel.native` file, which serves as the driver for the **DIC**. Once built, you can pass a `.dic` file to be read by the compiler. 
-
-## Running Hello World 👋🏽
-In order to run hello world using **DIC**, make sure that LLVM is installed correctly (we tested ours using opam LLVM3.7). If everything is configured correctly, run `$ chmod u+x testhelloworld.sh` to make the script into an executable. Finally run `make test-helloworld` (which compiles the DIC compile and runs it on the test.dic file) and you should see **hello world**.
-
-## Progress
-Currently, all currently agreed upon syntax has been implemented. We do however have small bug in the variable declaration list inside of our functions. All `vdecl`'s (variable declarations) must happen before any `stmt` (statement) blocks. A bugfix is coming soon 🙊.
+In order to build the **DIC** compiler, run `make`. Running `make` uses `ocamlbuild` to generate a `toplevel.native` file, which serves as the driver for the **DIC**. Once built, you can pass a `.dic` file to be read by the compiler. 
 
 ## Running the tests
-Tests are defined in the `tests/` directory. In order to run the tests, make sure to have `ocamlbuild` installed on your machine, and run `make clean` (in the case that **DIC** has been built before) followed by `make test` in order to run the test suite. Currently there are 10 tests total, 5 positive tests that show showcase possible valid programs written in **DIC**, and 5 negative tests that show invalid programs that are expected to through syntax errors. The output's format prints the contents of the test file to STDOUT and either returns Ocaml's `Fatal error: exception Parsing.Parse_error` in the case that the test file is expected to throw an error or nothing if the test ran sucessfully. 
+Tests are defined in the `tests/` directory. Inside of `tests/` there is a directory for positive and negative tests. In order to run the tests, make sure to have `ocamlbuild` installed on your machine, and run `make clean` (in the case that **DIC** has been built before) followed by `make` in order to build the compiler. To run both positive and negative tests, run `make test`. When run, the file path and the test outcome will be outputed on the same line, either PASSED or FAILED. 
+The positive tests the following 
+    - test-binop-1: tests all binary operators
+    - test-class-1: tests properly formatted class (not in microc)
+    - test-control-1: tests if else statements
+    - test-for-1: tests for loops
+    - test-unop-1: tests ++, --, and - unops
+    - test-vardecl-1: tests variable declaration and assignment inline (not in microc)
+    - test-while-1: tests while loops
+The negative tests the following
+    - test-class-1: tests for incorrect class structure
+    - test-for-1: tests for incorrect conditional in for loop
+    - test-function-1: tests for incorrect functional call for function that expects no arguments
+    - test-types-not-matching: tests for assignment of variable with incorrect declaration type.
 
 ## Authors 
 * **Yulissa Arroyo-Paredes** - ([yulissaa](https://github.com/yulissaa)) - ya2340@barnard.edu -  *Project Manager*

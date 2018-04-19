@@ -1,15 +1,15 @@
 class BinopTest{
 	func int main(){
-		printstr("Add 3+2 should be 5. Is... ");
+		// Add 3+2 should be 5.
 		printint(3+2);
 
-		printstr("Subtract 3-2 should be 1. Is... ");
+		// Subtract 3-2 should be 1.
 		printint(3-2);
 
-		printstr("Multiply 3*2 should be 6. Is... ");
+		// Multiply 3*2 should be 6.
 		printint(3*2);
 
-		printstr("Divide 3/2 should be 1. Is... ");
+		// Divide 3/2 should be 1.
 		printint(3/2);
 
 		if(true && true){
@@ -20,7 +20,15 @@ class BinopTest{
 			printstr("|| works.");
 		}
 
-		if (3 == 2){
+        if(false || false) {
+            printstr("should not print");
+        }
+
+        if(true && false) {
+            printstr("should not print");
+        }
+
+		if (2 == 2){
 			printstr("== works.");
 		}
 
