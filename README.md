@@ -24,12 +24,13 @@ The positive tests the following
     - test-while-1: tests while loops
 
 The negative tests the following
+
     - test-class-1: tests for incorrect class structure
 
     - test-for-1: tests for incorrect conditional in for loop
 
     - test-function-1: tests for incorrect functional call for function that expects no arguments
-    
+
     - test-types-not-matching: tests for assignment of variable with incorrect declaration type.
 
 ## Authors 
