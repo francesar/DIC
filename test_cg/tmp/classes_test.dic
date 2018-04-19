@@ -1,7 +1,0 @@
-class TestClass {
-    // Testing testing correctly formmatted class
-    func int main() {
-        printstr("classes_test success");
-        return 0;
-    }
-}
