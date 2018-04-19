@@ -14,7 +14,7 @@ RunTestNeg() {
     CMP1=$(echo $1 | cut -d'.' -f 1)
     RES1="-res"
     FILE1=$CMP1$RES1
-    ./toplevel.native $1 &> test
+    ./toplevel.native $1 2> test
     cmp --silent test $FILE1 && echo "$1 PASSED" || echo "$1 FAILED"
     rm test
 }
