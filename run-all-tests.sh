@@ -20,13 +20,13 @@ RunTestNeg() {
 }
 
 echo "Running positive tests"
-for file in test_cg/pos/*.dic
+for file in tests/pos/*.dic
 do 
    RunTestPos $file
 done 
 
 echo "Running negative tests"
-for file in test_cg/neg/*.dic
+for file in tests/neg/*.dic
 do
     RunTestNeg $file
 done
