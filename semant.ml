@@ -137,6 +137,7 @@ let check (pname, (var_decls, func_decls)) =
         let err = "illegal assignment " ^ var ^ string_of_typ lt ^ " = " ^
                   string_of_typ rt ^ " in " ^ string_of_expr ex
         in (check_assign lt rt err, SAssign(var, (rt, e')))
+      | ListLit l   -> (IntM, SListLit (List.map expr l))
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with

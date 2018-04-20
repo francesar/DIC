@@ -107,8 +107,8 @@ expr:
   | FALSE                             { BoolLit(false)                  }
   | SLIT                              { StringLit($1)                   }
   | ID                                { Id($1)                          }
-  /*| LBRACK args_opt RBRACK            { ListLit($2)                     }*/
-  /* | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
+  | LBRACK args_opt RBRACK            { ListLit($2)                     }
+  /*| ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
   | LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
   | LBRACK expr RBRACK LBRACK expr RBRACK
@@ -150,3 +150,7 @@ args_opt:
 args_list:
   expr                   { [$1]     }
   | args_list COMMA expr { $3 :: $1 }
+
+/*rows:
+  args_opt                { [$1]    }
+  | rows COLON args_opt   { $3 :: $1 }*/

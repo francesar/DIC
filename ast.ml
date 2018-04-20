@@ -26,6 +26,7 @@ type expr =
   | Fliteral of string
   | BoolLit of bool
   | StringLit of string
+  | ListLit of expr list
   (* | MatLit of expr list list (* Matrix literal *)
   | MatIndex of string * expr * expr (* Matrix Access Index *)
   | MatIndexAssign of string * expr * expr * expr (* Assign a Matrix Index *)
@@ -96,6 +97,7 @@ let rec string_of_expr = function
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | StringLit(s) -> s
+  | ListLit(l) -> "[" ^ String.concat ", " (List.map string_of_expr l) ^ "]"
   | Id(s) -> s
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2

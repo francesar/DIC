@@ -7,7 +7,7 @@ class func_test {
 		float n = 2.3;
 		char c = 'a';
 
-		for (int x = 0; x < 3; x = x + 1) {
+		for (a = 0; a < 3; a = a + 1) {
 			int p = 2;
 		}
 
@@ -19,6 +19,8 @@ class func_test {
 			int p = 3;
 		}
 		n = test2();
+		int[] array = [1,2,3];
+		array = [2, 3, 4];
 		return 0;
 	}
 
