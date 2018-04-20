@@ -114,8 +114,8 @@ expr:
   | LBRACK args_opt RBRACK            { ListLit($2)                     }
   | ID LBRACK expr RBRACK ASSIGN expr             { ListIndexAssign ($1, $3, $6)              }
   | ID LBRACK expr RBRACK                { ListIndex ($1, $3)    }
-  /*| LBRACK rows   RBRACK              { MatLit($2)                      }
-  | LBRACK expr RBRACK LBRACK expr RBRACK
+  | LBRACK rows   RBRACK              { MatLit($2)                      }
+  /*| LBRACK expr RBRACK LBRACK expr RBRACK
                                       { MatIndex ($1, $3, $6)           }
   | LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
                                       { MatIndexAssign ($1, $3, $6, $9) } */
@@ -155,6 +155,6 @@ args_list:
   expr                   { [$1]     }
   | args_list COMMA expr { $3 :: $1 }
 
-/*rows:
-  args_opt                { [$1]    }
-  | rows COLON args_opt   { $3 :: $1 }*/
+rows:
+  args_opt COLON args_opt                { $3 :: [$1]  }
+  | rows COLON args_opt   { $3 :: $1 }

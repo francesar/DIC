@@ -1,14 +1,6 @@
 class func_test {
 	func int main(int a) {
-
-		int[] array = [1,2,3];
-		array = [2, 3];
-		array[0] = 2.2;
-		a = array[0];
-		float[] farray = [1.2, 4.2, 5.2];
-		char[] carray = ['a', 't', 'l'];
-		bool[] barray = [true, false, false, true];
-		string[] sarray = ["ta", "123", "help"];
+		int[] array = [1,2,3:5,4,6];
 		return 0;
 	}
 }

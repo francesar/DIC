@@ -195,21 +195,67 @@ let check (pname, (var_decls, func_decls)) =
         in
         (ty, SListIndex(v, expr e1))
       | ListIndexAssign (v, e1, e2) -> 
-        (* let (t, _) = expr e2 in
-        let ty = match t with
-          | Int -> IntM
-          | Float -> FloatM
-          | Char  -> CharM
-          | String -> StringM
-          | Bool -> BoolM
-          | _ -> raise(Failure(string_of_typ t ^ " is not an acceptable list type."))
-        in *)
+        
         let (t2, _) = expr e1 in
         let _ = match t2 with
           | Int -> Int
           | _ -> raise(Failure("Index must be an Int"))
         in
         (type_of_identifier v, SListIndexAssign(v, expr e1, expr e2))
+      | MatLit(rows) ->
+        (* Take in a list and return first element type *)
+        let first_ele inp = match inp with
+          | hd :: _ ->( 
+            let (t, _) = expr hd in 
+            match t with
+              | _ -> t)
+          | [] -> Int
+        in
+        
+        (* Check the folding *)
+        let fold_checking init_type ele = 
+          let (t, _) = expr ele in
+          if (init_type = t) then init_type
+          else raise (Failure("Type " ^ string_of_typ t ^ " does not match first type " ^ string_of_typ init_type))
+        in
+
+        (* Take in a list, get the first element and fold through the rest of the list *)
+        let check_ele_consistency inp =
+          let first_type = first_ele inp in
+          let typ = List.fold_left fold_checking first_type inp 
+          in typ
+        in
+
+        let fold_checking_list init_type ele =
+          let temp = check_ele_consistency ele in 
+          if (init_type = temp) then init_type
+          else raise (Failure("Type " ^ string_of_typ temp ^ " does not match first type " ^ string_of_typ init_type))
+        in
+
+        (* Check matching type of all lists *)
+        let check_list_consistency inp = 
+          let first_list inp2 = match inp2 with
+            | hd :: _ -> check_ele_consistency hd 
+            | [] -> Int
+          in 
+          let first_type = first_list inp in
+          let typ = List.fold_left fold_checking_list first_type inp in
+          typ
+        in
+
+        (* Get the type of list *)
+        let typ = check_list_consistency rows in
+        let ty = match typ with
+          | Int -> IntM
+          | Float -> FloatM
+          | Char -> CharM
+          | String -> StringM
+          | Bool -> BoolM
+          | _ -> raise(Failure(string_of_typ typ ^ " is not an acceptable list type."))
+        in
+        (ty, SMatLit(List.map (fun inp -> List.map expr inp) rows))        
+
+
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
