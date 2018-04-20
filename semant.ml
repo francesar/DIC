@@ -97,6 +97,7 @@ let check (pname, (var_decls, func_decls)) =
   let _ = find_func "main"
   in
 
+
   let check_function func =
     let formals' = check_binds "formal" func.formals in
     let locals' = check_binds_in_stmts "local" func.body in
@@ -178,9 +179,23 @@ let check (pname, (var_decls, func_decls)) =
         (ty, SListLit(List.map expr l))
 
 
-
-      | ListIndex (v, e1, e2) -> 
-        let (t, _) = expr e2 in
+      | ListIndex(v, e1) ->
+        let (t, _) = expr e1 in 
+        let _ = match t with
+          | Int -> Int
+          | _ -> raise(Failure("Index must be an Int"))
+        in
+        let ty = match type_of_identifier v with
+          | IntM -> Int
+          | FloatM -> Float
+          | CharM  -> Char
+          | StringM -> String
+          | BoolM -> Bool
+          | _ -> raise(Failure("error should have been caught before this"))
+        in
+        (ty, SListIndex(v, expr e1))
+      | ListIndexAssign (v, e1, e2) -> 
+        (* let (t, _) = expr e2 in
         let ty = match t with
           | Int -> IntM
           | Float -> FloatM
@@ -188,8 +203,13 @@ let check (pname, (var_decls, func_decls)) =
           | String -> StringM
           | Bool -> BoolM
           | _ -> raise(Failure(string_of_typ t ^ " is not an acceptable list type."))
+        in *)
+        let (t2, _) = expr e1 in
+        let _ = match t2 with
+          | Int -> Int
+          | _ -> raise(Failure("Index must be an Int"))
         in
-        (ty, SListIndex(v, expr e1, expr e2))
+        (type_of_identifier v, SListIndexAssign(v, expr e1, expr e2))
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
