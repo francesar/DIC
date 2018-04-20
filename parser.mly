@@ -115,9 +115,9 @@ expr:
   | ID LBRACK expr RBRACK ASSIGN expr             { ListIndexAssign ($1, $3, $6)              }
   | ID LBRACK expr RBRACK                { ListIndex ($1, $3)    }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
-  /*| LBRACK expr RBRACK LBRACK expr RBRACK
-                                      { MatIndex ($1, $3, $6)           }
-  | LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
+  | ID mat_indices ASSIGN expr
+                                      { MatIndexAssign ($1, $2, $4)           }
+  /*| LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
                                       { MatIndexAssign ($1, $3, $6, $9) } */
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
@@ -146,6 +146,11 @@ expr:
   | ID ASSIGN expr                    { Assign($1, $3)                  }
   | ID LPAREN args_opt RPAREN         { Call($1, $3)                    }
   | LPAREN expr RPAREN                { $2                              }
+
+mat_indices:
+  | LBRACK expr RBRACK LBRACK expr RBRACK               { $5 :: [$2] }
+  | mat_indices LBRACK expr RBRACK  { $3 :: $1 }
+  
 
 args_opt:
   { [Noexpr] }

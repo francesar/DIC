@@ -1,6 +1,7 @@
 class func_test {
 	func int main(int a) {
 		int[] array = [1,2,3:5,4,6];
+		array[0][2] = 5;
 		return 0;
 	}
 }

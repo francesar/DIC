@@ -255,7 +255,25 @@ let check (pname, (var_decls, func_decls)) =
         in
         (ty, SMatLit(List.map (fun inp -> List.map expr inp) rows))        
 
+      | MatIndexAssign (v, e1, e2) -> 
+        let testIndex expression =
+          let (t, _) = expr expression in 
+          match t with
+            | Int -> Int
+            | _ -> raise(Failure("Index must be an Int"))
+        in
 
+        let _ = List.map testIndex e1 in
+
+        (* let ty = match type_of_identifier v with
+          | IntM -> Int
+          | FloatM -> Float
+          | CharM  -> Char
+          | StringM -> String
+          | BoolM -> Bool
+          | _ -> raise(Failure("error should have been caught before this"))
+        in *)
+        (type_of_identifier v, SMatIndexAssign(v, List.map expr e1, expr e2))
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
