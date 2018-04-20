@@ -10,7 +10,7 @@ open Ast
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID LIST DICT STRING CHAR INTM
+%token INT BOOL FLOAT VOID LIST DICT STRING CHAR INTM FLOATM CHARM BOOLM STRINGM
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT CHLIT
@@ -64,10 +64,14 @@ typ:
     INT    { Int    }
   | INTM   { IntM   }
   | BOOL   { Bool   }
+  | BOOLM  { BoolM  }
   | FLOAT  { Float  }
+  | FLOATM { FloatM }
   | VOID   { Void   }
   | STRING { String }
+  | STRINGM{ StringM}
   | CHAR   { Char   }
+  | CHARM  { CharM  }
 
 vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }

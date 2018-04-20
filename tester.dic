@@ -3,6 +3,10 @@ class func_test {
 		int[] array = [1,2,3];
 		array = [2, 3];
 		array[0] = 2.2;
+		float[] farray = [1.2, 4.2, 5.2];
+		char[] carray = ['a', 't', 'l'];
+		bool[] barray = [true, false, false, true];
+		string[] sarray = ["ta", "123", "help"];
 		return 0;
 	}
 }

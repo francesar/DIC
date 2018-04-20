@@ -14,7 +14,7 @@ type puop =  Increment | Decrement
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String | IntM
+    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM
   (* | List of typ *)
   (* | Matrix of typ *)
 
@@ -136,6 +136,10 @@ let string_of_typ = function
   | Float -> "float"
   | Void -> "void"
   | IntM -> "int[]"
+  | CharM -> "char[]"
+  | StringM -> "string[]"
+  | BoolM -> "bool[]"
+  | FloatM -> "float[]"
   (* | List(t) -> string_of_typ t ^ "[]"
   | Matrix(t) -> string_of_typ t ^ "[][]" *)
 

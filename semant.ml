@@ -138,11 +138,11 @@ let check (pname, (var_decls, func_decls)) =
                   string_of_typ rt ^ " in " ^ string_of_expr ex
         in (check_assign lt rt err, SAssign(var, (rt, e')))
       | ListLit l   -> (* (IntM, SListLit(List.map expr l)) *)
-
+        (* Potentially do this in codegen instead of semant  *)
         (* Take in a list and return first element type *)
         let first_ele inp = match inp with
-          | hd :: tl ->( 
-            let (t, e') = expr hd in 
+          | hd :: _ ->( 
+            let (t, _) = expr hd in 
             match t with
               | _ -> t)
           | [] -> Int
@@ -150,7 +150,7 @@ let check (pname, (var_decls, func_decls)) =
         
         (* Check the folding *)
         let fold_checking init_type ele = 
-          let (t, e') = expr ele in
+          let (t, _) = expr ele in
           if (init_type = t) then init_type
           else raise (Failure("Type " ^ string_of_typ t ^ " does not match first type " ^ string_of_typ init_type))
         in
@@ -167,6 +167,11 @@ let check (pname, (var_decls, func_decls)) =
         let _ = Printf.printf "%s" (string_of_typ typ) in 
         let ty = match typ with
           | Int -> IntM
+          | Float -> FloatM
+          | Char -> CharM
+          | String -> StringM
+          | Bool -> BoolM
+          | _ -> raise(Failure(string_of_typ typ ^ " is not an acceptable list type."))
         in
 
         (* Call the Sast command *)
@@ -174,7 +179,17 @@ let check (pname, (var_decls, func_decls)) =
 
 
 
-      | ListIndex (v, e1, e2) -> (IntM, SListIndex(v, expr e1, expr e2))
+      | ListIndex (v, e1, e2) -> 
+        let (t, _) = expr e2 in
+        let ty = match t with
+          | Int -> IntM
+          | Float -> FloatM
+          | Char  -> CharM
+          | String -> StringM
+          | Bool -> BoolM
+          | _ -> raise(Failure(string_of_typ t ^ " is not an acceptable list type."))
+        in
+        (ty, SListIndex(v, expr e1, expr e2))
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
