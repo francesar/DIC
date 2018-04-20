@@ -1,36 +1,8 @@
 class func_test {
 	func int main(int a) {
-		int z;
-		int y = 0;
-		int p = 2;
-		p = test(z);
-		float n = 2.3;
-		char c = 'a';
-
-		for (a = 0; a < 3; a = a + 1) {
-			int p = 2;
-		}
-
-		if (y != 1) {
-			int in = 2;
-		}
-
-		else {
-			int p = 3;
-		}
-		n = test2();
 		int[] array = [1,2,3];
-		array = [2, 3, 4];
+		array = [2, 3];
+		array[0] = 2.2;
 		return 0;
 	}
-
-	func float test2() {
-		bool a = true;
-		return 2.45;
-	}
-
-	func int test(int a) {
-		return a;
-	}
-
 }

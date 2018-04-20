@@ -8,6 +8,7 @@ and sx =
   | SBoolLit of bool
   | SStringLit of string
   | SListLit of sexpr list
+  | SListIndex of string * sexpr * sexpr
   (* | SMatLit of sexpr list list
   | SMatIndex of string * sexpr * sexpr
   | SMatIndexAssign of string * sexpr * sexpr * sexpr
@@ -64,8 +65,8 @@ let rec string_of_sexpr (t, e) =
     f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoExpr -> ""
   | SListLit(el) -> "[" ^ String.concat ", " (List.map string_of_sexpr el) ^ "]"
-  (*| SListIndex(v,e) -> v ^ "[" ^ string_of_sexpr e ^ "]"
-  | SListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
+  | SListIndex(v,e1, e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2 
+  (*| SListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
   | SMatLit(rows) ->
     "[" ^
     let rec print_list input_list = match (List.rev input_list) with
