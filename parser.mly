@@ -117,8 +117,8 @@ expr:
   | LBRACK rows   RBRACK              { MatLit($2)                      }
   | ID mat_indices ASSIGN expr
                                       { MatIndexAssign ($1, $2, $4)           }
-  /*| LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
-                                      { MatIndexAssign ($1, $3, $6, $9) } */
+  | ID mat_indices
+                                      { MatIndex ($1, $2) }
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
   | expr TIMES    expr                { Binop($1, Mult,  $3)            }

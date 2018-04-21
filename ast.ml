@@ -31,10 +31,7 @@ type expr =
   | ListIndex of string * expr 
   | MatLit of expr list list (* Matrix literal *)
   | MatIndexAssign of string * (expr list) * expr (* Matrix Access Index *)
-  (*| MatIndexAssign of string * expr * expr * expr (* Assign a Matrix Index *)
-  | ListLit of expr list
-  | ListIndex of string * expr
-  | ListIndexAssign of string * expr * expr *)
+  | MatIndex of string * (expr list) (* Assign a Matrix Index *)
   | Id of string
   | Binop of expr * op * expr
   | Punop of expr * puop
@@ -114,7 +111,8 @@ let rec string_of_expr = function
         | h :: t -> string_of_expr h ^ "," ^ print_row t in
       fun anon -> print_row anon) rows)
       ^ "]"
-  | MatIndexAssign (v, e1, e2) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "]"
+  | MatIndexAssign (v, e1, e2) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "] = " ^ string_of_expr e2
+  | MatIndex (v, e1) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "]"
   | Id(s) -> s
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2

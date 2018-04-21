@@ -12,10 +12,7 @@ and sx =
   | SListIndex of string * sexpr
   | SMatLit of sexpr list list
   | SMatIndexAssign of string * (sexpr list) * sexpr
-  (*| SMatIndexAssign of string * sexpr * sexpr * sexpr
-  | SListLit of sexpr list
-  | SListIndex of string * sexpr
-  | SListIndexAssign of string * sexpr * sexpr *)
+  | SMatIndex of string * (sexpr list)
   | SId of string
   | SBinop of sexpr * op * sexpr
   | SPunop of sexpr * puop
@@ -82,8 +79,7 @@ let rec string_of_sexpr (t, e) =
     ^ "]"
     
   | SMatIndexAssign (v, e1, e2) -> v ^ "[" ^ String.concat "][" (List.map string_of_sexpr e1) ^ "] = " ^ string_of_sexpr e2
-  (*| SMatIndexAssign (v, e1, e2, e3) ->
-    v ^ "[" ^ string_of_sexpr e1 ^ "]" ^ "[" ^ string_of_sexpr e2 ^ "] = " ^ string_of_sexpr e3*)
+  | SMatIndex (v, e1) -> v ^ "[" ^ String.concat "][" (List.map string_of_sexpr e1) ^ "]"
   ) ^ ")"
 
 (* Awkard dangling = if exp is NoExpr *)
