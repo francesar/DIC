@@ -77,7 +77,6 @@ let rec string_of_sexpr (t, e) =
         | h :: t -> string_of_sexpr h ^ "," ^ print_row t in
         fun anon -> print_row anon) rows)
     ^ "]"
-    
   | SMatIndexAssign (v, e1, e2) -> v ^ "[" ^ String.concat "][" (List.map string_of_sexpr e1) ^ "] = " ^ string_of_sexpr e2
   | SMatIndex (v, e1) -> v ^ "[" ^ String.concat "][" (List.map string_of_sexpr e1) ^ "]"
   ) ^ ")"

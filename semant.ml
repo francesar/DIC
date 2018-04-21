@@ -138,7 +138,7 @@ let check (pname, (var_decls, func_decls)) =
         let err = "illegal assignment " ^ var ^ string_of_typ lt ^ " = " ^
                   string_of_typ rt ^ " in " ^ string_of_expr ex
         in (check_assign lt rt err, SAssign(var, (rt, e')))
-      | ListLit l   -> (* (IntM, SListLit(List.map expr l)) *)
+      | ListLit l   -> 
         (* Potentially do this in codegen instead of semant  *)
         (* Take in a list and return first element type *)
         let first_ele inp = match inp with
@@ -254,7 +254,6 @@ let check (pname, (var_decls, func_decls)) =
           | _ -> raise(Failure(string_of_typ typ ^ " is not an acceptable list type."))
         in
         (ty, SMatLit(List.map (fun inp -> List.map expr inp) rows))        
-
       | MatIndexAssign (v, e1, e2) -> 
         let testIndex expression =
           let (t, _) = expr expression in 
@@ -263,17 +262,7 @@ let check (pname, (var_decls, func_decls)) =
             | _ -> raise(Failure("Index must be an Int"))
         in
         let _ = List.map testIndex e1 in
-
-        (* let ty = match type_of_identifier v with
-          | IntM -> Int
-          | FloatM -> Float
-          | CharM  -> Char
-          | StringM -> String
-          | BoolM -> Bool
-          | _ -> raise(Failure("error should have been caught before this"))
-        in *)
         (type_of_identifier v, SMatIndexAssign(v, List.map expr e1, expr e2))
-
       | MatIndex (v, e1) ->
         let testIndex expression =
           let (t, _) = expr expression in 
@@ -291,20 +280,6 @@ let check (pname, (var_decls, func_decls)) =
           | _ -> raise(Failure("error should have been caught before this"))
         in
         (ty, SMatIndex(v, List.map expr e1))
-      (*   let (t, _) = expr e1 in 
-        let _ = match t with
-          | Int -> Int
-          | _ -> raise(Failure("Index must be an Int"))
-        in
-        let ty = match type_of_identifier v with
-          | IntM -> Int
-          | FloatM -> Float
-          | CharM  -> Char
-          | StringM -> String
-          | BoolM -> Bool
-          | _ -> raise(Failure("error should have been caught before this"))
-        in
-        (ty, SListIndex(v, expr e1)) *)
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with

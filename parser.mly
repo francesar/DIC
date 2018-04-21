@@ -112,13 +112,11 @@ expr:
   | SLIT                              { StringLit($1)                   }
   | ID                                { Id($1)                          }
   | LBRACK args_opt RBRACK            { ListLit($2)                     }
-  | ID LBRACK expr RBRACK ASSIGN expr             { ListIndexAssign ($1, $3, $6)              }
-  | ID LBRACK expr RBRACK                { ListIndex ($1, $3)    }
+  | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
+  | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
-  | ID mat_indices ASSIGN expr
-                                      { MatIndexAssign ($1, $2, $4)           }
-  | ID mat_indices
-                                      { MatIndex ($1, $2) }
+  | ID mat_indices ASSIGN expr        { MatIndexAssign ($1, $2, $4)     }
+  | ID mat_indices                    { MatIndex ($1, $2)               }
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
   | expr TIMES    expr                { Binop($1, Mult,  $3)            }
