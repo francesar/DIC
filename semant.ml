@@ -174,11 +174,7 @@ let check (pname, (var_decls, func_decls)) =
           | Bool -> BoolM
           | _ -> raise(Failure(string_of_typ typ ^ " is not an acceptable list type."))
         in
-
-        (* Call the Sast command *)
         (ty, SListLit(List.map expr l))
-
-
       | ListIndex(v, e1) ->
         let (t, _) = expr e1 in 
         let _ = match t with

@@ -1,8 +1,7 @@
 class func_test {
 	func int main(int a) {
-		float[] array = [1.2:3.45];
-		array[0][2] = 5;
-		int b = array[5][2];
+		int[] array;
+		array = [1, 2, 3, 4];
 		return 0;
 	}
 }

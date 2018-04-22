@@ -23,6 +23,11 @@ let translate (_, _, functions) =
     | A.Bool -> i1_t
     | A.Float -> float_t
     | A.Char -> i1_t
+    | A.IntM -> i32_t
+    | A.FloatM -> float_t
+    | A.StringM -> string_t
+    | A.BoolM -> i1_t
+    | A.CharM -> i1_t
     | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet"))
   in
 
@@ -83,18 +88,13 @@ let translate (_, _, functions) =
     in
 
     let add_local (t, n) p =
-      (* let _ = match p with
-        | SNoExpr -> p
-        | sx -> L.set_value_name n p in *)
       let _ = L.set_value_name n p in
-      (* let _ = Printf.printf "%s\n" n in *)
-
-      let local_var = L.build_alloca (ltype_of_typ t) n builder in
-      (* let _ = match p with
-        | NoExpr p -> p
-        | p -> L.build_store p local builder in  *)
+      let local_var = 
+        match t with 
+        | A.IntM -> L.build_array_alloca (ltype_of_typ t) p n builder
+        | _ -> L.build_alloca (ltype_of_typ t) n builder 
+      in
       let _ = L.build_store p local_var builder in
-      (* StringMap.add n local_var local_vars *)
       Hashtbl.add local_vars n local_var
     in
 
@@ -116,6 +116,12 @@ let translate (_, _, functions) =
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit l -> L.const_float_of_string float_t l
       | SCLit c -> L.build_global_stringptr c "tmp" builder
+      | SListLit l ->
+        let ty = match l with 
+          | hd :: _ -> let (t, _) = hd in ltype_of_typ t
+          | [] -> ltype_of_typ A.Int
+        in
+        L.const_array ty (Array.of_list (List.map (expr builder) l)) 
       | SBinop (e1, op, e2) ->
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1
