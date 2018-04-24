@@ -1,7 +1,13 @@
 class func_test {
 	func int main(int a) {
-		int[] array;
-		array = [1, 2, 3, 4];
+		int[] array = [102193, 2, 3, 4];
+		
+		printint(array[0]);
+		printint(array[1]);
+		printint(array[2]);
+		printint(array[3]);
+
+		
 		return 0;
 	}
 }
