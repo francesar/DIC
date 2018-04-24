@@ -91,25 +91,10 @@ let translate (_, _, functions) =
       let _ = L.set_value_name n p in
       let local_var =   
         match t with 
-        (* A.IntM ->
-          let result = L.build_alloca (ltype_of_typ t) n builder in 
-           Printf.printf "%s" (" \n t: " ^ (L.string_of_lltype (ltype_of_typ t)) ^ " n:" ^ (n) ^ " p:" ^ (L.string_of_llvalue p) ^ " \n")    
-          let first = L.build_gep p [| L.const_int i32_t 0 |] "" builder in
-          let store_func i arr =
-            let tmp = L.build_gep arr [| L.const_int i32_t i |] "" builder in
-            ignore(L.build_store arr tmp builder)
-          in
-          let _ = List.iteri store_func p in first
-         *)
         | _ -> 
           let result = L.build_alloca (ltype_of_typ t) n builder in
           let _ = L.build_store p result builder in result
-          (* let alloca = L.build_array_alloca (ltype_of_typ t) p n builder *)
-          (* in L.build_gep alloca p n builder *)
-        (* | A.FloatM -> L.build_array_alloca (ltype_of_typ t) p n builder *)
-        (* | _ -> L.build_alloca (ltype_of_typ t) n builder  *)
       in
-      
       Hashtbl.add local_vars n local_var
     in
 
@@ -138,62 +123,21 @@ let translate (_, _, functions) =
               | A.Int -> ltype_of_typ A.IntM
               | _ -> ltype_of_typ A.IntM)
           | [] -> ltype_of_typ A.Int
-        in
-        let init = L.build_array_malloc ty (L.const_int i32_t (List.length l)) "" builder
-        in let _ = Printf.printf "%s" ("!!!!!1: " ^L.string_of_llvalue init) 
-        in let local_var = L.build_alloca ty "tmp" builder
-        in let _ = Printf.printf "%s" ("!!!!!2: " ^ L.string_of_llvalue local_var)
+        in let init = L.build_array_malloc ty (L.const_int i32_t (List.length l)) "tmp" builder
         in let init_array = L.build_pointercast init ty "tmp" builder 
-        in let setValues index value builder = 
-          let array_var = L.build_load local_var "" builder in
-          let pointer = L.build_gep init_array [| L.const_int i32_t index |] "" builder in 
-          ignore(L.build_store value pointer builder)
-        in
-        let inter index value = 
-          setValues index value builder
-        in
-        let _ = List.iteri inter (List.map (expr builder) l)
-        in
-        init_array
-        (* init *)
-        (* L.build_gep (L.build_load init "" builder) [| L.const_int i32_t 0 |] "" builder *)
-        (* in
-        let init = L.build_array_malloc ty (L.const_int i32_t (List.length l)) "" builder
-        in let local_array = L.build_pointercast init ty "" builder
-        in let local_var = L.build_alloca ty "tmp" builder
         in let setValues index value = 
-          let array_var = L.build_load local_var "" builder in
-          let pointer = L.build_gep local_array [| L.const_int i32_t index |] "" builder in 
+          let pointer = L.build_gep init_array [| L.const_int i32_t index |] "tmp" builder in 
           ignore(L.build_store value pointer builder)
-        let _ = List.iteri setValues (List.map (expr builder) l)
-        in
-        local_array *)
-        (* let ty = match l with 
-          | hd :: _ -> let (t, _) = hd in 
-            (match t with
-              | A.Int -> ltype_of_typ A.IntM
-              | _ -> ltype_of_typ A.IntM)
-          | [] -> ltype_of_typ A.Int
-        in
-        let init = L.build_array_malloc ty (L.const_int i32_t (List.length l)) "" builder
-        in let setValues index value builder = 
-          let pointer = L.build_gep init [| index |] "" builder in 
-          L.build_store value pointer builder *)
-
-        (* Array.of_list (List.map (expr builder) l) *)
-
-        (* Either return the array of ptrs OR return the malloc try both *)
-        (* L.build_gep (L.const_array ty (Array.of_list (List.map (expr builder) l))) (Array.of_list (List.map (expr builder) l)) "tmp" builder *)
-        (* L.const_array ty (Array.of_list (List.map (expr builder) l))  *)
+        in let _ = List.iteri setValues (List.map (expr builder) l)
+        in init_array
       | SListIndex (v, e) ->
         let local_array = L.build_load (lookup v) "" builder in
         let pointer = L.build_gep local_array [| expr builder e |] "" builder in 
         L.build_load pointer "" builder
-        (* let p = lookup v in
-        let index = expr builder e in
-        let _ = Printf.printf "%s" ("hi" ^ (L.string_of_llvalue (L.build_load (lookup v) v builder)) ^ " end") in
-        L.const_null i32_t
-         *)(* (L.const_gep  index (L.build_load (lookup v) v builder)) *)
+      | SListIndexAssign(v, e1, e2) ->
+        let local_array = L.build_load (lookup v) "" builder in
+        let pointer = L.build_gep local_array [| expr builder e1 |] "" builder in
+        L.build_store (expr builder e2) pointer builder
       | SBinop (e1, op, e2) ->
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1
