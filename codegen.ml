@@ -24,10 +24,10 @@ let translate (_, _, functions) =
     | A.Float -> float_t
     | A.Char -> i1_t
     | A.IntM -> L.pointer_type i32_t
-    | A.FloatM -> float_t
-    | A.StringM -> string_t
-    | A.BoolM -> i1_t
-    | A.CharM -> i1_t
+    | A.FloatM -> L.pointer_type float_t
+    | A.StringM -> L.pointer_type string_t
+    | A.BoolM -> L.pointer_type i1_t
+    | A.CharM -> L.pointer_type i1_t
     | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet"))
   in
 
@@ -121,6 +121,10 @@ let translate (_, _, functions) =
           | hd :: _ -> let (t, _) = hd in 
             (match t with
               | A.Int -> ltype_of_typ A.IntM
+              | A.Float -> ltype_of_typ A.FloatM
+              | A.String -> ltype_of_typ A.StringM
+              | A.Bool -> ltype_of_typ A.BoolM
+              | A.Char -> ltype_of_typ A.CharM
               | _ -> ltype_of_typ A.IntM)
           | [] -> ltype_of_typ A.Int
         in let init = L.build_array_malloc ty (L.const_int i32_t (List.length l)) "tmp" builder
@@ -138,6 +142,11 @@ let translate (_, _, functions) =
         let local_array = L.build_load (lookup v) "" builder in
         let pointer = L.build_gep local_array [| expr builder e1 |] "" builder in
         L.build_store (expr builder e2) pointer builder
+
+      (* | SMatLit rows ->
+        let ty = match rows with
+          |  *)
+
       | SBinop (e1, op, e2) ->
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1
