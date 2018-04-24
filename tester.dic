@@ -16,8 +16,13 @@ class func_test {
 		printint(array[2]);
 		printint(array[3]);
 
-		int[] array_t = [10, 11 : 12, 13];
-
+		int[] array_t = [10, 11, 12 : 13, 14, 15];
+		printint(array_t[0][0]);
+		printint(array_t[0][1]);
+		printint(array_t[0][2]);
+		printint(array_t[1][0]);
+		printint(array_t[1][1]);
+		printint(array_t[1][2]);
 		return 0;
 
 	}

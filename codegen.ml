@@ -185,12 +185,22 @@ let translate (_, _, functions) =
           let init_inner = L.build_array_malloc inner_ty (L.const_int i32_t (List.length innerList)) "inner" builder
           in let init_inner_array = L.build_pointercast init_inner inner_ty "inner" builder
           in let inter index value = setValues index value init_inner_array
-          in let _ = List.iteri inter (List.map (expr builder) innerList)
+          in let _ = List.iteri inter (List.map (expr builder) (innerList))
           in let pointer = L.build_gep init_array [| L.const_int i32_t index |] "outer" builder
           in ignore(L.build_store init_inner_array pointer builder)
-        in let _ = List.iteri innerLists rows
+        in let _ = List.iteri innerLists ( List.rev rows)
         in init_array
-
+      | SMatIndex (v, e) ->
+        (* Since we're only allowing 2D matricies fix the semant so it's not a list expr to make it way less difficult *)
+        let (outer_index, inner_index) = match e with
+          | hd :: tl :: [] -> (expr builder hd, expr builder tl)
+          | _ -> raise(Failure("This is not a 2D matrix"))
+        in
+        let local_array_outer = L.build_load (lookup v) "" builder in
+        let pointer_outer = L.build_gep local_array_outer [| inner_index |] "" builder in 
+        let local_array_inner = L.build_load pointer_outer "" builder in
+        let pointer_inner = L.build_gep local_array_inner [| outer_index |] "" builder in
+        L.build_load pointer_inner "" builder
       | SBinop (e1, op, e2) ->
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1
