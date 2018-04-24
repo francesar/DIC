@@ -4,6 +4,7 @@ class func_test {
 	func int main(int a) {
 
 		int[] array = [102193, 2, 3, 4];
+
 		printint(array[0]);
 		printint(array[1]);
 		printint(array[2]);
@@ -14,6 +15,8 @@ class func_test {
 		printint(array[1]);
 		printint(array[2]);
 		printint(array[3]);
+
+		int[] array_t = [10, 11 : 12, 13];
 
 		return 0;
 
