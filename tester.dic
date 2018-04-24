@@ -23,6 +23,21 @@ class func_test {
 		printint(array_t[1][0]);
 		printint(array_t[1][1]);
 		printint(array_t[1][2]);
+
+		array_t[0][0] = 16;
+		array_t[0][1] = 17;
+		array_t[0][2] = 18;
+		array_t[1][0] = 19;
+		array_t[1][1] = 20;
+		array_t[1][2] = 21;
+
+		printint(array_t[0][0]);
+		printint(array_t[0][1]);
+		printint(array_t[0][2]);
+		printint(array_t[1][0]);
+		printint(array_t[1][1]);
+		printint(array_t[1][2]);
+
 		return 0;
 
 	}
