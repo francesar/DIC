@@ -15,7 +15,7 @@ and sx =
   | SMatIndex of string * (sexpr list)
   | SId of string
   | SBinop of sexpr * op * sexpr
-  | SPunop of sexpr * puop
+  | SPunop of string * puop
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
@@ -57,14 +57,14 @@ let rec string_of_sexpr (t, e) =
     string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr(e)
   | SUnop(o, e) -> string_of_uop o ^ string_of_sexpr e
-  | SPunop(e, o) ->  string_of_sexpr e ^ string_of_puop o
+  | SPunop(v, o) ->  v ^ string_of_puop o
   (*| SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e*)
   | SCall(f, el) ->
     f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoExpr -> ""
   | SListLit(el) -> "[" ^ String.concat ", " (List.map string_of_sexpr el) ^ "]"
   | SListIndex(v, e) -> v ^ "[" ^ string_of_sexpr e ^ "]"
-  | SListIndexAssign(v,e1, e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2 
+  | SListIndexAssign(v,e1, e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
   | SMatLit(rows) ->
     "[" ^
     let rec print_list input_list = match (List.rev input_list) with
