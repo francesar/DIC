@@ -378,7 +378,7 @@ let check (pname, (var_decls, func_decls)) =
           let rec check_stmt_list = function
               [Return _ as s] -> [check_stmt s]
             | Return _ :: _   -> raise (Failure "nothing may follow a return")
-            | FBlock fl :: ss  -> check_stmt_list (fl @ ss) (* Flatten blocks *)
+            | Block fl :: ss  -> check_stmt_list (fl @ ss) (* Flatten blocks *)
             | s :: ss         -> check_stmt s :: check_stmt_list ss
             | []              -> if func.typ <> Void then raise(Failure "Must have a return statement") else []
           in SBlock(check_stmt_list fl)
@@ -387,7 +387,7 @@ let check (pname, (var_decls, func_decls)) =
         sfname = func.fname;
         sformals = formals';
         (* slocals = locals'; *)
-        sbody = match check_stmt (FBlock func.body) with
+        sbody = match check_stmt (Block func.body) with
     SBlock(sl) -> sl
         | _ -> let err = "internal error: block didn't become a block?"
         in raise (Failure err)

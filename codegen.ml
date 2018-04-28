@@ -9,7 +9,7 @@ let translate (_, _, functions) =
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
-  and string_t   = L.i8_type     context (* possibly very wrong*)
+  and string_t   = L.pointer_type (L.i8_type     context) (* possibly very wrong*)
   and void_t     = L.void_type   context
   and float_t    = L.double_type context
   and i1_t       = L.i1_type     context
@@ -23,7 +23,7 @@ let translate (_, _, functions) =
     | A.Void  -> void_t
     | A.Bool -> i1_t
     | A.Float -> float_t
-    | A.Char -> i1_t
+    | A.Char -> string_t
     | A.IntM -> L.pointer_type i32_t
     | A.FloatM -> L.pointer_type float_t
     | A.StringM -> L.pointer_type string_t
@@ -87,12 +87,6 @@ let translate (_, _, functions) =
       in
       List.fold_left2 add_formal ht fdecl.sformals (Array.to_list (L.params the_function))
     in
-
-(*     let check_mat ((_, e) : sexpr) = match e with
-      | SMatLit rows -> 
-        intM_t
-      | _ -> i1_t
-    in *)
     let mat_type p = match L.string_of_lltype (L.type_of p) with
       | "i32**" -> intM_t
       | _ -> raise(Failure("This is not a mat type!"))
@@ -103,7 +97,7 @@ let translate (_, _, functions) =
     in
     let add_local (t, n) p =
       let _ = L.set_value_name n p in
-      let _ = Printf.printf "%s" ("test" ^ L.string_of_lltype (L.type_of p)) in
+      (* let _ = Printf.printf "%s" ("test" ^ L.string_of_lltype (L.type_of p)) in *)
       (* let _ = if (check_mat p) = intM_t then t = intM_t else t = t in *)
       let local_var =   
         match t with 
@@ -114,15 +108,10 @@ let translate (_, _, functions) =
       in
       Hashtbl.add local_vars n local_var
     in
-
-
-
     let lookup n = try Hashtbl.find local_vars n
                       with Not_found -> raise(Failure("n: " ^ n))
                    (* with Not_found -> StringMap.find n global_vars *)
     in
-
-
     let rec expr builder ((_, e) : sexpr) = match e with
       | SLit i -> L.const_int i32_t i
       | SStringLit s -> L.build_global_stringptr s "tmp" builder
@@ -159,7 +148,6 @@ let translate (_, _, functions) =
         let local_array = L.build_load (lookup v) "" builder in
         let pointer = L.build_gep local_array [| expr builder e1 |] "" builder in
         L.build_store (expr builder e2) pointer builder
-
       | SMatLit rows ->
         let first_ele lst = match lst with
           | hd :: _ -> hd
@@ -250,7 +238,7 @@ let translate (_, _, functions) =
         let e' = expr builder e in
         (match op with
            A.Increment            -> L.build_add (L.const_int i32_t 1)
-         | A.Decrement            -> L.build_add (L.const_int i32_t (-1)))e' "tmp" builder
+         | A.Decrement            -> L.build_add (L.const_int i32_t (-1))) e' "tmp" builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
       | SCall ("printint", [e]) ->
@@ -284,6 +272,7 @@ let translate (_, _, functions) =
                             | A.Char -> L.build_ret (expr builder e) builder
                             | A.String -> L.build_ret (expr builder e) builder
                             | A.Float -> L.build_ret (expr builder e) builder
+                            | A.Void -> L.build_ret (expr builder e) builder
                             | _ -> to_imp (A.string_of_typ fdecl.styp)
                      in builder
       | SIf(predicate, then_stmt, else_stmt) ->

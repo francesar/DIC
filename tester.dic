@@ -3,40 +3,12 @@ class func_test {
 
 	func int main(int a) {
 
-		int[] array = [102193, 2, 3, 4];
+		string test = "hello";
+		char char_test = 'a';
+		printstr(test);
+		
 
-		printint(array[0]);
-		printint(array[1]);
-		printint(array[2]);
-		printint(array[3]);
-
-		array[0] = 60;
-		printint(array[0]);
-		printint(array[1]);
-		printint(array[2]);
-		printint(array[3]);
-
-		int[] array_t = [10, 11, 12 : 13, 14, 15];
-		printint(array_t[0][0]);
-		printint(array_t[0][1]);
-		printint(array_t[0][2]);
-		printint(array_t[1][0]);
-		printint(array_t[1][1]);
-		printint(array_t[1][2]);
-
-		array_t[0][0] = 16;
-		array_t[0][1] = 17;
-		array_t[0][2] = 18;
-		array_t[1][0] = 19;
-		array_t[1][1] = 20;
-		array_t[1][2] = 21;
-
-		printint(array_t[0][0]);
-		printint(array_t[0][1]);
-		printint(array_t[0][2]);
-		printint(array_t[1][0]);
-		printint(array_t[1][1]);
-		printint(array_t[1][2]);
+		
 
 		return 0;
 
