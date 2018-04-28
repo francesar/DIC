@@ -136,8 +136,8 @@ expr:
   | MINUS expr %prec NEG              { Unop(Neg, $2)                   }
   /* | INC expr                          { Unop(Increment, $2)             } */
   /* | DEC expr                          { Unop(Decrement, $2)             } */
-  | expr INC                          { Punop($1, Increment)            }
-  | expr DEC                          { Punop( $1, Decrement)           }
+  | ID INC                          { Punop($1, Increment)            }
+  | ID DEC                          { Punop( $1, Decrement)           }
   | NOT expr                          { Unop(Not, $2)                   }
   /* | TRANSPOSE expr                    { Unop(Trans_M, $2)               } */
   /* | INVERSE expr                      { Unop(Inv_M, $2)                 } */
@@ -148,7 +148,7 @@ expr:
 mat_indices:
   | LBRACK expr RBRACK LBRACK expr RBRACK               { $5 :: [$2] }
   | mat_indices LBRACK expr RBRACK  { $3 :: $1 }
-  
+
 
 args_opt:
   { [Noexpr] }

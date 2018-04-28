@@ -138,19 +138,19 @@ let check (pname, (var_decls, func_decls)) =
         let err = "illegal assignment " ^ var ^ string_of_typ lt ^ " = " ^
                   string_of_typ rt ^ " in " ^ string_of_expr ex
         in (check_assign lt rt err, SAssign(var, (rt, e')))
-      | ListLit l   -> 
+      | ListLit l   ->
         (* Potentially do this in codegen instead of semant  *)
         (* Take in a list and return first element type *)
         let first_ele inp = match inp with
-          | hd :: _ ->( 
-            let (t, _) = expr hd in 
+          | hd :: _ ->(
+            let (t, _) = expr hd in
             match t with
               | _ -> t)
           | [] -> Int
         in
-        
+
         (* Check the folding *)
-        let fold_checking init_type ele = 
+        let fold_checking init_type ele =
           let (t, _) = expr ele in
           if (init_type = t) then init_type
           else raise (Failure("Type " ^ string_of_typ t ^ " does not match first type " ^ string_of_typ init_type))
@@ -159,13 +159,13 @@ let check (pname, (var_decls, func_decls)) =
         (* Take in a list, get the first element and fold through the rest of the list *)
         let check_ele_consistency inp =
           let first_type = first_ele inp in
-          let typ = List.fold_left fold_checking first_type inp 
+          let typ = List.fold_left fold_checking first_type inp
           in typ
         in
 
         (* Get the type of list *)
         let typ = check_ele_consistency l in
-        let _ = Printf.printf "%s" (string_of_typ typ) in 
+        let _ = Printf.printf "%s" (string_of_typ typ) in
         let ty = match typ with
           | Int -> IntM
           | Float -> FloatM
@@ -176,7 +176,7 @@ let check (pname, (var_decls, func_decls)) =
         in
         (ty, SListLit(List.map expr l))
       | ListIndex(v, e1) ->
-        let (t, _) = expr e1 in 
+        let (t, _) = expr e1 in
         let _ = match t with
           | Int -> Int
           | _ -> raise(Failure("Index must be an Int"))
@@ -190,8 +190,8 @@ let check (pname, (var_decls, func_decls)) =
           | _ -> raise(Failure("error should have been caught before this"))
         in
         (ty, SListIndex(v, expr e1))
-      | ListIndexAssign (v, e1, e2) -> 
-        
+      | ListIndexAssign (v, e1, e2) ->
+
         let (t2, _) = expr e1 in
         let _ = match t2 with
           | Int -> Int
@@ -201,15 +201,15 @@ let check (pname, (var_decls, func_decls)) =
       | MatLit(rows) ->
         (* Take in a list and return first element type *)
         let first_ele inp = match inp with
-          | hd :: _ ->( 
-            let (t, _) = expr hd in 
+          | hd :: _ ->(
+            let (t, _) = expr hd in
             match t with
               | _ -> t)
           | [] -> Int
         in
-        
+
         (* Check the folding *)
-        let fold_checking init_type ele = 
+        let fold_checking init_type ele =
           let (t, _) = expr ele in
           if (init_type = t) then init_type
           else raise (Failure("Type " ^ string_of_typ t ^ " does not match first type " ^ string_of_typ init_type))
@@ -218,22 +218,22 @@ let check (pname, (var_decls, func_decls)) =
         (* Take in a list, get the first element and fold through the rest of the list *)
         let check_ele_consistency inp =
           let first_type = first_ele inp in
-          let typ = List.fold_left fold_checking first_type inp 
+          let typ = List.fold_left fold_checking first_type inp
           in typ
         in
 
         let fold_checking_list init_type ele =
-          let temp = check_ele_consistency ele in 
+          let temp = check_ele_consistency ele in
           if (init_type = temp) then init_type
           else raise (Failure("Type " ^ string_of_typ temp ^ " does not match first type " ^ string_of_typ init_type))
         in
 
         (* Check matching type of all lists *)
-        let check_list_consistency inp = 
+        let check_list_consistency inp =
           let first_list inp2 = match inp2 with
-            | hd :: _ -> check_ele_consistency hd 
+            | hd :: _ -> check_ele_consistency hd
             | [] -> Int
-          in 
+          in
           let first_type = first_list inp in
           let typ = List.fold_left fold_checking_list first_type inp in
           typ
@@ -249,10 +249,10 @@ let check (pname, (var_decls, func_decls)) =
           | Bool -> BoolM
           | _ -> raise(Failure(string_of_typ typ ^ " is not an acceptable list type."))
         in
-        (ty, SMatLit(List.map (fun inp -> List.map expr inp) rows))        
-      | MatIndexAssign (v, e1, e2) -> 
+        (ty, SMatLit(List.map (fun inp -> List.map expr inp) rows))
+      | MatIndexAssign (v, e1, e2) ->
         let testIndex expression =
-          let (t, _) = expr expression in 
+          let (t, _) = expr expression in
           match t with
             | Int -> Int
             | _ -> raise(Failure("Index must be an Int"))
@@ -261,7 +261,7 @@ let check (pname, (var_decls, func_decls)) =
         (type_of_identifier v, SMatIndexAssign(v, List.map expr e1, expr e2))
       | MatIndex (v, e1) ->
         let testIndex expression =
-          let (t, _) = expr expression in 
+          let (t, _) = expr expression in
           match t with
             | Int -> Int
             | _ -> raise(Failure("Index must be an Int"))
@@ -287,8 +287,8 @@ let check (pname, (var_decls, func_decls)) =
                                  string_of_uop op ^ " " ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
         in (ty, SUnop(op, (t, e')))
-      | Punop(e, op) as ex ->
-        let (t, e') = expr e in
+      | Punop(v, op) ->
+        let t = type_of_identifier v in
         let ty = match op with
           (* Trans_M when t = Matrix -> t
              | Inv_M when t = Matrix -> t *)
@@ -296,8 +296,8 @@ let check (pname, (var_decls, func_decls)) =
           | Decrement when t = Int -> t
           | _ -> raise (Failure ("illegal unary operator " ^
                                  string_of_puop op ^ " " ^ string_of_typ t ^
-                                 " in " ^ string_of_expr ex))
-        in (ty, SPunop((t, e'), op))
+                                 " in " ^ v))
+        in (ty, SPunop(v, op))
       | Binop(e1, op, e2) as e ->
         let (t1, e1') = expr e1
         and (t2, e2') = expr e2 in

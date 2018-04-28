@@ -28,13 +28,13 @@ type expr =
   | StringLit of string
   | ListLit of expr list
   | ListIndexAssign of string * expr * expr
-  | ListIndex of string * expr 
+  | ListIndex of string * expr
   | MatLit of expr list list (* Matrix literal *)
   | MatIndexAssign of string * (expr list) * expr (* Matrix Access Index *)
   | MatIndex of string * (expr list) (* Assign a Matrix Index *)
   | Id of string
   | Binop of expr * op * expr
-  | Punop of expr * puop
+  | Punop of string * puop
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
@@ -117,7 +117,7 @@ let rec string_of_expr = function
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Punop(e, o) ->  string_of_expr e ^ string_of_puop o
+  | Punop(v, o) ->  v ^ string_of_puop o
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
