@@ -3,12 +3,19 @@ class func_test {
 
 	func int main(int a) {
 
-		string test = "hello";
-		char char_test = 'a';
-		printstr(test);
-		
-
-		
+		int[] test = [1, 2, 3, 4];
+		printint(test[0]);
+		printint(test[1]);
+		printint(test[2]);
+		printint(test[3]);
+		int a = test[3] + 3;
+		int b = test[3] - 10;
+		int c = test[3] * 2;
+		int d = test[3] / 0;
+		printint(a);
+		printint(b);
+		printint(c);
+		printint(d);
 
 		return 0;
 

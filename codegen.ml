@@ -73,6 +73,8 @@ let translate (_, _, functions) =
 
     let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder
     and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+
+
     let ht = Hashtbl.create 10 in
     let local_vars =
       (* Allocate space for any formally declared variables and initialize the value
@@ -242,10 +244,58 @@ let translate (_, _, functions) =
         (match op with
            A.Increment            -> L.build_store inc
          | A.Decrement            -> L.build_store dec) (lookup v) builder
+      | SBinop(v1, op, v2) ->
+        let (t, _) = v1
+        and e1' = expr builder v1
+        and e2' = expr builder v2 in
+        if t = A.Float then (match op with 
+            A.Add     -> L.build_fadd
+          | A.Sub     -> L.build_fsub
+          | A.Mult    -> L.build_fmul
+          | A.Div     -> L.build_fdiv 
+          | A.Eq      -> L.build_fcmp L.Fcmp.Oeq
+          | A.Neq     -> L.build_fcmp L.Fcmp.One
+          | A.Less    -> L.build_fcmp L.Fcmp.Olt
+          | A.Leq     -> L.build_fcmp L.Fcmp.Ole
+          | A.Greater -> L.build_fcmp L.Fcmp.Ogt
+          | A.Geq     -> L.build_fcmp L.Fcmp.Oge
+          | A.And | A.Or ->
+              raise (Failure "internal error: semant should have rejected and/or on float")
+          ) e1' e2' "tmp" builder 
+        else (match op with
+          | A.Add     -> L.build_add
+          | A.Sub     -> L.build_sub
+          | A.Mult    -> L.build_mul
+                | A.Div     -> L.build_sdiv
+          | A.And     -> L.build_and
+          | A.Or      -> L.build_or
+          | A.Eq      -> L.build_icmp L.Icmp.Eq
+          | A.Neq     -> L.build_icmp L.Icmp.Ne
+          | A.Less    -> L.build_icmp L.Icmp.Slt
+          | A.Leq     -> L.build_icmp L.Icmp.Sle
+          | A.Greater -> L.build_icmp L.Icmp.Sgt
+          | A.Geq     -> L.build_icmp L.Icmp.Sge
+          ) e1' e2' "tmp" builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
+      (* | SCall ("printlist", [e]) -> 
+        let l_brack = L.build_global_stringptr "[" "tmp" builder in
+        let r_brack = L.build_global_stringptr "]" "tmp" builder in
+        let _ = L.build_call printf_func [| string_format_str; l_brack |] "printf" builder in
+        let local_array = expr builder e in
+        let array_len = L.size_of (L.type_of local_array) in
+        let rec list_content array_length =
+          let _ = if array_length > 10 then raise(Failure("array_length: " ^ string_of_int array_length)) else Printf.printf "%d" array_length in 
+          let pointer = L.build_gep local_array [| L.const_int i32_t (array_len - array_length) |] "" builder in 
+          let array_length = array_length - 1 in
+          let value = L.build_load pointer "" builder in
+          let return_val = L.build_call printf_intfunc [| int_format_str ; value |] "printf" builder in
+          if (array_len < 0) then return_val else list_content array_length
+        in
+        let _ = list_content array_len in
+        L.build_call printf_func [| string_format_str; r_brack |] "printf" builder *)
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (expr builder) (List.rev args)) in

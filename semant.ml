@@ -62,7 +62,7 @@ let check (pname, (var_decls, func_decls)) =
     (* Add built in function declarations into arr here
       Convert any datatype into string for print
     *)
-    in List.fold_left add_bind StringMap.empty [([Int], "printint");([String], "printstr");]
+    in List.fold_left add_bind StringMap.empty [([Int], "printint");([String], "printstr"); ([IntM], "printlist")]
 
   in
 
@@ -165,7 +165,7 @@ let check (pname, (var_decls, func_decls)) =
 
         (* Get the type of list *)
         let typ = check_ele_consistency l in
-        let _ = Printf.printf "%s" (string_of_typ typ) in
+        (* let _ = Printf.printf "%s" (string_of_typ typ) in *)
         let ty = match typ with
           | Int -> IntM
           | Float -> FloatM
