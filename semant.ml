@@ -62,7 +62,7 @@ let check (pname, (var_decls, func_decls)) =
     (* Add built in function declarations into arr here
       Convert any datatype into string for print
     *)
-    in List.fold_left add_bind StringMap.empty [([Int], "printint");([String], "printstr"); ([IntM], "printlist")]
+    in List.fold_left add_bind StringMap.empty [([Int], "printint");([String], "printstr"); ([IntM], "printlist"); ([IntM], "len")]
 
   in
 
