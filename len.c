@@ -30,8 +30,7 @@ int_array* append(void *a, int *new_element) {
         passed_in_arr->arr++;
     }
 
-    int new_element = 1;
-    new_struct.arr = &new_element;
+    new_struct.arr = new_element;
 
     return &new_struct;
 }
