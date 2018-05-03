@@ -1,34 +1,12 @@
+
 class func_test {
+
 	func int main(int a) {
-		int z;
-		int y = 0;
-		int p = 2;
-		p = test(z);
-		float n = 2.3;
-		char c = 'a';
 
-		for (int x = 0; x < 3; x = x + 1) {
-			int p = 2;
-		}
-
-		if (y != 1) {
-			int in = 2;
-		}
-
-		else {
-			int p = 3;
-		}
-		n = test2();
-		return 0;
-	}
-
-	func float test2() {
-		bool a = true;
-		return 2.45;
-	}
-
-	func int test(int a) {
-		return a;
+		int[] test = [7, 2, 3, 4, 2, 1, 4];
+		printint(0);
+        int a = len(test);
+        return 0;
 	}
 
 }

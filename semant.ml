@@ -50,19 +50,28 @@ let check (pname, (var_decls, func_decls)) =
       | [] -> [](* raise (Failure ("zero arg " ^ String.concat ", " (List.map string_of_typ inp))) *)
       | hd :: tl -> (hd, "x") :: test tl (* raise (Failure ("zero arg " ^ String.concat ", " (List.map string_of_typ inp))) *)
     in
-    let add_bind map ((ty ), name) =
+
+    StringMap.add "printint" 
+      {typ = Void; fname = "printint"; formals = test [Int]; body = []}
+      (StringMap.add "printstr"
+      {typ = Void; fname = "printstr"; formals = test [Int]; body = []}
+      (StringMap.singleton "len"
+      {typ = Int; fname = "len"; formals = test [IntM]; body = []}))
+
+(* 
+    let add_bind map (ty, name) =
 
       StringMap.add name {
-      typ = Int;
+      typ = ;
       fname = name;
       (* formals = [(ty, "x")]; *)
       formals = test ty;
       body = []
-    } map
+    } map *)
     (* Add built in function declarations into arr here
       Convert any datatype into string for print
     *)
-    in List.fold_left add_bind StringMap.empty [([Int], "printint");([String], "printstr");]
+    (* in List.fold_left add_bind StringMap.empty [([Int], "printint");([String], "printstr"); ([IntM], "printlist"); ([], "len")] *)
 
   in
 
@@ -96,6 +105,7 @@ let check (pname, (var_decls, func_decls)) =
   (* Make sure main function is defined *)
   let _ = find_func "main"
   in
+
 
   let check_function func =
     let formals' = check_binds "formal" func.formals in
@@ -137,6 +147,144 @@ let check (pname, (var_decls, func_decls)) =
         let err = "illegal assignment " ^ var ^ string_of_typ lt ^ " = " ^
                   string_of_typ rt ^ " in " ^ string_of_expr ex
         in (check_assign lt rt err, SAssign(var, (rt, e')))
+      | ListLit l   ->
+        (* Potentially do this in codegen instead of semant  *)
+        (* Take in a list and return first element type *)
+        let first_ele inp = match inp with
+          | hd :: _ ->(
+            let (t, _) = expr hd in
+            match t with
+              | _ -> t)
+          | [] -> Int
+        in
+
+        (* Check the folding *)
+        let fold_checking init_type ele =
+          let (t, _) = expr ele in
+          if (init_type = t) then init_type
+          else raise (Failure("Type " ^ string_of_typ t ^ " does not match first type " ^ string_of_typ init_type))
+        in
+
+        (* Take in a list, get the first element and fold through the rest of the list *)
+        let check_ele_consistency inp =
+          let first_type = first_ele inp in
+          let typ = List.fold_left fold_checking first_type inp
+          in typ
+        in
+
+        (* Get the type of list *)
+        let typ = check_ele_consistency l in
+        (* let _ = Printf.printf "%s" (string_of_typ typ) in *)
+        let ty = match typ with
+          | Int -> IntM
+          | Float -> FloatM
+          | Char -> CharM
+          | String -> StringM
+          | Bool -> BoolM
+          | _ -> raise(Failure(string_of_typ typ ^ " is not an acceptable list type."))
+        in
+        (ty, SListLit(List.map expr l))
+      | ListIndex(v, e1) ->
+        let (t, _) = expr e1 in
+        let _ = match t with
+          | Int -> Int
+          | _ -> raise(Failure("Index must be an Int"))
+        in
+        let ty = match type_of_identifier v with
+          | IntM -> Int
+          | FloatM -> Float
+          | CharM  -> Char
+          | StringM -> String
+          | BoolM -> Bool
+          | _ -> raise(Failure("error should have been caught before this"))
+        in
+        (ty, SListIndex(v, expr e1))
+      | ListIndexAssign (v, e1, e2) ->
+
+        let (t2, _) = expr e1 in
+        let _ = match t2 with
+          | Int -> Int
+          | _ -> raise(Failure("Index must be an Int"))
+        in
+        (type_of_identifier v, SListIndexAssign(v, expr e1, expr e2))
+      | MatLit(rows) ->
+        (* Take in a list and return first element type *)
+        let first_ele inp = match inp with
+          | hd :: _ ->(
+            let (t, _) = expr hd in
+            match t with
+              | _ -> t)
+          | [] -> Int
+        in
+
+        (* Check the folding *)
+        let fold_checking init_type ele =
+          let (t, _) = expr ele in
+          if (init_type = t) then init_type
+          else raise (Failure("Type " ^ string_of_typ t ^ " does not match first type " ^ string_of_typ init_type))
+        in
+
+        (* Take in a list, get the first element and fold through the rest of the list *)
+        let check_ele_consistency inp =
+          let first_type = first_ele inp in
+          let typ = List.fold_left fold_checking first_type inp
+          in typ
+        in
+
+        let fold_checking_list init_type ele =
+          let temp = check_ele_consistency ele in
+          if (init_type = temp) then init_type
+          else raise (Failure("Type " ^ string_of_typ temp ^ " does not match first type " ^ string_of_typ init_type))
+        in
+
+        (* Check matching type of all lists *)
+        let check_list_consistency inp =
+          let first_list inp2 = match inp2 with
+            | hd :: _ -> check_ele_consistency hd
+            | [] -> Int
+          in
+          let first_type = first_list inp in
+          let typ = List.fold_left fold_checking_list first_type inp in
+          typ
+        in
+
+        (* Get the type of list *)
+        let typ = check_list_consistency rows in
+        let ty = match typ with
+          | Int -> IntM
+          | Float -> FloatM
+          | Char -> CharM
+          | String -> StringM
+          | Bool -> BoolM
+          | _ -> raise(Failure(string_of_typ typ ^ " is not an acceptable list type."))
+        in
+        (ty, SMatLit(List.map (fun inp -> List.map expr inp) rows))
+      | MatIndexAssign (v, e1, e2) ->
+        let testIndex expression =
+          let (t, _) = expr expression in
+          match t with
+            | Int -> Int
+            | _ -> raise(Failure("Index must be an Int"))
+        in
+        let _ = List.map testIndex e1 in
+        (type_of_identifier v, SMatIndexAssign(v, List.map expr e1, expr e2))
+      | MatIndex (v, e1) ->
+        let testIndex expression =
+          let (t, _) = expr expression in
+          match t with
+            | Int -> Int
+            | _ -> raise(Failure("Index must be an Int"))
+        in
+        let _ = List.map testIndex e1 in
+        let ty = match type_of_identifier v with
+          | IntM -> Int
+          | FloatM -> Float
+          | CharM  -> Char
+          | StringM -> String
+          | BoolM -> Bool
+          | _ -> raise(Failure("error should have been caught before this"))
+        in
+        (ty, SMatIndex(v, List.map expr e1))
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
@@ -148,8 +296,8 @@ let check (pname, (var_decls, func_decls)) =
                                  string_of_uop op ^ " " ^ string_of_typ t ^
                                  " in " ^ string_of_expr ex))
         in (ty, SUnop(op, (t, e')))
-      | Punop(e, op) as ex ->
-        let (t, e') = expr e in
+      | Punop(v, op) ->
+        let t = type_of_identifier v in
         let ty = match op with
           (* Trans_M when t = Matrix -> t
              | Inv_M when t = Matrix -> t *)
@@ -157,8 +305,8 @@ let check (pname, (var_decls, func_decls)) =
           | Decrement when t = Int -> t
           | _ -> raise (Failure ("illegal unary operator " ^
                                  string_of_puop op ^ " " ^ string_of_typ t ^
-                                 " in " ^ string_of_expr ex))
-        in (ty, SPunop((t, e'), op))
+                                 " in " ^ v))
+        in (ty, SPunop(v, op))
       | Binop(e1, op, e2) as e ->
         let (t1, e1') = expr e1
         and (t2, e2') = expr e2 in
@@ -239,7 +387,7 @@ let check (pname, (var_decls, func_decls)) =
           let rec check_stmt_list = function
               [Return _ as s] -> [check_stmt s]
             | Return _ :: _   -> raise (Failure "nothing may follow a return")
-            | FBlock fl :: ss  -> check_stmt_list (fl @ ss) (* Flatten blocks *)
+            | Block fl :: ss  -> check_stmt_list (fl @ ss) (* Flatten blocks *)
             | s :: ss         -> check_stmt s :: check_stmt_list ss
             | []              -> if func.typ <> Void then raise(Failure "Must have a return statement") else []
           in SBlock(check_stmt_list fl)
@@ -248,7 +396,7 @@ let check (pname, (var_decls, func_decls)) =
         sfname = func.fname;
         sformals = formals';
         (* slocals = locals'; *)
-        sbody = match check_stmt (FBlock func.body) with
+        sbody = match check_stmt (Block func.body) with
     SBlock(sl) -> sl
         | _ -> let err = "internal error: block didn't become a block?"
         in raise (Failure err)

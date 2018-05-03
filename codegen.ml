@@ -13,8 +13,14 @@ let translate (_, _, functions) =
   and void_t     = L.void_type   context
   and float_t    = L.double_type context
   and i1_t       = L.i1_type     context
+  and intM_t      = L.pointer_type (L.pointer_type (L.i32_type context))
 
   and the_module = L.create_module context "DIC" in
+
+  let int_array_struct = L.named_struct_type context "int_array_struct" in 
+    let body = [|  i32_t; L.pointer_type i32_t |] in
+    ignore (L.struct_set_body int_array_struct body false);
+  
 
   let ltype_of_typ = function
     | A.Int -> i32_t
@@ -23,7 +29,13 @@ let translate (_, _, functions) =
     | A.Bool -> i1_t
     | A.Float -> float_t
     | A.Char -> i1_t
-    | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet"))
+    | A.IntM -> L.pointer_type int_array_struct
+    (* | A.IntM -> L.pointer_type i32_t *)
+    | A.FloatM -> L.pointer_type float_t
+    | A.StringM -> L.pointer_type string_t
+    | A.BoolM -> L.pointer_type i1_t
+    | A.CharM -> L.pointer_type i1_t
+    (* | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet")) *)
   in
 
   let printf_t : L.lltype =
@@ -35,6 +47,8 @@ let translate (_, _, functions) =
   let printf_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_intfunc = L.declare_function "printf" printf_int the_module in
 
+  let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
+  let len_func = L.declare_function "len" len_t the_module in 
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
 
@@ -65,8 +79,9 @@ let translate (_, _, functions) =
      * Adding a new instruction mutates both the_module and builder. *)
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder
+    let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder 
     and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+
     let ht = Hashtbl.create 10 in
     let local_vars =
       (* Allocate space for any formally declared variables and initialize the value
@@ -82,19 +97,30 @@ let translate (_, _, functions) =
       List.fold_left2 add_formal ht fdecl.sformals (Array.to_list (L.params the_function))
     in
 
+(*     let check_mat ((_, e) : sexpr) = match e with
+      | SMatLit rows ->
+        intM_t
+      | _ -> i1_t
+    in *)
+    let mat_type p = match L.string_of_lltype (L.type_of p) with
+      | "i32**" -> intM_t
+      | _ -> raise(Failure("This is not a mat type!"))
+    in
+    let check_mat p = match L.string_of_lltype (L.type_of p) with
+      | "i32**" -> true
+      | _ -> false
+    in
     let add_local (t, n) p =
-      (* let _ = match p with
-        | SNoExpr -> p
-        | sx -> L.set_value_name n p in *)
       let _ = L.set_value_name n p in
-      (* let _ = Printf.printf "%s\n" n in *)
-
-      let local_var = L.build_alloca (ltype_of_typ t) n builder in
-      (* let _ = match p with
-        | NoExpr p -> p
-        | p -> L.build_store p local builder in  *)
-      let _ = L.build_store p local_var builder in
-      (* StringMap.add n local_var local_vars *)
+      (* let _ = Printf.printf "%s" ("test" ^ L.string_of_lltype (L.type_of p)) in *)
+      (* let _ = if (check_mat p) = intM_t then t = intM_t else t = t in *)
+      let local_var =
+        match t with
+        | _ ->
+          let typ = if check_mat p then mat_type p else ltype_of_typ t in
+          let result = L.build_alloca typ n builder in
+          let _ = L.build_store p result builder in result
+      in
       Hashtbl.add local_vars n local_var
     in
 
@@ -116,6 +142,109 @@ let translate (_, _, functions) =
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit l -> L.const_float_of_string float_t l
       | SCLit c -> L.build_global_stringptr c "tmp" builder
+      | SListLit l ->
+        let ty = match l with
+          | hd :: _ -> let (t, _) = hd in
+            (match t with
+              | A.Int -> L.pointer_type i32_t
+              | A.Float -> ltype_of_typ A.FloatM
+              | A.String -> ltype_of_typ A.StringM
+              | A.Bool -> ltype_of_typ A.BoolM
+              | A.Char -> ltype_of_typ A.CharM
+              | _ -> ltype_of_typ A.IntM)
+          | [] -> ltype_of_typ A.Int
+        in let size = List.length l
+        in let init = L.build_array_malloc ty (L.const_int i32_t size) "tmp" builder
+        in let init_array = L.build_pointercast init ty "tmp" builder
+        in let setValues index value =
+          let pointer = L.build_gep init_array [| L.const_int i32_t index |] "tmp" builder in
+          ignore(L.build_store value pointer builder)
+        in let _ = List.iteri setValues (List.map (expr builder) l) in
+
+        let struct_type = (match L.string_of_lltype ty with
+          | "i32*" -> int_array_struct) in
+        let array_struct = L.build_malloc struct_type "tmp" builder in
+        let array_length = L.build_struct_gep array_struct 0 "array_length" builder in
+        ignore(L.build_store (L.const_int i32_t size ) array_length builder);
+        let array_content = L.build_struct_gep array_struct 1 "array_content" builder in
+        ignore(L.build_store init_array array_content builder);
+        array_struct
+      | SListIndex (v, e) ->
+        let struct_array = L.build_load (lookup v) "" builder in
+        let struct_array = L.build_struct_gep struct_array 1 "" builder in
+        let local_array = L.build_load struct_array "" builder in
+        (* let local_array = L.build_load (lookup v) "" builder in *)
+        let pointer = L.build_gep local_array [| expr builder e |] "" builder in
+        L.build_load pointer "" builder
+      | SListIndexAssign(v, e1, e2) ->
+        let struct_array = L.build_load (lookup v) "" builder in
+        let struct_array = L.build_struct_gep struct_array 1 "" builder in
+        let local_array = L.build_load struct_array "" builder in
+        
+        (* let local_array = L.build_load (lookup v) "" builder in *)
+        let pointer = L.build_gep local_array [| expr builder e1 |] "" builder in
+        L.build_store (expr builder e2) pointer builder
+
+      | SMatLit rows ->
+        let first_ele lst = match lst with
+          | hd :: _ -> hd
+          | [] -> raise(Failure("empty matrix"))
+        in let outer_ty = match rows with
+          | hd :: _ -> let (t, _) = (first_ele hd) in
+            (match t with
+              | A.Int -> intM_t
+              | A.Float -> ltype_of_typ A.FloatM
+              | A.String -> ltype_of_typ A.StringM
+              | A.Bool -> ltype_of_typ A.BoolM
+              | A.Char -> ltype_of_typ A.CharM
+              | _ -> ltype_of_typ A.IntM)
+          | [] -> ltype_of_typ A.Int
+        in let inner_ty = match rows with
+          | hd :: _ -> let (t, _) = (first_ele hd) in
+            (match t with
+              | A.Int -> ltype_of_typ A.IntM
+              | A.Float -> ltype_of_typ A.FloatM
+              | A.String -> ltype_of_typ A.StringM
+              | A.Bool -> ltype_of_typ A.BoolM
+              | A.Char -> ltype_of_typ A.CharM
+              | _ -> ltype_of_typ A.IntM)
+          | [] -> ltype_of_typ A.Int
+        in let init = L.build_array_malloc outer_ty (L.const_int i32_t (List.length rows)) "outer" builder
+        in let init_array = L.build_pointercast init outer_ty "outer" builder
+        in let setValues index value inp_array =
+          let pointer = L.build_gep inp_array [| L.const_int i32_t index |] "tmp" builder in
+          ignore(L.build_store value pointer builder)
+
+        in let innerLists index innerList =
+          let init_inner = L.build_array_malloc inner_ty (L.const_int i32_t (List.length innerList)) "inner" builder
+          in let init_inner_array = L.build_pointercast init_inner inner_ty "inner" builder
+          in let inter index value = setValues index value init_inner_array
+          in let _ = List.iteri inter (List.map (expr builder) (innerList))
+          in let pointer = L.build_gep init_array [| L.const_int i32_t index |] "outer" builder
+          in ignore(L.build_store init_inner_array pointer builder)
+        in let _ = List.iteri innerLists ( List.rev rows)
+        in init_array
+      | SMatIndex (v, e) ->
+        (* Since we're only allowing 2D matricies fix the semant so it's not a list expr to make it way less difficult *)
+        let (outer_index, inner_index) = match e with
+          | hd :: tl :: [] -> (expr builder hd, expr builder tl)
+          | _ -> raise(Failure("This is not a 2D matrix"))
+        in
+        let local_array_outer = L.build_load (lookup v) "" builder in
+        let pointer_outer = L.build_gep local_array_outer [| inner_index |] "" builder in
+        let local_array_inner = L.build_load pointer_outer "" builder in
+        let pointer_inner = L.build_gep local_array_inner [| outer_index |] "" builder in
+        L.build_load pointer_inner "" builder
+      | SMatIndexAssign (v, e1, e2) ->
+        let (outer_index, inner_index) = match e1 with
+          | hd :: tl :: [] -> (expr builder hd, expr builder tl)
+          | _ -> raise(Failure("This is not a 2D matrix"))
+        in
+        let local_array_outer = L.build_load (lookup v) "" builder in
+        let pointer_outer = L.build_gep local_array_outer [| inner_index |] "" builder in
+        let local_array_inner = L.build_load pointer_outer "" builder in
+        let pointer_inner = L.build_gep local_array_inner [| outer_index |] "" builder in
+        L.build_store (expr builder e2) pointer_inner builder
       | SBinop (e1, op, e2) ->
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1
@@ -142,13 +271,23 @@ let translate (_, _, functions) =
 	           A.Neg when t = A.Float -> L.build_fneg
 	          | A.Neg                  -> L.build_neg
             | A.Not                  -> L.build_not) e' "tmp" builder
-      | SPunop(e, op) ->
-        let e' = expr builder e in
+      | SPunop(v, op) ->
+        let e' = L.build_load (lookup v) v builder in
+        let inc = L.build_add (L.const_int i32_t 1) e' "tmp" builder in
+        let dec = L.build_add (L.const_int i32_t (-1)) e' "tmp" builder in
         (match op with
-           A.Increment            -> L.build_add (L.const_int i32_t 1)
-         | A.Decrement            -> L.build_add (L.const_int i32_t (-1)))e' "tmp" builder
+           A.Increment            -> L.build_store inc
+         | A.Decrement            -> L.build_store dec) (lookup v) builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
+      | SCall("len", [e]) ->
+        (* let _ = Printf.printf "%s" "test: " in *)
+        (* let _ = Printf.printf "%s" (L.string_of_lltype (L.type_of (expr builder e))) in *)
+        let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call len_func [| e'(* expr builder e *) |] "len" builder
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->

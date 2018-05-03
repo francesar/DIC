@@ -10,7 +10,7 @@ open Ast
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID LIST DICT STRING CHAR INTM
+%token INT BOOL FLOAT VOID LIST DICT STRING CHAR INTM FLOATM CHARM BOOLM STRINGM
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT CHLIT
@@ -64,10 +64,14 @@ typ:
     INT    { Int    }
   | INTM   { IntM   }
   | BOOL   { Bool   }
+  | BOOLM  { BoolM  }
   | FLOAT  { Float  }
+  | FLOATM { FloatM }
   | VOID   { Void   }
   | STRING { String }
+  | STRINGM{ StringM}
   | CHAR   { Char   }
+  | CHARM  { CharM  }
 
 vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }
@@ -107,14 +111,12 @@ expr:
   | FALSE                             { BoolLit(false)                  }
   | SLIT                              { StringLit($1)                   }
   | ID                                { Id($1)                          }
-  /*| LBRACK args_opt RBRACK            { ListLit($2)                     }*/
-  /* | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
-  | LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
+  | LBRACK args_opt RBRACK            { ListLit($2)                     }
+  | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
+  | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }
   | LBRACK rows   RBRACK              { MatLit($2)                      }
-  | LBRACK expr RBRACK LBRACK expr RBRACK
-                                      { MatIndex ($1, $3, $6)           }
-  | LBRACK expr RBRACK LBRACK expr RBRACK ASSIGN expr
-                                      { MatIndexAssign ($1, $3, $6, $9) } */
+  | ID mat_indices ASSIGN expr        { MatIndexAssign ($1, $2, $4)     }
+  | ID mat_indices                    { MatIndex ($1, $2)               }
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
   | expr TIMES    expr                { Binop($1, Mult,  $3)            }
@@ -134,14 +136,19 @@ expr:
   | MINUS expr %prec NEG              { Unop(Neg, $2)                   }
   /* | INC expr                          { Unop(Increment, $2)             } */
   /* | DEC expr                          { Unop(Decrement, $2)             } */
-  | expr INC                          { Punop($1, Increment)            }
-  | expr DEC                          { Punop( $1, Decrement)           }
+  | ID INC                          { Punop($1, Increment)            }
+  | ID DEC                          { Punop( $1, Decrement)           }
   | NOT expr                          { Unop(Not, $2)                   }
   /* | TRANSPOSE expr                    { Unop(Trans_M, $2)               } */
   /* | INVERSE expr                      { Unop(Inv_M, $2)                 } */
   | ID ASSIGN expr                    { Assign($1, $3)                  }
   | ID LPAREN args_opt RPAREN         { Call($1, $3)                    }
   | LPAREN expr RPAREN                { $2                              }
+
+mat_indices:
+  | LBRACK expr RBRACK LBRACK expr RBRACK               { $5 :: [$2] }
+  | mat_indices LBRACK expr RBRACK  { $3 :: $1 }
+
 
 args_opt:
   { [Noexpr] }
@@ -150,3 +157,7 @@ args_opt:
 args_list:
   expr                   { [$1]     }
   | args_list COMMA expr { $3 :: $1 }
+
+rows:
+  args_opt COLON args_opt                { $3 :: [$1]  }
+  | rows COLON args_opt   { $3 :: $1 }

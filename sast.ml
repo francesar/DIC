@@ -7,15 +7,15 @@ and sx =
   | SFLit of string
   | SBoolLit of bool
   | SStringLit of string
-  (* | SMatLit of sexpr list list
-  | SMatIndex of string * sexpr * sexpr
-  | SMatIndexAssign of string * sexpr * sexpr * sexpr
   | SListLit of sexpr list
+  | SListIndexAssign of string * sexpr * sexpr
   | SListIndex of string * sexpr
-  | SListIndexAssign of string * sexpr * sexpr *)
+  | SMatLit of sexpr list list
+  | SMatIndexAssign of string * (sexpr list) * sexpr
+  | SMatIndex of string * (sexpr list)
   | SId of string
   | SBinop of sexpr * op * sexpr
-  | SPunop of sexpr * puop
+  | SPunop of string * puop
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
@@ -57,14 +57,14 @@ let rec string_of_sexpr (t, e) =
     string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr(e)
   | SUnop(o, e) -> string_of_uop o ^ string_of_sexpr e
-  | SPunop(e, o) ->  string_of_sexpr e ^ string_of_puop o
+  | SPunop(v, o) ->  v ^ string_of_puop o
   (*| SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e*)
   | SCall(f, el) ->
     f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoExpr -> ""
-  (* | SListLit(el) -> "[" ^ String.concat ", " (List.map string_of_sexpr el) ^ "]"
-  | SListIndex(v,e) -> v ^ "[" ^ string_of_sexpr e ^ "]"
-  | SListIndexAssign(v,e1,e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
+  | SListLit(el) -> "[" ^ String.concat ", " (List.map string_of_sexpr el) ^ "]"
+  | SListIndex(v, e) -> v ^ "[" ^ string_of_sexpr e ^ "]"
+  | SListIndexAssign(v,e1, e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
   | SMatLit(rows) ->
     "[" ^
     let rec print_list input_list = match (List.rev input_list) with
@@ -77,9 +77,8 @@ let rec string_of_sexpr (t, e) =
         | h :: t -> string_of_sexpr h ^ "," ^ print_row t in
         fun anon -> print_row anon) rows)
     ^ "]"
-  | SMatIndex (v, e1, e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "]" ^ "[" ^ string_of_sexpr e2 ^ "]"
-  | SMatIndexAssign (v, e1, e2, e3) ->
-    v ^ "[" ^ string_of_sexpr e1 ^ "]" ^ "[" ^ string_of_sexpr e2 ^ "] = " ^ string_of_sexpr e3*)
+  | SMatIndexAssign (v, e1, e2) -> v ^ "[" ^ String.concat "][" (List.map string_of_sexpr e1) ^ "] = " ^ string_of_sexpr e2
+  | SMatIndex (v, e1) -> v ^ "[" ^ String.concat "][" (List.map string_of_sexpr e1) ^ "]"
   ) ^ ")"
 
 (* Awkard dangling = if exp is NoExpr *)
