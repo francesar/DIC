@@ -41,7 +41,7 @@ let translate (_, _, functions) =
   let printf_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_intfunc = L.declare_function "printf" printf_int the_module in
 
-  let len_t = L.var_arg_function_type intM_t [| i32_t |] in 
+  let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
   let len_func = L.declare_function "len" len_t the_module in 
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
@@ -259,7 +259,13 @@ let translate (_, _, functions) =
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
       | SCall("len", [e]) ->
-        L.build_call len_func [| (expr builder e) |] "len" builder
+        (* let _ = Printf.printf "%s" "test: " in *)
+        (* let _ = Printf.printf "%s" (L.string_of_lltype (L.type_of (expr builder e))) in *)
+        let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call len_func [| e' |] "len" builder
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->

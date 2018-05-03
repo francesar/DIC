@@ -1,8 +1,15 @@
 #include <stdio.h>
+#include <stdint.h>
 
-int len(void **e) {
-    printf("%p", e);
+int len();
+
+int len(int *a) {
+    // printf("%p", e);
     return 0;
+}
+
+int main() {
+	return 0;
 }
 
 // int main() {
