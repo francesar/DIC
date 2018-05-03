@@ -9,7 +9,7 @@ let translate (_, _, functions) =
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
-  and string_t   = L.pointer_type (L.i8_type     context) (* possibly very wrong*)
+  and string_t   = L.i8_type     context (* possibly very wrong*)
   and void_t     = L.void_type   context
   and float_t    = L.double_type context
   and i1_t       = L.i1_type     context
@@ -23,7 +23,7 @@ let translate (_, _, functions) =
     | A.Void  -> void_t
     | A.Bool -> i1_t
     | A.Float -> float_t
-    | A.Char -> string_t
+    | A.Char -> i1_t
     | A.IntM -> L.pointer_type i32_t
     | A.FloatM -> L.pointer_type float_t
     | A.StringM -> L.pointer_type string_t
@@ -41,6 +41,8 @@ let translate (_, _, functions) =
   let printf_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_intfunc = L.declare_function "printf" printf_int the_module in
 
+  let len_t = L.var_arg_function_type intM_t [| i32_t |] in 
+  let len_func = L.declare_function "len" len_t the_module in 
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
 
@@ -71,9 +73,8 @@ let translate (_, _, functions) =
      * Adding a new instruction mutates both the_module and builder. *)
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder
+    let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder 
     and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
-
 
     let ht = Hashtbl.create 10 in
     let local_vars =
@@ -90,6 +91,11 @@ let translate (_, _, functions) =
       List.fold_left2 add_formal ht fdecl.sformals (Array.to_list (L.params the_function))
     in
 
+(*     let check_mat ((_, e) : sexpr) = match e with
+      | SMatLit rows ->
+        intM_t
+      | _ -> i1_t
+    in *)
     let mat_type p = match L.string_of_lltype (L.type_of p) with
       | "i32**" -> intM_t
       | _ -> raise(Failure("This is not a mat type!"))
@@ -111,10 +117,15 @@ let translate (_, _, functions) =
       in
       Hashtbl.add local_vars n local_var
     in
+
+
+
     let lookup n = try Hashtbl.find local_vars n
                       with Not_found -> raise(Failure("n: " ^ n))
                    (* with Not_found -> StringMap.find n global_vars *)
     in
+
+
     let rec expr builder ((_, e) : sexpr) = match e with
       | SLit i -> L.const_int i32_t i
       | SStringLit s -> L.build_global_stringptr s "tmp" builder
@@ -151,6 +162,7 @@ let translate (_, _, functions) =
         let local_array = L.build_load (lookup v) "" builder in
         let pointer = L.build_gep local_array [| expr builder e1 |] "" builder in
         L.build_store (expr builder e2) pointer builder
+
       | SMatLit rows ->
         let first_ele lst = match lst with
           | hd :: _ -> hd
@@ -244,58 +256,12 @@ let translate (_, _, functions) =
         (match op with
            A.Increment            -> L.build_store inc
          | A.Decrement            -> L.build_store dec) (lookup v) builder
-      | SBinop(v1, op, v2) ->
-        let (t, _) = v1
-        and e1' = expr builder v1
-        and e2' = expr builder v2 in
-        if t = A.Float then (match op with 
-            A.Add     -> L.build_fadd
-          | A.Sub     -> L.build_fsub
-          | A.Mult    -> L.build_fmul
-          | A.Div     -> L.build_fdiv 
-          | A.Eq      -> L.build_fcmp L.Fcmp.Oeq
-          | A.Neq     -> L.build_fcmp L.Fcmp.One
-          | A.Less    -> L.build_fcmp L.Fcmp.Olt
-          | A.Leq     -> L.build_fcmp L.Fcmp.Ole
-          | A.Greater -> L.build_fcmp L.Fcmp.Ogt
-          | A.Geq     -> L.build_fcmp L.Fcmp.Oge
-          | A.And | A.Or ->
-              raise (Failure "internal error: semant should have rejected and/or on float")
-          ) e1' e2' "tmp" builder 
-        else (match op with
-          | A.Add     -> L.build_add
-          | A.Sub     -> L.build_sub
-          | A.Mult    -> L.build_mul
-                | A.Div     -> L.build_sdiv
-          | A.And     -> L.build_and
-          | A.Or      -> L.build_or
-          | A.Eq      -> L.build_icmp L.Icmp.Eq
-          | A.Neq     -> L.build_icmp L.Icmp.Ne
-          | A.Less    -> L.build_icmp L.Icmp.Slt
-          | A.Leq     -> L.build_icmp L.Icmp.Sle
-          | A.Greater -> L.build_icmp L.Icmp.Sgt
-          | A.Geq     -> L.build_icmp L.Icmp.Sge
-          ) e1' e2' "tmp" builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
+      | SCall("len", [e]) ->
+        L.build_call len_func [| (expr builder e) |] "len" builder
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
-      (* | SCall ("printlist", [e]) -> 
-        let l_brack = L.build_global_stringptr "[" "tmp" builder in
-        let r_brack = L.build_global_stringptr "]" "tmp" builder in
-        let _ = L.build_call printf_func [| string_format_str; l_brack |] "printf" builder in
-        let local_array = expr builder e in
-        let array_len = L.size_of (L.type_of local_array) in
-        let rec list_content array_length =
-          let _ = if array_length > 10 then raise(Failure("array_length: " ^ string_of_int array_length)) else Printf.printf "%d" array_length in 
-          let pointer = L.build_gep local_array [| L.const_int i32_t (array_len - array_length) |] "" builder in 
-          let array_length = array_length - 1 in
-          let value = L.build_load pointer "" builder in
-          let return_val = L.build_call printf_intfunc [| int_format_str ; value |] "printf" builder in
-          if (array_len < 0) then return_val else list_content array_length
-        in
-        let _ = list_content array_len in
-        L.build_call printf_func [| string_format_str; r_brack |] "printf" builder *)
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (expr builder) (List.rev args)) in
@@ -325,7 +291,6 @@ let translate (_, _, functions) =
                             | A.Char -> L.build_ret (expr builder e) builder
                             | A.String -> L.build_ret (expr builder e) builder
                             | A.Float -> L.build_ret (expr builder e) builder
-                            | A.Void -> L.build_ret (expr builder e) builder
                             | _ -> to_imp (A.string_of_typ fdecl.styp)
                      in builder
       | SIf(predicate, then_stmt, else_stmt) ->
