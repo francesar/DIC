@@ -10,14 +10,17 @@
 # test-helloworld: build
 # 	./testhelloworld.sh
 
-.PHONY: clean
-
-clean:
-	rm toplevel.native && rm -rf _build && len.o
 
 .PHONY : all
 all : toplevel.native len.o
 
+
 .PHONY: toplevel.native
 toplevel.native:
-	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 toplevel.native
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+	toplevel.native
+
+.PHONY: clean
+
+clean:
+	rm toplevel.native && rm -rf _build && len.o

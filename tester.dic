@@ -3,8 +3,10 @@ class func_test {
 
 	func int main(int a) {
 
-		int[] test = [1, 2, 3, 4];
-        len(test);
+		int[] test = [7, 2, 3, 4];
+		printint(0);
+        int a = len(test);
+        return 0;
 	}
 
 }
