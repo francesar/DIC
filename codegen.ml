@@ -17,6 +17,11 @@ let translate (_, _, functions) =
 
   and the_module = L.create_module context "DIC" in
 
+  let int_array_struct = L.named_struct_type context "int_array_struct" in 
+    let body = [|  i32_t; L.pointer_type i32_t |] in
+    ignore (L.struct_set_body int_array_struct body false);
+  
+
   let ltype_of_typ = function
     | A.Int -> i32_t
     | A.String -> string_t
@@ -24,7 +29,8 @@ let translate (_, _, functions) =
     | A.Bool -> i1_t
     | A.Float -> float_t
     | A.Char -> i1_t
-    | A.IntM -> L.pointer_type i32_t
+    | A.IntM -> L.pointer_type int_array_struct
+    (* | A.IntM -> L.pointer_type i32_t *)
     | A.FloatM -> L.pointer_type float_t
     | A.StringM -> L.pointer_type string_t
     | A.BoolM -> L.pointer_type i1_t
@@ -41,7 +47,7 @@ let translate (_, _, functions) =
   let printf_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_intfunc = L.declare_function "printf" printf_int the_module in
 
-  let len_t = L.var_arg_function_type i32_t [| L.pointer_type i32_t |] in 
+  let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
   let len_func = L.declare_function "len" len_t the_module in 
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
@@ -140,26 +146,42 @@ let translate (_, _, functions) =
         let ty = match l with
           | hd :: _ -> let (t, _) = hd in
             (match t with
-              | A.Int -> ltype_of_typ A.IntM
+              | A.Int -> L.pointer_type i32_t
               | A.Float -> ltype_of_typ A.FloatM
               | A.String -> ltype_of_typ A.StringM
               | A.Bool -> ltype_of_typ A.BoolM
               | A.Char -> ltype_of_typ A.CharM
               | _ -> ltype_of_typ A.IntM)
           | [] -> ltype_of_typ A.Int
-        in let init = L.build_array_malloc ty (L.const_int i32_t (List.length l)) "tmp" builder
+        in let size = List.length l
+        in let init = L.build_array_malloc ty (L.const_int i32_t size) "tmp" builder
         in let init_array = L.build_pointercast init ty "tmp" builder
         in let setValues index value =
           let pointer = L.build_gep init_array [| L.const_int i32_t index |] "tmp" builder in
           ignore(L.build_store value pointer builder)
-        in let _ = List.iteri setValues (List.map (expr builder) l)
-        in init_array
+        in let _ = List.iteri setValues (List.map (expr builder) l) in
+
+        let struct_type = (match L.string_of_lltype ty with
+          | "i32*" -> int_array_struct) in
+        let array_struct = L.build_malloc struct_type "tmp" builder in
+        let array_length = L.build_struct_gep array_struct 0 "array_length" builder in
+        ignore(L.build_store (L.const_int i32_t size ) array_length builder);
+        let array_content = L.build_struct_gep array_struct 1 "array_content" builder in
+        ignore(L.build_store init_array array_content builder);
+        array_struct
       | SListIndex (v, e) ->
-        let local_array = L.build_load (lookup v) "" builder in
+        let struct_array = L.build_load (lookup v) "" builder in
+        let struct_array = L.build_struct_gep struct_array 1 "" builder in
+        let local_array = L.build_load struct_array "" builder in
+        (* let local_array = L.build_load (lookup v) "" builder in *)
         let pointer = L.build_gep local_array [| expr builder e |] "" builder in
         L.build_load pointer "" builder
       | SListIndexAssign(v, e1, e2) ->
-        let local_array = L.build_load (lookup v) "" builder in
+        let struct_array = L.build_load (lookup v) "" builder in
+        let struct_array = L.build_struct_gep struct_array 1 "" builder in
+        let local_array = L.build_load struct_array "" builder in
+        
+        (* let local_array = L.build_load (lookup v) "" builder in *)
         let pointer = L.build_gep local_array [| expr builder e1 |] "" builder in
         L.build_store (expr builder e2) pointer builder
 
@@ -261,11 +283,11 @@ let translate (_, _, functions) =
       | SCall("len", [e]) ->
         (* let _ = Printf.printf "%s" "test: " in *)
         (* let _ = Printf.printf "%s" (L.string_of_lltype (L.type_of (expr builder e))) in *)
-        (* let e' = expr builder e in
+        let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
         ignore(L.build_store e' p_e' builder);
-        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in  *)
-        L.build_call len_func [| expr builder e |] "len" builder
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call len_func [| e'(* expr builder e *) |] "len" builder
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->
