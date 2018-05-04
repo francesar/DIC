@@ -30,8 +30,8 @@ int_array* append(void *a, void *new_element) {
     new_struct->length = old_size + 1;
 
     new_struct->arr = malloc(new_struct->length);
-
-    for(int i = 0; i < old_size; i++) {
+    int i;
+    for(i = 0; i < old_size; i++) {
         int val = passed_in_arr->arr[i];
         new_struct->arr[i] = val;
     }
