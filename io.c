@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-void f_write(char *file_path, char * data) {
+void write_string_to_file(char *file_path, char * data) {
+	fprintf(stderr, "%s", data);
     FILE *fp;
     fp = fopen(file_path, "w");
     fprintf(fp, "%s\n", data);
