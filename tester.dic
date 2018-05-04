@@ -11,6 +11,12 @@ class func_test {
 		test1 = test1 - test3;
 		printint(test1[0]);
 		printint(test1[1]);
+
+		float[] t = [1.2, 6.4];
+		float[] t1 = [2.5, 2.2];
+		t = t + t1;
+		printfloat(t[0]);
+
 		return 0;
 	}
 

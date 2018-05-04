@@ -68,10 +68,10 @@ let translate (_, _, functions) =
     | A.Char -> i1_t
     | A.IntM -> L.pointer_type int_array_struct
     (* | A.IntM -> L.pointer_type i32_t *)
-    | A.FloatM -> L.pointer_type float_t
-    | A.StringM -> L.pointer_type string_t
-    | A.BoolM -> L.pointer_type i1_t
-    | A.CharM -> L.pointer_type i1_t
+    | A.FloatM -> L.pointer_type float_array_struct
+    | A.StringM -> L.pointer_type string_array_struct
+    | A.BoolM -> L.pointer_type bool_array_struct
+    | A.CharM -> L.pointer_type char_array_struct
     (* | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet")) *)
   in
 
@@ -96,8 +96,8 @@ let translate (_, _, functions) =
   let sub_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type int_array_struct; L.pointer_type int_array_struct |] in
   let sub_list_func = L.declare_function "sub_list_int" sub_list_t the_module in
 
-  let add_list_t_float = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type int_array_struct; L.pointer_type int_array_struct |] in
-  let add_list_func_float = L.declare_function "add_list_int" add_list_t_float the_module in
+  let add_list_t_float = L.var_arg_function_type (L.pointer_type float_array_struct) [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in
+  let add_list_func_float = L.declare_function "add_list_float" add_list_t_float the_module in
 
   let sub_list_t_float = L.var_arg_function_type (L.pointer_type float_array_struct) [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in
   let sub_list_func_float = L.declare_function "sub_list_float" sub_list_t_float the_module in
@@ -133,6 +133,7 @@ let translate (_, _, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let string_format_str = L.build_global_stringptr "%s\n" "fmt" builder 
+    and float_format_str = L.build_global_stringptr "%f\n" "fmt" builder
     and int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
 
     let ht = Hashtbl.create 10 in
@@ -221,7 +222,7 @@ let translate (_, _, functions) =
           let pointer = L.build_gep init_array [| L.const_int i32_t index |] "tmp" builder in
           ignore(L.build_store value pointer builder)
         in let _ = List.iteri setValues (List.map (expr builder) l) in
-
+        (* let _ = Printf.printf "%s" (L.string_of_lltype ty) in *)
         let struct_type = (match L.string_of_lltype ty with
           | "i32*" -> int_array_struct
           | "double*" -> float_array_struct
@@ -375,7 +376,13 @@ let translate (_, _, functions) =
                 | A.Sub ->
                   L.build_call sub_list_func [| expr builder e1; expr builder e2 |] "sub_list" builder
               )
-              
+            | "%float_array_struct*" ->
+              (match op with
+                | A.Add ->  
+                  L.build_call add_list_func_float [| expr builder e1; expr builder e2 |] "add_list" builder
+                | A.Sub ->
+                  L.build_call sub_list_func_float [| expr builder e1; expr builder e2 |] "sub_list" builder
+              )  
             (* | "%int_mat_struct*" ->  *)
             | _ -> 
               (match op with
@@ -419,6 +426,8 @@ let translate (_, _, functions) =
         L.build_call len_func [| e'(* expr builder e *) |] "len" builder
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
+      | SCall ("printfloat", [e]) ->
+        L.build_call printf_float_func [| float_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (expr builder) (List.rev args)) in

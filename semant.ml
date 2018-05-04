@@ -55,6 +55,8 @@ let check (pname, (var_decls, func_decls)) =
       {typ = Void; fname = "printint"; formals = test [Int]; body = []}
       (StringMap.add "printstr"
         {typ = Void; fname = "printstr"; formals = test [Int]; body = []}
+      (StringMap.add "printfloat"
+        {typ = Void; fname = "printfloat"; formals = test [Float]; body = []}
       (StringMap.add "add_list_int"
         {typ = IntM; fname = "add_list"; formals = test [IntM]; body = []}
       (StringMap.add "sub_list_int"
@@ -64,7 +66,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "sub_list_float"
         {typ = FloatM; fname = "sub_list_float"; formals = test [FloatM]; body = []}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))
 
 (* 
     let add_bind map (ty, name) =
@@ -325,6 +327,7 @@ let check (pname, (var_decls, func_decls)) =
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div       when same && t1 = Float -> Float
           | Add | Sub | Mult             when same && t1 = IntM -> IntM
+          | Add | Sub | Mult             when same && t1 = FloatM -> FloatM
           (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
           | Eq | Neq                     when same               -> Bool
           | Less | Leq | Greater | Geq
