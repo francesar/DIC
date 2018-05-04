@@ -120,7 +120,7 @@ let translate (_, _, functions) =
   let len_t_mat = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t |] in 
   let len_func_mat = L.declare_function "len_mat" len_t_mat the_module in 
 
-  let add_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type int_mat_struct; L.pointer_type int_mat_struct |] in
+  let add_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let add_mat_func = L.declare_function "add_mat_int" add_mat_t the_module in
 
   let is_square_t = L.var_arg_function_type i1_t [| L.pointer_type int_mat_struct |] in 
@@ -417,7 +417,15 @@ let translate (_, _, functions) =
             | "%int_mat_struct*" -> 
               (match op with
                 | A.Add ->  
-                  L.build_call add_mat_func [| expr builder e1; expr builder e2 |] "add_mat" builder
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                   
+                  L.build_call add_mat_func [| e1'; e2' |] "add_mat" builder
                 (* | A.Sub ->
                   L.build_call sub_mat_func [| expr builder e1; expr builder e2 |] "sub_mat" builder *)
               )

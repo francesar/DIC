@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include<stdbool.h>
+#include <stdbool.h>
 
 typedef struct int_array {
 	int length;
@@ -36,7 +36,7 @@ int_array* len_mat(void *a) {
 	int inner_size = len(inp_array);
 	struct int_array *new_struct = (struct int_array*) malloc(sizeof(struct int_array));
 	new_struct->length = 2;
-	new_struct->arr = malloc(2);
+	new_struct->arr = malloc(2 * sizeof(int));
 	new_struct->arr[0] = outer_size;
 	new_struct->arr[1] = inner_size;
 	return new_struct;
@@ -88,13 +88,21 @@ bool is_square(int_mat *a) {
 int_array* add_list_int(int_array* e1, int_array* e2) {
 	// struct int_array *e1_t = *(int_array**)(e1);
 	// struct int_array *e2_t = *(int_array**)(e2);
+	
+	
 	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
+	
 	int size = e2->length;
 	int x;
+	
 	new_struct->arr = malloc(size);
+	// printf("%d\n", size);
+	
 	for (x = 0; x < size; x++) {
+	
 		*((new_struct->arr) + x) = *((e1->arr) + x) + *((e2->arr) + x);
-	} 
+	}
+	 
 	return new_struct;
 }
 
@@ -136,24 +144,33 @@ float_array* sub_list_float(float_array* e1, float_array* e2) {
 }
 
 /**************** MATRIX OPERATIONS ****************/
-int_mat* add_mat_int(int_mat* e1, int_mat* e2) {
-	printf("%s", "HERE");
-	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
-	struct int_array* size = len_mat(e1);
+int_mat* add_mat_int(void* e1, void* e2) {
+	// printf("%s", "HERE");
+	struct int_mat *e1_ = *(int_mat**)(e1);
+	struct int_mat *e2_ = *(int_mat**)(e2);
+
+	int_array* size = len_mat(&e1_);
+	
 	int outer_size = size->arr[0];
 	int inner_size = size->arr[1];
 	
-	new_struct->arr = malloc(sizeof(struct int_array) * outer_size);
+	struct int_mat *new_struct = (int_mat*) malloc (sizeof(int_mat));
+	new_struct->length = outer_size;
+	new_struct->arr = malloc(outer_size * sizeof(int_array));
+	
+		// struct int_array *new_array = *(int_array**)(new_struct->arr + x);
 	int x;
 	for (x = 0; x < outer_size; x++) {
-		struct int_array *new_array = (struct int_array*) malloc (sizeof(struct int_array));
-		new_array->arr = malloc(inner_size);
-		int y;
-		for (y = 0; y < inner_size; y++) {
-			new_array->arr[y] = e1->arr[x].arr[y] + e2->arr[x].arr[y];	
-		}
-		new_struct->arr[x] = *new_array;
-		
-	} 
-	return new_struct;
+		struct int_array *tmp = (int_array*) malloc(sizeof(int_array));
+		tmp->arr = malloc(inner_size * sizeof(int));
+		tmp = add_list_int(*((int_array**)(e1_->arr) + x), *((int_array**)(e2_->arr) + x));
+		// struct int_array *new_array = ;
+		// memcpy(((new_struct->arr) + x), tmp, inner_size*sizeof(int));
+		*((new_struct->arr) + x) = *tmp;
+		printf("%d\n", ((new_struct->arr) + x)->arr[0]);
+		printf("%d\n", ((new_struct->arr) + x)->arr[1]);
+	}
+	*new_struct->arr->arr = 5;
+	printf("%d\n", *new_struct->arr->arr);
+	return *(int_mat**) new_struct;
 }
