@@ -3,9 +3,8 @@ class func_test {
 
 	func int main(int a) {
 
-		int[] test2 = [1, 2: 3, 4];
-		test2[1][1] = 6;
-		printint(test2[1][1]);
+		int[] test2 = [1, 2, 3, 4];
+        append(test2, 5);
         return 0;
 	}
 
