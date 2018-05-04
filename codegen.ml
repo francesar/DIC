@@ -81,12 +81,14 @@ let translate (_, _, functions) =
     L.declare_function "printf" printf_t the_module in
 
 
+  
   let printf_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_intfunc = L.declare_function "printf" printf_int the_module in
 
   let printf_float = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_float_func = L.declare_function "printf" printf_int the_module in
 
+  (******* LIST FUNCTIONS *******)
   let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
   let len_func = L.declare_function "len" len_t the_module in 
 
@@ -104,6 +106,11 @@ let translate (_, _, functions) =
 
   let sub_list_t_float = L.var_arg_function_type (L.pointer_type float_array_struct) [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in
   let sub_list_func_float = L.declare_function "sub_list_float" sub_list_t_float the_module in
+
+  (******* MATRIX FUNCTIONS *******)
+  let len_t_mat = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t |] in 
+  let len_func_mat = L.declare_function "len_mat" len_t_mat the_module in 
+
 
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
@@ -263,23 +270,23 @@ let translate (_, _, functions) =
           | hd :: _ -> let (t, _) = (first_ele hd) in
             (match t with
               | A.Int -> L.pointer_type (L.pointer_type int_array_struct)
-              | A.Float -> ltype_of_typ A.FloatM
-              | A.String -> ltype_of_typ A.StringM
-              | A.Bool -> ltype_of_typ A.BoolM
-              | A.Char -> ltype_of_typ A.CharM
-              | _ -> ltype_of_typ A.IntM)
-          | [] -> ltype_of_typ A.Int
+              | A.Float -> L.pointer_type (L.pointer_type float_array_struct)
+              | A.String -> L.pointer_type (L.pointer_type string_array_struct)
+              | A.Bool -> L.pointer_type (L.pointer_type bool_array_struct)
+              | A.Char -> L.pointer_type (L.pointer_type char_array_struct)
+              | _ -> L.pointer_type (L.pointer_type int_array_struct))
+          | [] -> L.pointer_type (L.pointer_type int_array_struct)
         in
         let inner_ty = match rows with 
           | hd :: _ -> let (t, _) = (first_ele hd) in
             (match t with
               | A.Int -> L.pointer_type i32_t
-              | A.Float -> ltype_of_typ A.FloatM
-              | A.String -> ltype_of_typ A.StringM
-              | A.Bool -> ltype_of_typ A.BoolM
-              | A.Char -> ltype_of_typ A.CharM
-              | _ -> ltype_of_typ A.IntM)
-          | [] -> ltype_of_typ A.Int
+              | A.Float -> L.pointer_type float_t
+              | A.String -> L.pointer_type i8_t
+              | A.Bool -> L.pointer_type i1_t
+              | A.Char -> L.pointer_type i1_t
+              | _ -> L.pointer_type i32_t)
+          | [] -> L.pointer_type i32_t
         in 
         (* # of int_array_structs *)
         let outer_size = List.length rows 
@@ -302,6 +309,9 @@ let translate (_, _, functions) =
           in
           let inner_struct_type = (match L.string_of_lltype inner_ty with
             | "i32*" -> int_array_struct
+            | "double*" -> float_array_struct
+            | "i8*" -> string_array_struct
+            | "i1*" -> char_array_struct
             | _ -> raise(Failure("ERROR 1"))) in
           let array_inner_struct = L.build_malloc inner_struct_type "tmp" builder in
           let array_length = L.build_struct_gep array_inner_struct 0 "array_length" builder in
@@ -315,6 +325,10 @@ let translate (_, _, functions) =
         (* Create a struct for the int_mat_struct *)
         in let struct_type = (match L.string_of_lltype outer_ty with
           | "%int_array_struct**" -> int_mat_struct
+          | "%float_array_struct**" -> float_mat_struct
+          | "%string_array_struct**" -> string_mat_struct
+          | "%char_array_struct**" -> char_mat_struct
+          | "%bool_array_struct**" -> bool_mat_struct
           | _ -> raise(Failure("Failure" ^ L.string_of_lltype outer_ty))) in
         let array_struct_outer = L.build_malloc struct_type "tmp" builder in
         
@@ -386,7 +400,13 @@ let translate (_, _, functions) =
                 | A.Sub ->
                   L.build_call sub_list_func_float [| expr builder e1; expr builder e2 |] "sub_list" builder
               )  
-            (* | "%int_mat_struct*" ->  *)
+            (* | "%int_mat_struct*" -> 
+              (match op with
+                | A.Add ->  
+                  L.build_call add_mat_func [| expr builder e1; expr builder e2 |] "add_mat" builder
+                | A.Sub ->
+                  L.build_call sub_mat_func [| expr builder e1; expr builder e2 |] "sub_mat" builder
+              ) *)
             | _ -> 
               (match op with
               | A.Add     -> L.build_add
@@ -440,6 +460,7 @@ let translate (_, _, functions) =
         let el' = L.build_bitcast ptr_el' (L.pointer_type i8_t) "" builder in
 
         L.build_call append_func [| e' ; el' |] "" builder
+        
 
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
