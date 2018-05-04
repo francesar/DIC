@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<stdbool.h>
 
 typedef struct int_array {
 	int length;
 	int *arr;
 } int_array;
-
 
 typedef struct float_array {
 	int length;
@@ -26,7 +26,6 @@ typedef struct float_mat {
 int len(void *a) {
 	struct int_array *inp_arr = *(int_array**)(a);
 	int size = inp_arr->length;
-
     return size;
 }
 
@@ -68,6 +67,24 @@ int_array* append(void *a, void *new_element) {
 
 
 /**************** LIST OPERATIONS ****************/
+bool is_square(int_mat *a) {
+    // int outer_dim = a->length;
+    // int inner_dim = a->arr->length;
+
+    int_array* size = len_mat(a);
+    int outer_dim = size->arr[0];
+    int inner_dim = size->arr[1];
+    // bool *r = malloc(sizeof(bool));
+    bool r;
+    if(outer_dim != inner_dim) {
+        r = 0;
+        return r;
+    } else {
+        r = 1;
+        return r;
+    }
+}
+
 int_array* add_list_int(int_array* e1, int_array* e2) {
 	// struct int_array *e1_t = *(int_array**)(e1);
 	// struct int_array *e2_t = *(int_array**)(e2);
@@ -120,12 +137,13 @@ float_array* sub_list_float(float_array* e1, float_array* e2) {
 
 /**************** MATRIX OPERATIONS ****************/
 int_mat* add_mat_int(int_mat* e1, int_mat* e2) {
+	printf("%s", "HERE");
 	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
 	struct int_array* size = len_mat(e1);
 	int outer_size = size->arr[0];
 	int inner_size = size->arr[1];
 	
-	new_struct->arr = malloc(outer_size);
+	new_struct->arr = malloc(sizeof(struct int_array) * outer_size);
 	int x;
 	for (x = 0; x < outer_size; x++) {
 		struct int_array *new_array = (struct int_array*) malloc (sizeof(struct int_array));

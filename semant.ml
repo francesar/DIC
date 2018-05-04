@@ -52,10 +52,12 @@ let check (pname, (var_decls, func_decls)) =
     in
 
     StringMap.add "append" {typ=IntM; fname="append"; formals=test [IntM;Int]; body=[]}
+      (StringMap.add "is_square" {typ=Bool; fname="is_square"; formals=test[IntM]; body=[]}
+      (* (StringMap.add "start_thread" {typ=Void; fname="start_thread"; formals=} *)
       (StringMap.add "printint" 
       {typ = Void; fname = "printint"; formals = test [Int]; body = []}
       (StringMap.add "printstr"
-        {typ = Void; fname = "printstr"; formals = test [Int]; body = []}
+        {typ = Void; fname = "printstr"; formals = test [String]; body = []}
       (StringMap.add "printfloat"
         {typ = Void; fname = "printfloat"; formals = test [Float]; body = []}
       (StringMap.add "add_list_int"
@@ -69,7 +71,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "len_mat"
         {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))
 
 (* 
     let add_bind map (ty, name) =
