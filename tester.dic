@@ -8,8 +8,6 @@ class func_test {
 
         test = append(test, 0);
 
-        printint(len(test));
-
         return 0;
 	}
 
