@@ -13,12 +13,34 @@ typedef struct float_array {
 	double *arr;
 } float_array;
 
+typedef struct int_mat {
+	int length;
+	struct int_array *arr;
+} int_mat;
+
+typedef struct float_mat {
+	int length;
+	struct float_array *arr;
+} float_mat;
 
 int len(void *a) {
 	struct int_array *inp_arr = *(int_array**)(a);
 	int size = inp_arr->length;
 
     return size;
+}
+
+int_array* len_mat(void *a) {
+	struct int_mat *inp_mat = *(int_mat**)(a);
+	int outer_size = inp_mat->length;
+	struct int_array *inp_array = inp_mat->arr;
+	int inner_size = inp_array->length;
+	struct int_array *new_struct = (struct int_array*) malloc(sizeof(struct int_array));
+	new_struct->length = 2;
+	new_struct->arr = malloc(2);
+	// new_struct[0] = outer_size;
+	// new_struct[1] = inner_size;
+	return new_struct;
 }
 
 int_array* append(void *a, void *new_element) {
