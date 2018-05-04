@@ -34,7 +34,5 @@ int_array* append(void *a, void *new_element) {
 
     new_struct->arr[last_pos] = new_int;
 
-    printf("%d-d\n", new_struct->arr[7]);
-
     return new_struct;
 }
