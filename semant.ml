@@ -52,7 +52,8 @@ let check (pname, (var_decls, func_decls)) =
     in
 
     StringMap.add "append" {typ=IntM; fname="append"; formals=test [IntM;Int]; body=[]}
-      (StringMap.add "start_thread" {typ=Void; fname="start_thread"; formals=}
+      (StringMap.add "is_square" {typ=Bool; fname="is_square"; formals=test[IntM]; body=[]}
+      (* (StringMap.add "start_thread" {typ=Void; fname="start_thread"; formals=} *)
       (StringMap.add "printint" 
       {typ = Void; fname = "printint"; formals = test [Int]; body = []}
       (StringMap.add "printstr"
