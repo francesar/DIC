@@ -439,14 +439,21 @@ let translate (_, _, functions) =
          | A.Decrement            -> L.build_store dec) (lookup v) builder
       | SCall("printstr", [e]) ->
         L.build_call printf_func [| string_format_str; (expr builder e) |] "printf" builder
-      | SCall("len", [e]) ->
-        (* let _ = Printf.printf "%s" "test: " in *)
-        (* let _ = Printf.printf "%s" (L.string_of_lltype (L.type_of (expr builder e))) in *)
+      | SCall("len_mat", [e]) ->
         let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call len_func_mat [| e' |] "len" builder 
+        
+      | SCall("len", [e]) ->
+        
+        let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in             
         L.build_call len_func [| e'(* expr builder e *) |] "len" builder
+
       | SCall("append", [e;el]) -> 
         let e' = expr builder e in 
         (* let _ = Printf.printf "%s"  (L.string_of_lltype (L.type_of e'))in  *)
@@ -460,7 +467,7 @@ let translate (_, _, functions) =
         let el' = L.build_bitcast ptr_el' (L.pointer_type i8_t) "" builder in
 
         L.build_call append_func [| e' ; el' |] "" builder
-        
+
 
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder

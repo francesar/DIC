@@ -66,8 +66,10 @@ let check (pname, (var_decls, func_decls)) =
         {typ = FloatM; fname = "add_list_float"; formals = test [FloatM]; body = []}
       (StringMap.add "sub_list_float"
         {typ = FloatM; fname = "sub_list_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "len_mat"
+        {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))
 
 (* 
     let add_bind map (ty, name) =
