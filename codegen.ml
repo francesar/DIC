@@ -90,6 +90,9 @@ let translate (_, _, functions) =
   let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
   let len_func = L.declare_function "len" len_t the_module in 
 
+  let append_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t ; L.pointer_type i8_t |] in 
+  let append_func = L.declare_function "append" append_t the_module in
+
   let add_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type int_array_struct; L.pointer_type int_array_struct |] in
   let add_list_func = L.declare_function "add_list_int" add_list_t the_module in
 
