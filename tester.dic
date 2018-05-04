@@ -3,9 +3,9 @@ class func_test {
 
 	func int main(int a) {
 
-		int[] test = [7, 2, 3, 4, 2, 1, 4];
-		printint(0);
-        int a = len(test);
+		int[] test2 = [1, 2: 3, 4];
+		test2[1][1] = 6;
+		printint(test2[1][1]);
         return 0;
 	}
 

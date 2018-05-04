@@ -13,7 +13,8 @@ let translate (_, _, functions) =
   and void_t     = L.void_type   context
   and float_t    = L.double_type context
   and i1_t       = L.i1_type     context
-  and intM_t      = L.pointer_type (L.pointer_type (L.i32_type context))
+  (* and intM_t     = L.pointer_type int_mat_struct *)
+  (* and intM_t      = L.pointer_type (L.pointer_type (L.i32_type context)) *)
 
   and the_module = L.create_module context "DIC" in
 
@@ -21,6 +22,10 @@ let translate (_, _, functions) =
     let body = [|  i32_t; L.pointer_type i32_t |] in
     ignore (L.struct_set_body int_array_struct body false);
   
+  let int_mat_struct = L.named_struct_type context "int_mat_struct" in 
+  let body = [|  i32_t; L.pointer_type(L.pointer_type int_array_struct) |] in
+  ignore (L.struct_set_body int_mat_struct body false);
+
 
   let ltype_of_typ = function
     | A.Int -> i32_t
@@ -103,11 +108,11 @@ let translate (_, _, functions) =
       | _ -> i1_t
     in *)
     let mat_type p = match L.string_of_lltype (L.type_of p) with
-      | "i32**" -> intM_t
+      | "%int_mat_struct*" -> L.pointer_type int_mat_struct
       | _ -> raise(Failure("This is not a mat type!"))
     in
     let check_mat p = match L.string_of_lltype (L.type_of p) with
-      | "i32**" -> true
+      | "%int_mat_struct*" -> true
       | _ -> false
     in
     let add_local (t, n) p =
@@ -186,57 +191,96 @@ let translate (_, _, functions) =
         L.build_store (expr builder e2) pointer builder
 
       | SMatLit rows ->
+
         let first_ele lst = match lst with
           | hd :: _ -> hd
           | [] -> raise(Failure("empty matrix"))
-        in let outer_ty = match rows with
+        in 
+        let outer_ty = match rows with
           | hd :: _ -> let (t, _) = (first_ele hd) in
             (match t with
-              | A.Int -> intM_t
+              | A.Int -> L.pointer_type (L.pointer_type int_array_struct)
               | A.Float -> ltype_of_typ A.FloatM
               | A.String -> ltype_of_typ A.StringM
               | A.Bool -> ltype_of_typ A.BoolM
               | A.Char -> ltype_of_typ A.CharM
               | _ -> ltype_of_typ A.IntM)
           | [] -> ltype_of_typ A.Int
-        in let inner_ty = match rows with
+        in
+        let inner_ty = match rows with 
           | hd :: _ -> let (t, _) = (first_ele hd) in
             (match t with
-              | A.Int -> ltype_of_typ A.IntM
+              | A.Int -> L.pointer_type i32_t
               | A.Float -> ltype_of_typ A.FloatM
               | A.String -> ltype_of_typ A.StringM
               | A.Bool -> ltype_of_typ A.BoolM
               | A.Char -> ltype_of_typ A.CharM
               | _ -> ltype_of_typ A.IntM)
           | [] -> ltype_of_typ A.Int
-        in let init = L.build_array_malloc outer_ty (L.const_int i32_t (List.length rows)) "outer" builder
+        in 
+        (* # of int_array_structs *)
+        let outer_size = List.length rows 
+        (* Mallocs outer_size poitners to int_array_structs *)
+        in let init = L.build_array_malloc outer_ty (L.const_int i32_t outer_size) "outer" builder
         in let init_array = L.build_pointercast init outer_ty "outer" builder
+        
         in let setValues index value inp_array =
           let pointer = L.build_gep inp_array [| L.const_int i32_t index |] "tmp" builder in
           ignore(L.build_store value pointer builder)
 
+
         in let innerLists index innerList =
-          let init_inner = L.build_array_malloc inner_ty (L.const_int i32_t (List.length innerList)) "inner" builder
+          let inner_size = List.length innerList in
+          let init_inner = L.build_array_malloc inner_ty (L.const_int i32_t inner_size) "inner" builder
           in let init_inner_array = L.build_pointercast init_inner inner_ty "inner" builder
           in let inter index value = setValues index value init_inner_array
           in let _ = List.iteri inter (List.map (expr builder) (innerList))
-          in let pointer = L.build_gep init_array [| L.const_int i32_t index |] "outer" builder
-          in ignore(L.build_store init_inner_array pointer builder)
+
+          in
+          let inner_struct_type = (match L.string_of_lltype inner_ty with
+            | "i32*" -> int_array_struct
+            | _ -> raise(Failure("ERROR 1"))) in
+          let array_inner_struct = L.build_malloc inner_struct_type "tmp" builder in
+          let array_length = L.build_struct_gep array_inner_struct 0 "array_length" builder in
+          ignore(L.build_store (L.const_int i32_t inner_size ) array_length builder);
+          let array_content = L.build_struct_gep array_inner_struct 1 "array_content" builder in
+          ignore(L.build_store init_inner_array array_content builder);
+          let pointer = L.build_gep init_array [| L.const_int i32_t index |] "outer" builder
+          in ignore(L.build_store array_inner_struct pointer builder);
         in let _ = List.iteri innerLists ( List.rev rows)
-        in init_array
+
+        (* Create a struct for the int_mat_struct *)
+        in let struct_type = (match L.string_of_lltype outer_ty with
+          | "%int_array_struct**" -> int_mat_struct
+          | _ -> raise(Failure("Failure" ^ L.string_of_lltype outer_ty))) in
+        let array_struct_outer = L.build_malloc struct_type "tmp" builder in
+        
+        let array_length_outer = L.build_struct_gep array_struct_outer 0 "array_length" builder in
+        
+
+        ignore(L.build_store (L.const_int i32_t outer_size ) array_length_outer builder);
+        let array_content_outer = L.build_struct_gep array_struct_outer 1 "array_content" builder in
+        let _ = L.build_store init_array array_content_outer builder
+        in array_struct_outer
+
+        
       | SMatIndex (v, e) ->
         (* Since we're only allowing 2D matricies fix the semant so it's not a list expr to make it way less difficult *)
         let (outer_index, inner_index) = match e with
           | hd :: tl :: [] -> (expr builder hd, expr builder tl)
           | _ -> raise(Failure("This is not a 2D matrix"))
         in
-        let local_array_outer = L.build_load (lookup v) "" builder in
-        let pointer_outer = L.build_gep local_array_outer [| inner_index |] "" builder in
-        let local_array_inner = L.build_load pointer_outer "" builder in
-        let pointer_inner = L.build_gep local_array_inner [| outer_index |] "" builder in
-        L.build_load pointer_inner "" builder
+        let outer_struct_array = L.build_load (lookup v) "" builder in
+        let outer_struct_array = L.build_struct_gep outer_struct_array 1 "" builder in        
+        let outer_local_array = L.build_load outer_struct_array "" builder in
+        let outer_pointer = L.build_gep outer_local_array [| inner_index |] "" builder in
+        let inner_struct_array = L.build_load outer_pointer "" builder in
+        let inner_struct_array = L.build_struct_gep inner_struct_array 1 "" builder in
+        let inner_local_array = L.build_load inner_struct_array "" builder in
+        let inner_pointer = L.build_gep inner_local_array [| outer_index |] "" builder in
+        L.build_load inner_pointer "" builder
       | SMatIndexAssign (v, e1, e2) ->
-        let (outer_index, inner_index) = match e1 with
+(*         let (outer_index, inner_index) = match e1 with
           | hd :: tl :: [] -> (expr builder hd, expr builder tl)
           | _ -> raise(Failure("This is not a 2D matrix"))
         in
@@ -245,6 +289,20 @@ let translate (_, _, functions) =
         let local_array_inner = L.build_load pointer_outer "" builder in
         let pointer_inner = L.build_gep local_array_inner [| outer_index |] "" builder in
         L.build_store (expr builder e2) pointer_inner builder
+ *)
+        let (outer_index, inner_index) = match e1 with
+          | hd :: tl :: [] -> (expr builder hd, expr builder tl)
+          | _ -> raise(Failure("This is not a 2D matrix"))
+        in
+        let outer_struct_array = L.build_load (lookup v) "" builder in
+        let outer_struct_array = L.build_struct_gep outer_struct_array 1 "" builder in        
+        let outer_local_array = L.build_load outer_struct_array "" builder in
+        let outer_pointer = L.build_gep outer_local_array [| inner_index |] "" builder in
+        let inner_struct_array = L.build_load outer_pointer "" builder in
+        let inner_struct_array = L.build_struct_gep inner_struct_array 1 "" builder in
+        let inner_local_array = L.build_load inner_struct_array "" builder in
+        let inner_pointer = L.build_gep inner_local_array [| outer_index |] "" builder in
+        L.build_store (expr builder e2) inner_pointer builder
       | SBinop (e1, op, e2) ->
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1
