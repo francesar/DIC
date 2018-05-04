@@ -93,6 +93,9 @@ let translate (_, _, functions) =
   let write_string_to_file_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
   let write_string_to_file_func = L.declare_function "write_string_to_file" write_string_to_file_t the_module in 
 
+  let read_intmat_from_file_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t |] in
+  let read_intmat_from_file_func = L.declare_function "read_intmat_from_file" read_intmat_from_file_t the_module in
+
 
   (******* LIST FUNCTIONS *******)
   let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
@@ -456,6 +459,9 @@ let translate (_, _, functions) =
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
         L.build_call len_func_mat [| e' |] "len" builder 
+      | SCall("read_intmat_from_file", [file_name]) ->
+        let e' = expr builder file_name in
+        L.build_call read_intmat_from_file_func [| e' |] "" builder
       | SCall("write_string_to_file", [file_name;content]) ->
         let e1 = expr builder file_name in
         let e2 = expr builder content in
