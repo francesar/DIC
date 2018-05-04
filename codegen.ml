@@ -111,6 +111,8 @@ let translate (_, _, functions) =
   let len_t_mat = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t |] in 
   let len_func_mat = L.declare_function "len_mat" len_t_mat the_module in 
 
+  let add_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type int_mat_struct; L.pointer_type int_mat_struct |] in
+  let add_mat_func = L.declare_function "add_mat_int" add_mat_t the_module in
 
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
@@ -400,13 +402,13 @@ let translate (_, _, functions) =
                 | A.Sub ->
                   L.build_call sub_list_func_float [| expr builder e1; expr builder e2 |] "sub_list" builder
               )  
-            (* | "%int_mat_struct*" -> 
+            | "%int_mat_struct*" -> 
               (match op with
                 | A.Add ->  
                   L.build_call add_mat_func [| expr builder e1; expr builder e2 |] "add_mat" builder
-                | A.Sub ->
-                  L.build_call sub_mat_func [| expr builder e1; expr builder e2 |] "sub_mat" builder
-              ) *)
+                (* | A.Sub ->
+                  L.build_call sub_mat_func [| expr builder e1; expr builder e2 |] "sub_mat" builder *)
+              )
             | _ -> 
               (match op with
               | A.Add     -> L.build_add

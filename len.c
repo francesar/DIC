@@ -66,6 +66,8 @@ int_array* append(void *a, void *new_element) {
     return new_struct;
 }
 
+
+/**************** LIST OPERATIONS ****************/
 int_array* add_list_int(int_array* e1, int_array* e2) {
 	// struct int_array *e1_t = *(int_array**)(e1);
 	// struct int_array *e2_t = *(int_array**)(e2);
@@ -112,6 +114,28 @@ float_array* sub_list_float(float_array* e1, float_array* e2) {
 	new_struct->arr = malloc(size);
 	for (x = 0; x < size; x++) {
 		*((new_struct->arr) + x) = *((e1->arr) + x) - *((e2->arr) + x);
+	} 
+	return new_struct;
+}
+
+/**************** MATRIX OPERATIONS ****************/
+int_mat* add_mat_int(int_mat* e1, int_mat* e2) {
+	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
+	struct int_array* size = len_mat(e1);
+	int outer_size = size->arr[0];
+	int inner_size = size->arr[1];
+	
+	new_struct->arr = malloc(outer_size);
+	int x;
+	for (x = 0; x < outer_size; x++) {
+		struct int_array *new_array = (struct int_array*) malloc (sizeof(struct int_array));
+		new_array->arr = malloc(inner_size);
+		int y;
+		for (y = 0; y < inner_size; y++) {
+			new_array->arr[y] = e1->arr[x].arr[y] + e2->arr[x].arr[y];	
+		}
+		new_struct->arr[x] = *new_array;
+		
 	} 
 	return new_struct;
 }
