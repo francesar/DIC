@@ -424,6 +424,20 @@ let translate (_, _, functions) =
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
         L.build_call len_func [| e'(* expr builder e *) |] "len" builder
+      | SCall("append", [e;el]) -> 
+        let e' = expr builder e in 
+        (* let _ = Printf.printf "%s"  (L.string_of_lltype (L.type_of e'))in  *)
+        let p_e' = L.build_alloca (L.type_of e') "" builder in 
+          ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+
+        let el' = expr builder el in 
+        let ptr_el' = L.build_alloca (L.type_of el') "" builder in 
+          ignore(L.build_store el' ptr_el' builder);
+        let el' = L.build_bitcast ptr_el' (L.pointer_type i8_t) "" builder in
+
+        L.build_call append_func [| e' ; el' |] "" builder
+
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
       | SCall ("printfloat", [e]) ->
