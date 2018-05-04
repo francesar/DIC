@@ -88,6 +88,12 @@ let translate (_, _, functions) =
   let printf_float = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_float_func = L.declare_function "printf" printf_int the_module in
 
+
+  (******* FILE I/O FUNCTIONS *******)
+  let write_string_to_file_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
+  let write_string_to_file_func = L.declare_function "write_string_to_file" write_string_to_file_t the_module in 
+
+
   (******* LIST FUNCTIONS *******)
   let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
   let len_func = L.declare_function "len" len_t the_module in 
@@ -450,7 +456,10 @@ let translate (_, _, functions) =
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
         L.build_call len_func_mat [| e' |] "len" builder 
-        
+      | SCall("write_string_to_file_func", [file_name;content]) ->
+        let e1 = expr builder file_name in
+        let e2 = expr builder content in
+        L.build_call write_string_to_file_func [| e1 ; e2 |] "" builder
       | SCall("len", [e]) ->
         
         let e' = expr builder e in
