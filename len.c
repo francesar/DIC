@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<stdbool.h>
 
 typedef struct int_array {
 	int length;
 	int *arr;
 } int_array;
-
 
 typedef struct float_array {
 	int length;
@@ -26,7 +26,6 @@ typedef struct float_mat {
 int len(void *a) {
 	struct int_array *inp_arr = *(int_array**)(a);
 	int size = inp_arr->length;
-
     return size;
 }
 
@@ -64,6 +63,21 @@ int_array* append(void *a, void *new_element) {
     new_struct->arr[last_pos] = new_int;
 
     return new_struct;
+}
+
+int* is_square(int_mat *a) {
+    int outer_dim = a->length;
+    int inner_dim = a->arr->length;
+
+    int *r = malloc(sizeof(int));
+
+    if(outer_dim != inner_dim) {
+        *r = 0;
+        return r;
+    } else {
+        *r = 1;
+        return r;
+    }
 }
 
 int_array* add_list_int(int_array* e1, int_array* e2) {
