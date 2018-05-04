@@ -55,6 +55,9 @@ let translate (_, _, functions) =
   let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
   let len_func = L.declare_function "len" len_t the_module in 
 
+  let add_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let add_list_func = L.declare_function "add_list" add_list_t the_module in
+
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
 
 
@@ -175,6 +178,8 @@ let translate (_, _, functions) =
         ignore(L.build_store init_array array_content builder);
         array_struct
       | SListIndex (v, e) ->
+
+
         let struct_array = L.build_load (lookup v) "" builder in
         let struct_array = L.build_struct_gep struct_array 1 "" builder in
         let local_array = L.build_load struct_array "" builder in
@@ -307,21 +312,37 @@ let translate (_, _, functions) =
 (*           let (t, _) = e1 *)
           let e1' = expr builder e1
           and e2' = expr builder e2 in
-          (match op with
-          | A.Add     -> L.build_add
-          | A.Sub     -> L.build_sub
-          | A.Mult    -> L.build_mul
-          | A.Div     -> L.build_sdiv
-          | A.Mod     -> L.build_srem
-          | A.And     -> L.build_and
-          | A.Or      -> L.build_or
-          | A.Eq      -> L.build_icmp L.Icmp.Eq
-          | A.Neq     -> L.build_icmp L.Icmp.Ne
-          | A.Less    -> L.build_icmp L.Icmp.Slt
-          | A.Leq     -> L.build_icmp L.Icmp.Sle
-          | A.Greater -> L.build_icmp L.Icmp.Sgt
-          | A.Geq     -> L.build_icmp L.Icmp.Sge
-          ) e1' e2' "tmp" builder
+          (* let _ = Printf.printf "%s" (L.string_of_lltype (L.type_of e1')) in *)
+          (match (L.string_of_lltype (L.type_of e1')) with 
+            | "%int_array_struct*" ->
+              (match op with
+                | A.Add     -> 
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in 
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in 
+                  L.build_call add_list_func [| e1'; e2' |] "add_list" builder
+              )
+              
+            (* | "%int_mat_struct*" ->  *)
+            | _ -> 
+              (match op with
+              | A.Add     -> L.build_add
+              | A.Sub     -> L.build_sub
+              | A.Mult    -> L.build_mul
+              | A.Div     -> L.build_sdiv
+              | A.Mod     -> L.build_srem
+              | A.And     -> L.build_and
+              | A.Or      -> L.build_or
+              | A.Eq      -> L.build_icmp L.Icmp.Eq
+              | A.Neq     -> L.build_icmp L.Icmp.Ne
+              | A.Less    -> L.build_icmp L.Icmp.Slt
+              | A.Leq     -> L.build_icmp L.Icmp.Sle
+              | A.Greater -> L.build_icmp L.Icmp.Sgt
+              | A.Geq     -> L.build_icmp L.Icmp.Sge
+              ) e1' e2' "tmp" builder)
       | SUnop(op, e) ->
 	        let (t, _) = e in
           let e' = expr builder e in
