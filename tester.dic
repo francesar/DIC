@@ -4,8 +4,12 @@ class func_test {
 	func int main(int a) {
 
 		int[] test = [7, 2, 3, 4, 2, 1, 4];
-		printint(0);
         int a = len(test);
+
+        test = append(test, 0);
+
+        printint(len(test));
+
         return 0;
 	}
 

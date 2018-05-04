@@ -51,12 +51,13 @@ let check (pname, (var_decls, func_decls)) =
       | hd :: tl -> (hd, "x") :: test tl (* raise (Failure ("zero arg " ^ String.concat ", " (List.map string_of_typ inp))) *)
     in
 
-    StringMap.add "printint" 
+    StringMap.add "append" {typ=IntM; fname="append"; formals=test [IntM;Int]; body=[]}
+      (StringMap.add "printint" 
       {typ = Void; fname = "printint"; formals = test [Int]; body = []}
       (StringMap.add "printstr"
       {typ = Void; fname = "printstr"; formals = test [Int]; body = []}
       (StringMap.singleton "len"
-      {typ = Int; fname = "len"; formals = test [IntM]; body = []}))
+      {typ = Int; fname = "len"; formals = test [IntM]; body = []})))
 
 (* 
     let add_bind map (ty, name) =

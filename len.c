@@ -14,23 +14,27 @@ int len(void *a) {
     return size;
 }
 
-int_array* append(void *a, int *new_element) {
+int_array* append(void *a, void *new_element) {
     struct int_array *passed_in_arr = *(int_array**)(a);
-    struct int_array new_struct;
+    struct int_array *new_struct = (struct int_array*) malloc(sizeof(struct int_array));
 
     int old_size = passed_in_arr->length;
 
-    new_struct.length = old_size + 1;
+    new_struct->length = old_size + 1;
+
+    new_struct->arr = malloc(new_struct->length);
 
     for(int i = 0; i < old_size; i++) {
-        int val = *(passed_in_arr->arr);
-        new_struct.arr = &val;
-
-        new_struct.arr++;
-        passed_in_arr->arr++;
+        int val = passed_in_arr->arr[i];
+        new_struct->arr[i] = val;
     }
+    
+    int new_int = *(int *)new_element;
+    int last_pos = new_struct->length-1;
 
-    new_struct.arr = new_element;
+    new_struct->arr[last_pos] = new_int;
 
-    return &new_struct;
+    printf("%d-d\n", new_struct->arr[7]);
+
+    return new_struct;
 }
