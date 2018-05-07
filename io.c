@@ -32,22 +32,19 @@ void parseline(char *line, float_array *row) {
         tok = strtok(NULL, ",");
     }
 
+    row->arr = malloc(colcount);
+
     char* ltok = strtok(og, ",");
     double *el;
-    row->arr = malloc(sizeof(double) * colcount);
-
+    int i = 0;
     while(ltok != NULL) {
         double itok;
         sscanf(ltok, "%lf", &itok);
 
-        el = malloc(sizeof(double));
-        *el = itok;
-
-        row->arr = el;
-        row->arr = row->arr++;
+        row->arr[i] = itok;
         ltok = strtok(NULL, ",");
     }
-    
+
     row->length = colcount;
 }
 
@@ -65,16 +62,16 @@ int main() {
         rows++;
     }
 
-    float_mat *mat = (float_mat *) malloc(sizeof(struct float_mat));
-    mat->arr = (float_array *) malloc(rows * sizeof(struct float_array));
+    struct float_mat *mat = (struct float_mat *) malloc(sizeof(struct float_mat));
+    mat->arr = malloc(rows * sizeof(struct float_array));
 
     fp = fopen("lol.csv", "r");
+    int i = 0;
     while((read = getline(&line, &len, fp) != -1)) {
-        float_array *row = (float_array *) malloc(sizeof(struct float_array));
+        struct float_array *row = (struct float_array *) malloc(sizeof(struct float_array));
         parseline(line, row);
-        
-        mat->arr = row;
-        mat->arr++;
+        *((float_array**)(mat->arr) + i) = row;
+        i++;
     }
 
     mat->length = rows;
