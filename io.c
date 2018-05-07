@@ -66,8 +66,10 @@ int main() {
 
     struct float_mat *mat = (struct float_mat *) malloc(sizeof(struct float_mat));
     mat->arr = malloc(rcount * sizeof(struct float_array));
-
+	mat->length = rcount;
     fp = fopen("lol.csv", "r");
+
+    
     int i = 0;
     while((read = getline(&line, &len, fp) != -1)) {
         struct float_array *row = (struct float_array *) malloc(sizeof(struct float_array));
@@ -92,19 +94,24 @@ int main() {
             sscanf(ltok, "%lf", &itok);
 
             row->arr[i] = itok;
+        	
             ltok = strtok(NULL, ",");
         }
+        
 
-        printf("%lf\n", row->arr[0]);
-
+        //printf("%lf\n", row->arr[0]);
+	    
         row->length = colcount;
+
         *((float_array**)(mat->arr) + i) = row;
+        
         i++;
     }
 
-    mat->length = rcount;
-    struct float_array *r = mat->arr;
+    struct float_array *r = *(float_array**)(mat->arr);
+    
     float x = r->arr[0];
+    
     printf("%d\n", mat->length);
     printf("%lf\n", x);
 }
