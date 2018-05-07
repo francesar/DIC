@@ -12,12 +12,12 @@
 
 
 .PHONY : all
-all : toplevel.native len.o io.o
+all : toplevel.native len.o
 
 
 .PHONY: toplevel.native
 toplevel.native:
-	rm -f len.o io.o
+	rm -f len.o
 	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
 	toplevel.native
 
