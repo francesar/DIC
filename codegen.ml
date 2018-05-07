@@ -205,11 +205,7 @@ let translate (_, _, functions) =
       List.fold_left2 add_formal ht fdecl.sformals (Array.to_list (L.params the_function))
     in
 
-(*     let check_mat ((_, e) : sexpr) = match e with
-      | SMatLit rows ->
-        intM_t
-      | _ -> i1_t
-    in *)
+
     let mat_type p = match L.string_of_lltype (L.type_of p) with
       | "%int_mat_struct*" -> L.pointer_type int_mat_struct
       | "%float_mat_struct*" -> L.pointer_type float_mat_struct
@@ -228,8 +224,6 @@ let translate (_, _, functions) =
     in
     let add_local (t, n) p =
       let _ = L.set_value_name n p in
-      (* let _ = Printf.printf "%s" ("test" ^ L.string_of_lltype (L.type_of p)) in *)
-      (* let _ = if (check_mat p) = intM_t then t = intM_t else t = t in *)
       let local_var =
         match t with
         | _ ->
@@ -244,7 +238,6 @@ let translate (_, _, functions) =
 
     let lookup n = try Hashtbl.find local_vars n
                       with Not_found -> raise(Failure("n: " ^ n))
-                   (* with Not_found -> StringMap.find n global_vars *)
     in
 
 
@@ -276,7 +269,6 @@ let translate (_, _, functions) =
           let pointer = L.build_gep init_array [| L.const_int i32_t index |] "tmp" builder in
           ignore(L.build_store value pointer builder)
         in let _ = List.iteri setValues (List.map (expr builder) l) in
-        (* let _ = Printf.printf "%s" (L.string_of_lltype ty) in *)
         let struct_type = (match L.string_of_lltype ty with
           | "i32*" -> int_array_struct
           | "double*" -> float_array_struct
@@ -293,15 +285,12 @@ let translate (_, _, functions) =
         let struct_array = L.build_load (lookup v) "" builder in
         let struct_array = L.build_struct_gep struct_array 1 "" builder in
         let local_array = L.build_load struct_array "" builder in
-        (* let local_array = L.build_load (lookup v) "" builder in *)
         let pointer = L.build_gep local_array [| expr builder e |] "" builder in
         L.build_load pointer "" builder
       | SListIndexAssign(v, e1, e2) ->
         let struct_array = L.build_load (lookup v) "" builder in
         let struct_array = L.build_struct_gep struct_array 1 "" builder in
         let local_array = L.build_load struct_array "" builder in
-        
-        (* let local_array = L.build_load (lookup v) "" builder in *)
         let pointer = L.build_gep local_array [| expr builder e1 |] "" builder in
         L.build_store (expr builder e2) pointer builder
 
@@ -402,16 +391,6 @@ let translate (_, _, functions) =
         let inner_pointer = L.build_gep inner_local_array [| outer_index |] "" builder in
         L.build_load inner_pointer "" builder
       | SMatIndexAssign (v, e1, e2) ->
-(*         let (outer_index, inner_index) = match e1 with
-          | hd :: tl :: [] -> (expr builder hd, expr builder tl)
-          | _ -> raise(Failure("This is not a 2D matrix"))
-        in
-        let local_array_outer = L.build_load (lookup v) "" builder in
-        let pointer_outer = L.build_gep local_array_outer [| inner_index |] "" builder in
-        let local_array_inner = L.build_load pointer_outer "" builder in
-        let pointer_inner = L.build_gep local_array_inner [| outer_index |] "" builder in
-        L.build_store (expr builder e2) pointer_inner builder
- *)
         let (outer_index, inner_index) = match e1 with
           | hd :: tl :: [] -> (expr builder hd, expr builder tl)
           | _ -> raise(Failure("This is not a 2D matrix"))
@@ -426,10 +405,8 @@ let translate (_, _, functions) =
         let inner_pointer = L.build_gep inner_local_array [| outer_index |] "" builder in
         L.build_store (expr builder e2) inner_pointer builder
       | SBinop (e1, op, e2) ->
-(*           let (t, _) = e1 *)
           let e1' = expr builder e1
           and e2' = expr builder e2 in
-          (* let _ = Printf.printf "%s" (L.string_of_lltype (L.type_of e1')) in *)
           (match (L.string_of_lltype (L.type_of e1')) with 
             | "%int_array_struct*" ->
               (match op with
@@ -614,8 +591,6 @@ let translate (_, _, functions) =
           A.Void -> ""
           | _ -> f ^ "_result") in
         L.build_call fdef (Array.of_list llargs) result builder
-      (* | _ -> to_imp (string_of_sexpr (A.Int, e)) *)
-      (*| _ -> to_imp (string_of_sexpr (A.Int, e))*)
     in
 
 
