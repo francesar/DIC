@@ -424,7 +424,6 @@ let translate (_, _, functions) =
                   let p_e2' = L.build_alloca (L.type_of e2') "" builder in
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
-                   
                   L.build_call add_mat_func [| e1'; e2' |] "add_mat" builder
                 (* | A.Sub ->
                   L.build_call sub_mat_func [| expr builder e1; expr builder e2 |] "sub_mat" builder *)
