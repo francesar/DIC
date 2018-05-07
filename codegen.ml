@@ -141,6 +141,12 @@ let translate (_, _, functions) =
   let sub_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let sub_mat_func = L.declare_function "sub_mat_int" sub_mat_t the_module in
 
+  let add_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let add_mat_func_float = L.declare_function "add_mat_float" add_mat_t_float the_module in
+
+  let sub_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let sub_mat_func_float = L.declare_function "sub_mat_float" sub_mat_t_float the_module in
+
   let is_square_t = L.var_arg_function_type i1_t [| L.pointer_type int_mat_struct |] in 
   let is_square_func = L.declare_function "is_square" is_square_t the_module in 
 
@@ -452,6 +458,27 @@ let translate (_, _, functions) =
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
                   L.build_call sub_mat_func [| e1'; e2' |] "sub_mat" builder
+              )
+            | "%float_mat_struct*" -> 
+              (match op with
+                | A.Add ->  
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call add_mat_func_float [| e1'; e2' |] "add_mat" builder
+                | A.Sub ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call sub_mat_func_float [| e1'; e2' |] "sub_mat" builder
               )
             | _ -> 
               (match op with
