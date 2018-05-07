@@ -51,12 +51,43 @@ let check (pname, (var_decls, func_decls)) =
       | hd :: tl -> (hd, "x") :: test tl (* raise (Failure ("zero arg " ^ String.concat ", " (List.map string_of_typ inp))) *)
     in
 
-    StringMap.add "printint" 
+    StringMap.add "append" {typ=IntM; fname="append"; formals=test [IntM;Int]; body=[]}
+      (StringMap.add "is_square" {typ=Bool; fname="is_square"; formals=test[IntM]; body=[]}
+      (* (StringMap.add "start_thread" {typ=Void; fname="start_thread"; formals=} *)
+      (StringMap.add "printint" 
       {typ = Void; fname = "printint"; formals = test [Int]; body = []}
       (StringMap.add "printstr"
-      {typ = Void; fname = "printstr"; formals = test [Int]; body = []}
+        {typ = Void; fname = "printstr"; formals = test [String]; body = []}
+      (StringMap.add "printfloat"
+        {typ = Void; fname = "printfloat"; formals = test [Float]; body = []}
+      (StringMap.add "print_intlist"
+        {typ = Void; fname = "print_intlist"; formals = test [IntM]; body = []}
+      (StringMap.add "print_floatlist"
+        {typ = Void; fname = "print_floatlist"; formals = test [FloatM]; body = []}
+      (StringMap.add "print_stringlist"
+        {typ = Void; fname = "print_stringlist"; formals = test [StringM]; body = []}
+      (StringMap.add "print_intmat"
+        {typ = Void; fname = "print_intmat"; formals = test [IntM; Bool]; body = []}
+      (StringMap.add "print_floatmat"
+        {typ = Void; fname = "print_floatmat"; formals = test [FloatM; Bool]; body = []}
+      (StringMap.add "add_list_int"
+        {typ = IntM; fname = "add_list"; formals = test [IntM]; body = []}
+      (StringMap.add "sub_list_int"
+        {typ = IntM; fname = "sub_list"; formals = test [IntM]; body = []}
+      (StringMap.add "add_list_float"
+        {typ = FloatM; fname = "add_list_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "sub_list_float"
+        {typ = FloatM; fname = "sub_list_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "write_string_to_file"
+        {typ = Void; fname = "write_string_to_file"; formals = test [String; String]; body = []}
+      (StringMap.add "read_intmat_from_file"
+        {typ = IntM; fname = "read_intmat_to_file"; formals = test [String]; body = []}  
+      (StringMap.add "det_int"
+        {typ = Int; fname = "det_int"; formals = test [IntM]; body = []}
+      (StringMap.add "len_mat"
+        {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
       (StringMap.singleton "len"
-      {typ = Int; fname = "len"; formals = test [IntM]; body = []}))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))
 
 (* 
     let add_bind map (ty, name) =
@@ -288,8 +319,8 @@ let check (pname, (var_decls, func_decls)) =
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
-            (* Trans_M when t = Matrix -> t
-          | Inv_M when t = Matrix -> t *)
+            Trans_M when t = IntM -> t
+          (* | Inv_M when t = Matrix -> t *)
           | Neg when t = Int || t = Float -> t
           | Not when t = Bool -> t
           | _ -> raise (Failure ("illegal unary operator " ^
@@ -316,6 +347,8 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div       when same && t1 = Float -> Float
+          | Add | Sub | Mult             when same && t1 = IntM -> IntM
+          | Add | Sub | Mult             when same && t1 = FloatM -> FloatM
           (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
           | Eq | Neq                     when same               -> Bool
           | Less | Leq | Greater | Geq

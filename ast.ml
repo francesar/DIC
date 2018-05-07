@@ -8,13 +8,13 @@ type op = Add | Sub | Mult | Div  | Eq | Neq | Less |
           (* Dot_M | *)
           (* Mult_M | Div_M *)
 
-type uop = Neg | Not
+type uop = Neg | Not | Trans_M
 (* Trans_M | Inv_M |  *)
-type puop =  Increment | Decrement
+type puop =  Increment | Decrement 
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM
+    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM 
   (* | List of typ *)
   (* | Matrix of typ *)
 
@@ -83,8 +83,8 @@ let string_of_op = function
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
-  (* | Trans_M -> "'"
-     | Inv_M -> "~" *)
+  | Trans_M -> "'"
+     (* | Inv_M -> "~" *)
 let string_of_puop = function
     Increment -> "++"
   | Decrement -> "--"

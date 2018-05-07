@@ -1,0 +1,9 @@
+
+class func_test {
+
+	func int main(int a) {
+        write_string_to_file("hello.txt", "HELLO");
+        return 0;
+	}
+
+}
