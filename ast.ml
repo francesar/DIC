@@ -14,7 +14,7 @@ type puop =  Increment | Decrement
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM
+    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM 
   (* | List of typ *)
   (* | Matrix of typ *)
 

@@ -81,12 +81,26 @@ let translate (_, _, functions) =
     L.declare_function "printf" printf_t the_module in
 
 
-  
+
+  (******* PRINTING FUNCTIONS *******)
+
   let printf_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_intfunc = L.declare_function "printf" printf_int the_module in
 
   let printf_float = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_float_func = L.declare_function "printf" printf_int the_module in
+
+  let printf_list_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_list_int_func = L.declare_function "printlist_int" printf_list_int the_module in
+
+  let printf_list_float = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_list_float_func = L.declare_function "printlist_float" printf_list_float the_module in
+(* 
+  let printf_list_string = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_list_string_func = L.declare_function "printlist_string" printf_list the_module in *)
+
+  let printf_mat = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_mat_func = L.declare_function "printmat" printf_mat the_module in
 
 
   (******* FILE I/O FUNCTIONS *******)
@@ -122,6 +136,9 @@ let translate (_, _, functions) =
 
   let add_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let add_mat_func = L.declare_function "add_mat_int" add_mat_t the_module in
+
+  let sub_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let sub_mat_func = L.declare_function "sub_mat_int" sub_mat_t the_module in
 
   let is_square_t = L.var_arg_function_type i1_t [| L.pointer_type int_mat_struct |] in 
   let is_square_func = L.declare_function "is_square" is_square_t the_module in 
@@ -425,8 +442,15 @@ let translate (_, _, functions) =
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
                   L.build_call add_mat_func [| e1'; e2' |] "add_mat" builder
-                (* | A.Sub ->
-                  L.build_call sub_mat_func [| expr builder e1; expr builder e2 |] "sub_mat" builder *)
+                | A.Sub ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call sub_mat_func [| e1'; e2' |] "sub_mat" builder
               )
             | _ -> 
               (match op with
@@ -502,6 +526,14 @@ let translate (_, _, functions) =
         L.build_call is_square_func [| e' |] "" builder 
       | SCall ("printint", [e]) ->
         L.build_call printf_intfunc [| int_format_str ; (expr builder e) |] "printf" builder
+      | SCall ("print_intlist", [e]) ->
+        let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
+        ignore(L.build_store (expr builder e) p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+        
+        
+        L.build_call printf_list_int_func [| e' |] "printlist" builder
+                  
       | SCall ("printfloat", [e]) ->
         L.build_call printf_float_func [| float_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->
