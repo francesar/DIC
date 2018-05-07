@@ -45,6 +45,8 @@ void parseline(char *line, float_array *row) {
         ltok = strtok(NULL, ",");
     }
 
+    printf("%lf\n", row->arr[0]);
+
     row->length = colcount;
 }
 
@@ -55,7 +57,7 @@ int main() {
     char *line;
     size_t len = 0;
     ssize_t read;
-
+    
     int rows = 0;
 
     while((read = getline(&line, &len, fp) != -1)) {
@@ -69,7 +71,9 @@ int main() {
     int i = 0;
     while((read = getline(&line, &len, fp) != -1)) {
         struct float_array *row = (struct float_array *) malloc(sizeof(struct float_array));
+        printf("%s\n", "h");
         parseline(line, row);
+        printf("%s\n", "he");
         *((float_array**)(mat->arr) + i) = row;
         i++;
     }
