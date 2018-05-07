@@ -538,8 +538,6 @@ let translate (_, _, functions) =
         let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
         ignore(L.build_store (expr builder e) p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
-        
-        
         L.build_call printf_list_float_func [| e' |] "printlist" builder
       | SCall ("print_intmat", [e]) ->
         let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in

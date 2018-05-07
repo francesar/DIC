@@ -31,7 +31,7 @@ int_array* len_mat(void *a);
 
 
 /**************** PRINT FUNCTIONS ****************/
-void print_intlist(void *e) {
+void print_intlist_return (void *e) {
 	struct int_array *e_ = *(int_array**)(e);
 	int size = e_->length;
 	int x;
@@ -41,10 +41,16 @@ void print_intlist(void *e) {
 		printf("%s", ", ");
 		printf("%d", *((e_->arr) + x));
 	}
-	printf("%s", "]\n");
+	printf("%s", "]");
 }
 
-void print_floatlist(void *e) {
+void print_intlist(void *e) {
+	print_intlist_return(e);
+	printf("\n");	
+}
+
+
+void print_floatlist_return (void *e) {
 	struct float_array *e_ = *(float_array**)(e);
 	int size = e_->length;
 	int x;
@@ -54,38 +60,25 @@ void print_floatlist(void *e) {
 		printf("%s", ", ");
 		printf("%f", *((e_->arr) + x));
 	}
-	printf("%s", "]\n");
+	printf("%s", "]");
 }
+
+void print_floatlist(void *e) {
+	print_floatlist_return(e);
+	printf("\n");
+}
+
 
 void print_intmat(void *e) {
 	struct int_mat *e_ = *(int_mat**)(e);
 	int size = e_->length;
 	int x;
 	printf("%s", "[");
-	struct int_array *first_ = *(int_array**)(e_->arr);
-	int tmp_size = first_->length;
-	int tmp;
-	printf("%s", "[");
-	printf("%d", *((first_->arr)));
-	for (tmp = 1; tmp < tmp_size; tmp++) {
+	print_intlist_return(((int_array**)(e_->arr)));
+	for (x = 1; x < size; x++) {		
 		printf("%s", ", ");
-		printf("%d", *((first_->arr) + tmp));
-	}
-	printf("%s", "]");
-	// print_intlist(*((int_array**)(e_->arr)));
-	for (x = 1; x < size; x++) {
 		struct int_array *e1_ = *((int_array**)(e_->arr) + x);
-		
-		int inner_size = e1_->length;
-		int z;
-		printf("%s", ", [");
-		printf("%d", *((e1_->arr)));
-		
-		for (z = 1; z < inner_size; z++) {
-			printf("%s", ", ");
-			printf("%d", *((e1_->arr) + z));
-		}
-		printf("%s", "]");
+		print_intlist_return(((int_array**)(e_->arr) + x));
 	}
 	printf("%s", "]\n");
 }
@@ -96,30 +89,11 @@ void print_floatmat(void *e) {
 	int size = e_->length;
 	int x;
 	printf("%s", "[");
-	struct float_array *first_ = *(float_array**)(e_->arr);
-	int tmp_size = first_->length;
-	int tmp;
-	printf("%s", "[");
-	printf("%f", *((first_->arr)));
-	for (tmp = 1; tmp < tmp_size; tmp++) {
+	print_floatlist_return(((float_array**)(e_->arr)));
+	for (x = 1; x < size; x++) {		
 		printf("%s", ", ");
-		printf("%f", *((first_->arr) + tmp));
-	}
-	printf("%s", "]");
-	// print_intlist(*((int_array**)(e_->arr)));
-	for (x = 1; x < size; x++) {
 		struct float_array *e1_ = *((float_array**)(e_->arr) + x);
-		
-		int inner_size = e1_->length;
-		int z;
-		printf("%s", ", [");
-		printf("%f", *((e1_->arr)));
-		
-		for (z = 1; z < inner_size; z++) {
-			printf("%s", ", ");
-			printf("%f", *((e1_->arr) + z));
-		}
-		printf("%s", "]");
+		print_floatlist_return(((float_array**)(e_->arr) + x));
 	}
 	printf("%s", "]\n");
 }
