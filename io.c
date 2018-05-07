@@ -20,35 +20,35 @@ void write_string_to_file(char *file_path, char * data) {
     fclose(fp);
 }
 
-void parseline(char *line, float_array *row) {
-    char *tok;
-    char *og;
-    strcpy(og, line);
-    int colcount = 0;
+// void parseline(char *line, float_array *inp_row) {
+//     char *tok;
+//     char *og;
+//     strcpy(og, line);
+//     int colcount = 0;
 
-    tok = strtok(line, ",");
-    while(tok != NULL) {
-        colcount++;
-        tok = strtok(NULL, ",");
-    }
+//     tok = strtok(line, ",");
+//     while(tok != NULL) {
+//         colcount++;
+//         tok = strtok(NULL, ",");
+//     }
 
-    row->arr = malloc(colcount);
+//     row->arr = malloc(colcount * sizeof(double));
 
-    char* ltok = strtok(og, ",");
-    double *el;
-    int i = 0;
-    while(ltok != NULL) {
-        double itok;
-        sscanf(ltok, "%lf", &itok);
+//     char* ltok = strtok(og, ",");
+//     double *el;
+//     int i = 0;
+//     while(ltok != NULL) {
+//         double itok;
+//         sscanf(ltok, "%lf", &itok);
 
-        row->arr[i] = itok;
-        ltok = strtok(NULL, ",");
-    }
+//         row->arr[i] = itok;
+//         ltok = strtok(NULL, ",");
+//     }
 
-    printf("%lf\n", row->arr[0]);
+//     printf("%lf\n", row->arr[0]);
 
-    row->length = colcount;
-}
+//     row->length = colcount;
+// }
 
 int main() {
     FILE *fp;
@@ -58,25 +58,53 @@ int main() {
     size_t len = 0;
     ssize_t read;
     
-    int rows = 0;
+    int rcount = 0;
 
     while((read = getline(&line, &len, fp) != -1)) {
-        rows++;
+        rcount++;
     }
 
     struct float_mat *mat = (struct float_mat *) malloc(sizeof(struct float_mat));
-    mat->arr = malloc(rows * sizeof(struct float_array));
+    mat->arr = malloc(rcount * sizeof(struct float_array));
 
     fp = fopen("lol.csv", "r");
     int i = 0;
     while((read = getline(&line, &len, fp) != -1)) {
         struct float_array *row = (struct float_array *) malloc(sizeof(struct float_array));
-        printf("%s\n", "h");
-        parseline(line, row);
-        printf("%s\n", "he");
+        char *tok;
+        char *og;
+        strcpy(og, line);
+        int colcount = 0;
+
+        tok = strtok(line, ",");
+        while(tok != NULL) {
+            colcount++;
+            tok = strtok(NULL, ",");
+        }
+
+        row->arr = malloc(colcount * sizeof(double));
+
+        char* ltok = strtok(og, ",");
+        double *el;
+        int i = 0;
+        while(ltok != NULL) {
+            double itok;
+            sscanf(ltok, "%lf", &itok);
+
+            row->arr[i] = itok;
+            ltok = strtok(NULL, ",");
+        }
+
+        printf("%lf\n", row->arr[0]);
+
+        row->length = colcount;
         *((float_array**)(mat->arr) + i) = row;
         i++;
     }
 
-    mat->length = rows;
+    mat->length = rcount;
+    struct float_array *r = mat->arr;
+    float x = r->arr[0];
+    printf("%d\n", mat->length);
+    printf("%lf\n", x);
 }
