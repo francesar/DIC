@@ -18,6 +18,10 @@ class func_test {
 		print_floatmat(test6);
 		int[] test8 = test3 + test7;
 		print_intmat(test8);
+
+		int[] test9 = [1, 2, 15: 3, 4, 8 : 5, 6, 7];
+		int z= det_int(test9);
+		printint(z);
 		return 0;
 	}
 
