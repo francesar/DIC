@@ -21,7 +21,7 @@ rule token = parse
 | ';'      { SEMI        }
 | ','      { COMMA       }
 (* Operators *)
-(* | '''      { TRANSPOSE   } *)
+| '`'      { TRANSPOSE   }
 | '+'      { PLUS        }
 | "++"     { INC         }
 | "--"     { DEC         }

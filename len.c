@@ -29,12 +29,12 @@ typedef struct float_mat {
 
 
 /**************** FUNCTION DECLARATIONS ****************/
-void print_intlist_return (void *e);
+void print_intlist_return (void *e, bool pretty);
 void print_intlist(void *e);
-void print_floatlist_return (void *e);
+void print_floatlist_return (void *e, bool pretty);
 void print_floatlist(void *e);
-void print_intmat(void *e);
-void print_floatmat(void *e);
+void print_intmat(void *e, bool pretty);
+void print_floatmat(void *e, bool pretty);
 
 int_array* add_list_int(int_array* e1, int_array* e2);
 int_array* sub_list_int(int_array* e1, int_array* e2);
@@ -50,75 +50,107 @@ float_mat* sub_mat_float(void* e1, void* e2);
 bool is_square(int_mat *a);
 int_array* len_mat(void *a);
 int** store_array(void *e1);
+int_mat* transpose_int (void *e);
 int determinant_int(void *e1);
 int det_helper(int n, int a[][n]);
 
 /**************** PRINT FUNCTIONS ****************/
-void print_intlist_return (void *e) {
+void print_intlist_return (void *e, bool pretty) {
 	struct int_array *e_ = *(int_array**)(e);
 	int size = e_->length;
 	int x;
 	printf("%s", "[");
 	printf("%d", *((e_->arr)));
 	for (x = 1; x < size; x++) {
-		printf("%s", ", ");
+		if (pretty)
+			printf("%s", "\t");
+		else
+			printf("%s", ", ");
 		printf("%d", *((e_->arr) + x));
 	}
 	printf("%s", "]");
 }
 
 void print_intlist(void *e) {
-	print_intlist_return(e);
+	print_intlist_return(e, false);
 	printf("\n");	
 }
 
 
-void print_floatlist_return (void *e) {
+void print_floatlist_return (void *e, bool pretty) {
 	struct float_array *e_ = *(float_array**)(e);
 	int size = e_->length;
 	int x;
 	printf("%s", "[");
 	printf("%f", *((e_->arr)));
 	for (x = 1; x < size; x++) {
-		printf("%s", ", ");
+		if (pretty)
+			printf("%s", "\t");
+		else
+			printf("%s", ", ");
 		printf("%f", *((e_->arr) + x));
 	}
 	printf("%s", "]");
 }
 
 void print_floatlist(void *e) {
-	print_floatlist_return(e);
+	print_floatlist_return(e, false);
 	printf("\n");
 }
 
 
-void print_intmat(void *e) {
+void print_intmat(void *e, bool pretty) {
 	struct int_mat *e_ = *(int_mat**)(e);
 	int size = e_->length;
 	int x;
-	printf("%s", "[");
-	print_intlist_return(((int_array**)(e_->arr)));
-	for (x = 1; x < size; x++) {		
-		printf("%s", ", ");
-		struct int_array *e1_ = *((int_array**)(e_->arr) + x);
-		print_intlist_return(((int_array**)(e_->arr) + x));
+	if (!pretty) {
+		printf("%s", "[");	
+		print_intlist_return(((int_array**)(e_->arr)), false);
+	} else {
+		print_intlist_return(((int_array**)(e_->arr)), true);
 	}
-	printf("%s", "]\n");
+	
+	if (pretty) printf("\n");
+	for (x = 1; x < size; x++) {		
+		
+		struct int_array *e1_ = *((int_array**)(e_->arr) + x);
+		
+		if (pretty) {
+			print_intlist_return(((int_array**)(e_->arr) + x), true);
+			printf("\n");			
+		} else {
+			printf("%s", ", ");
+			print_intlist_return(((int_array**)(e_->arr) + x), false);	
+		}
+		
+	}
+	if (!pretty) printf("%s", "]\n"); else printf("\n");
 }
 
 
-void print_floatmat(void *e) {
+void print_floatmat(void *e, bool pretty) {
 	struct float_mat *e_ = *(float_mat**)(e);
 	int size = e_->length;
 	int x;
-	printf("%s", "[");
-	print_floatlist_return(((float_array**)(e_->arr)));
-	for (x = 1; x < size; x++) {		
-		printf("%s", ", ");
-		struct float_array *e1_ = *((float_array**)(e_->arr) + x);
-		print_floatlist_return(((float_array**)(e_->arr) + x));
+	if (!pretty) {
+		printf("%s", "[");
+		print_floatlist_return(((float_array**)(e_->arr)), false);
+	} else {
+		print_floatlist_return(((float_array**)(e_->arr)), true);
 	}
-	printf("%s", "]\n");
+	if (pretty) printf("\n");
+	for (x = 1; x < size; x++) {		
+		struct float_array *e1_ = *((float_array**)(e_->arr) + x);
+
+		if (pretty) {
+			print_floatlist_return(((float_array**)(e_->arr) + x), true);
+			printf("\n");
+		} else {
+			printf("%s", ", ");
+			print_floatlist_return(((float_array**)(e_->arr) + x), false);
+		}
+	}
+	if (!pretty) printf("%s", "]\n"); else printf("\n");
 }
 
 /**************** LIST OPERATIONS ****************/
@@ -376,6 +408,30 @@ int** store_array(void *e) {
 }
 
 
+int_mat* transpose_int ( void*e) {
+	int **output = store_array(e);
+	struct int_mat *e1_ = *(int_mat**)(e);
+	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
+	int size = e1_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(int_array));
+	for (x = 0; x < size; x++) {
+		struct int_array *tmp = (struct int_array*) malloc (sizeof(struct int_array));
+		struct int_array *t1 = *((int_array**)(e1_->arr) + x);
+		int inner_size = t1->length;
+		int z;
+		tmp->length = inner_size;
+		tmp->arr = malloc(inner_size);
+		for (z = 0; z < inner_size; z++) {
+			*((tmp->arr) + z) = output[z][x];
+		}
+		*((int_array**)(new_struct->arr) + x) = tmp;
+		
+	}
+	return new_struct;
+}
+
 
 int determinant_int(void *e) {
 	
@@ -397,9 +453,6 @@ int determinant_int(void *e) {
 		
 		return value;
 	}
-	
-		
-	
 	return 0;
 }
 
