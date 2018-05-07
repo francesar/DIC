@@ -81,7 +81,6 @@ let translate (_, _, functions) =
     L.declare_function "printf" printf_t the_module in
 
 
-
   (******* PRINTING FUNCTIONS *******)
 
   let printf_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -91,17 +90,19 @@ let translate (_, _, functions) =
   let printf_float_func = L.declare_function "printf" printf_int the_module in
 
   let printf_list_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
-  let printf_list_int_func = L.declare_function "printlist_int" printf_list_int the_module in
+  let printf_list_int_func = L.declare_function "print_intlist" printf_list_int the_module in
 
   let printf_list_float = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
-  let printf_list_float_func = L.declare_function "printlist_float" printf_list_float the_module in
+  let printf_list_float_func = L.declare_function "print_floatlist" printf_list_float the_module in
 (* 
   let printf_list_string = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_list_string_func = L.declare_function "printlist_string" printf_list the_module in *)
 
-  let printf_mat = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
-  let printf_mat_func = L.declare_function "printmat" printf_mat the_module in
+  let printf_mat_int = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_mat_int_func = L.declare_function "print_intmat" printf_mat_int the_module in
 
+  let printf_mat_float = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_mat_float_func = L.declare_function "print_floatmat" printf_mat_float the_module in
 
   (******* FILE I/O FUNCTIONS *******)
   let write_string_to_file_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
@@ -533,7 +534,23 @@ let translate (_, _, functions) =
         
         
         L.build_call printf_list_int_func [| e' |] "printlist" builder
-                  
+      | SCall ("print_floatlist", [e]) ->
+        let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
+        ignore(L.build_store (expr builder e) p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+        
+        
+        L.build_call printf_list_float_func [| e' |] "printlist" builder
+      | SCall ("print_intmat", [e]) ->
+        let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
+        ignore(L.build_store (expr builder e) p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+        L.build_call printf_mat_int_func [| e' |] "printmat" builder 
+      | SCall ("print_floatmat", [e]) ->
+        let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
+        ignore(L.build_store (expr builder e) p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+        L.build_call printf_mat_float_func [| e' |] "printmat" builder 
       | SCall ("printfloat", [e]) ->
         L.build_call printf_float_func [| float_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->
