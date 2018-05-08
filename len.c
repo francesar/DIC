@@ -29,7 +29,6 @@ typedef struct float_mat {
 
 
 /**************** FUNCTION DECLARATIONS ****************/
-int_array* len_mat(void *a);
 void print_intlist_return (void *e);
 void print_intlist(void *e);
 void print_floatlist_return (void *e);
@@ -50,6 +49,9 @@ float_mat* add_mat_float(void* e1, void* e2);
 float_mat* sub_mat_float(void* e1, void* e2);
 bool is_square(int_mat *a);
 int_array* len_mat(void *a);
+int** store_array(void *e1);
+int determinant_int(void *e1);
+int det_helper(int n, int a[][n]);
 
 /**************** PRINT FUNCTIONS ****************/
 void print_intlist_return (void *e) {
@@ -340,7 +342,6 @@ int_array* len_mat(void *a) {
 	return new_struct;
 }
 
-
 void fmat_tocsv(void *v, void *f) {
     char * file  = *(char **)(f);
     FILE *fp = fopen(file, "a+");
@@ -407,4 +408,93 @@ float_mat* fmat_fromcsv(void *p) {
     }
     printf("%s\n", "hello");
     return mat;
+}
+
+int** store_array(void *e) {
+	struct int_mat *e_ = *(int_mat**)(e);
+	
+	void *tmp = e;
+	int_array *sizes = len_mat(e);
+	
+	int outer_size = sizes->arr[0];
+	int inner_size = sizes->arr[1];
+
+	// int return_val[outer_size][inner_size];
+	int **return_val = (int **)malloc(outer_size * sizeof(int*));
+    int z;
+    for (z=0; z<outer_size; z++)
+         return_val[z] = (int *)malloc(inner_size * sizeof(int));
+
+
+	int c_array[outer_size][inner_size];
+	int x; 
+	
+	for (x = 0; x < outer_size; x++) {
+		
+		struct int_array *e1 = *((int_array**)(e_->arr) + x);
+		int y;
+	
+		for (y = 0; y < inner_size; y++) {		
+			// printf("%d\n", e1->arr[y]);
+			return_val[x][y] = e1->arr[y];
+		}
+	}
+	return return_val;
+}
+
+
+
+int determinant_int(void *e) {
+	
+	if (is_square(e)) {
+		//int_mat *tmp = *(int_mat **) e;
+		int_array *sizes = len_mat(e);
+		int n = sizes->arr[0];
+		
+		int **output = store_array(e);
+		int tmp[n][n];
+		int x;
+		for (x = 0; x < n; x++) {
+			int y;
+			for (y = 0; y < n; y++) {
+				tmp[x][y] = output[x][y];
+			}
+		}
+		int value =det_helper(n, tmp);
+		
+		return value;
+	}
+	
+		
+	
+	return 0;
+}
+
+
+/*
+
+	From: https://stackoverflow.com/questions/42802208/code-for-determinant-of-n-x-n-matrix
+
+ */
+int det_helper(int n, int a[][n]) {
+	if(n<=0) return 0;                                 // stop recursion
+    if(n==1) return a[0][0];                           // stop recursion
+    if(n==2) return a[0][0]*a[1][1] - a[0][1]*a[1][0]; // stop recursion
+    	
+    int i,aj,bj,k,p,sign,b[n-1][n-1];
+    
+    for (p=0,  sign=+1, k = 0; k < n ; k++, sign=-sign)
+        {
+        for (i=1; i<n; i++)
+            {
+            for (aj=0,bj=0 ; aj<n; aj++)
+             if (aj!=k) 
+                {
+                b[i-1][bj]=a[i][aj];
+                ++bj;
+                }
+            }
+        p= p + (sign*a[0][k]*det_helper(n-1, b)); // here you had aj instead of k causing problems !!!
+        }
+    return p;
 }

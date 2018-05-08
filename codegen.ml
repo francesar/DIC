@@ -147,6 +147,9 @@ let translate (_, _, functions) =
   let sub_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let sub_mat_func_float = L.declare_function "sub_mat_float" sub_mat_t_float the_module in
 
+  let det_mat_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let det_mat_func = L.declare_function "determinant_int" det_mat_t the_module in
+
   let is_square_t = L.var_arg_function_type i1_t [| L.pointer_type int_mat_struct |] in 
   let is_square_func = L.declare_function "is_square" is_square_t the_module in 
 
@@ -558,6 +561,12 @@ let translate (_, _, functions) =
           ignore(L.build_store path' ptr_path' builder);
         let path' = L.build_bitcast ptr_path' (L.pointer_type i8_t) "" builder in 
         L.build_call fmat_tocsv [| e';path' |] "" builder 
+      | SCall("det_int", [e]) ->
+        let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call det_mat_func [| e' |] "" builder 
       | SCall("is_square", [e]) ->
         let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
