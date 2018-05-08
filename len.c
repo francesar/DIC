@@ -45,6 +45,7 @@ int len(void *a);
 
 int_mat* add_mat_int(void* e1, void* e2);
 int_mat* sub_mat_int(void* e1, void* e2);
+int_mat* mult_mat_int(void* e1, void* e2);
 float_mat* add_mat_float(void* e1, void* e2);
 float_mat* sub_mat_float(void* e1, void* e2);
 bool is_square(int_mat *a);
@@ -292,6 +293,56 @@ int_mat* sub_mat_int(void* e1, void* e2) {
 	return new_struct;
 }
 
+int_mat* mult_mat_int(void* e1, void* e2) {
+	// struct int_mat *e1_llvm = *(int_mat**)(e1);
+	// struct int_mat *e2_ = *(int_mat**)(e2);
+
+	// Create C arrays for e1 and e2
+	int **e1_ = store_array(e1);
+	int **e2_ = store_array(e2);
+
+	int_array *e1_sizes = len_mat(e1);
+	int_array *e2_sizes = len_mat(e2);
+	int m1 = e1_sizes->arr[0];
+	int m2 = e1_sizes->arr[1];
+	int n1 = e2_sizes->arr[0];
+	int n2 = e2_sizes->arr[1];
+
+	// Create the return array
+	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
+	new_struct->length = m1;
+	new_struct->arr = malloc(m1 * sizeof(int_array));
+	
+
+	// Code taken from: https://www.geeksforgeeks.org/c-program-multiply-two-matrices/
+	int res[m1][n2];
+	int x, i, j;
+    for (i = 0; i < m1; i++) {
+        for (j = 0; j < n2; j++) {
+        	res[i][j] = 0;	
+            for (x = 0; x < m2; x++) {
+                *(*(res + i) + j) += ( *(*(e1_ + i) + x) *
+                                     *(*(e2_ + x) + j));
+            }
+
+        }
+    }
+    printf("%d\n", m2);
+    for (i = 0; i < m1; i++) {
+    	struct int_array *tmp = (struct int_array*) malloc (sizeof(struct int_array));
+    	tmp->length = n2;
+    	tmp->arr = malloc(n2);
+    	for (j = 0; j < n2; j++) {
+    		*((tmp->arr) + j) = res[i][j];
+    	}
+    	*((int_array**)(new_struct->arr) + i) = tmp;
+    }
+
+	
+	return new_struct;
+}
+
+
 float_mat* add_mat_float(void* e1, void* e2) {
 	struct float_mat *e1_ = *(float_mat**)(e1);
 	struct float_mat *e2_ = *(float_mat**)(e2);
@@ -399,8 +450,7 @@ int** store_array(void *e) {
 		struct int_array *e1 = *((int_array**)(e_->arr) + x);
 		int y;
 	
-		for (y = 0; y < inner_size; y++) {		
-			// printf("%d\n", e1->arr[y]);
+		for (y = 0; y < inner_size; y++) {
 			return_val[x][y] = e1->arr[y];
 		}
 	}

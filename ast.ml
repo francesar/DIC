@@ -33,12 +33,15 @@ type expr =
   | MatIndexAssign of string * (expr list) * expr (* Matrix Access Index *)
   | MatIndex of string * (expr list) (* Assign a Matrix Index *)
   | Id of string
+  | Fpoint of string
   | Binop of expr * op * expr
   | Punop of string * puop
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
   | Noexpr
+
+
 
 type var_decl =  typ * string * expr
 
@@ -114,13 +117,14 @@ let rec string_of_expr = function
   | MatIndexAssign (v, e1, e2) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "] = " ^ string_of_expr e2
   | MatIndex (v, e1) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "]"
   | Id(s) -> s
+  | Fpoint(s) -> s
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Punop(v, o) ->  v ^ string_of_puop o
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+      f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
   | Noexpr -> ""
 
 let string_of_typ = function

@@ -13,7 +13,7 @@ open Ast
 %token INT BOOL FLOAT VOID LIST DICT STRING CHAR INTM FLOATM CHARM BOOLM STRINGM
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT SLIT CHLIT
+%token <string> ID FLIT SLIT CHLIT FPOINT
 %token CLASS EOF
 
 %nonassoc NOELSE
@@ -111,6 +111,7 @@ expr:
   | FALSE                             { BoolLit(false)                  }
   | SLIT                              { StringLit($1)                   }
   | ID                                { Id($1)                          }
+  | FPOINT                            { Fpoint($1)                      }
   | LBRACK args_opt RBRACK            { ListLit($2)                     }
   | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }

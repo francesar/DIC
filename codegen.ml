@@ -141,6 +141,9 @@ let translate (_, _, functions) =
   let sub_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let sub_mat_func = L.declare_function "sub_mat_int" sub_mat_t the_module in
 
+  let mult_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let mult_mat_func = L.declare_function "mult_mat_int" mult_mat_t the_module in
+
   let add_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let add_mat_func_float = L.declare_function "add_mat_float" add_mat_t_float the_module in
 
@@ -164,18 +167,19 @@ let translate (_, _, functions) =
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
     let function_decl m fdecl =
       let name = fdecl.sfname
-      and formal_types =
-  Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals)
-      in let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types in
-      StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    List.fold_left function_decl StringMap.empty functions in
+      and formal_types = Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals) in
+      let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types in
+      StringMap.add name (L.define_function name ftype the_module, fdecl) m 
+    in
+    List.fold_left function_decl StringMap.empty functions 
+  in
 
 
   let build_function fdecl =
 
 
     (* int main() {}  ----->  define i32 @main() {}  *)
-(*     let main_ty = L.function_type (ltype_of_typ fdecl.styp) [||] in
+(*     let main_ty = L.function_type (ltype_ of_typ fdecl.styp) [||] in
     let the_function = L.define_function "main" main_ty the_module in
  *)
 
@@ -236,8 +240,8 @@ let translate (_, _, functions) =
 
 
 
-    let lookup n = try Hashtbl.find local_vars n
-                      with Not_found -> raise(Failure("n: " ^ n))
+    let lookup n = try Hashtbl.find local_vars n with Not_found -> 
+        raise(Failure("n: " ^ n))
     in
 
 
@@ -444,6 +448,18 @@ let translate (_, _, functions) =
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
                   L.build_call sub_mat_func [| e1'; e2' |] "sub_mat" builder
+                | A.Mult ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+
+
+                  L.build_call mult_mat_func [| e1'; e2' |] "mult_mat" builder
+                
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )
             | "%float_mat_struct*" -> 
@@ -582,6 +598,7 @@ let translate (_, _, functions) =
         ignore(L.build_store (expr builder e) p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
         L.build_call printf_mat_float_func [| e' ; (expr builder pretty) |] "printmat" builder 
+      | SCall ("start", [e])
       | SCall ("printfloat", [e]) ->
         L.build_call printf_float_func [| float_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->

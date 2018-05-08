@@ -6,7 +6,6 @@ type func_symbol = func_decl StringMap.t
 
 (* args here might need to change since we accept classes OR statment blocks as valid programs *)
 let check (pname, (var_decls, func_decls)) =
-
     let check_binds (kind : string) (to_check : bind list) =
       let check_it checked binding =
         let void_err = "illegal void " ^ kind ^ " " ^ snd binding
@@ -127,6 +126,7 @@ let check (pname, (var_decls, func_decls)) =
   let function_decls = List.fold_left add_func built_in_decls func_decls
   in
 
+
   (* Finds and returns functions in function symbol table *)
   let find_func s =
     try StringMap.find s function_decls
@@ -172,6 +172,7 @@ let check (pname, (var_decls, func_decls)) =
       | StringLit s -> (String, SStringLit s)
       | Noexpr      -> (Void, SNoExpr)
       | Id s        -> (type_of_identifier s, SId s)
+      (* | Fpoint s    -> () *)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var
         and (rt, e') = expr e in
@@ -360,25 +361,28 @@ let check (pname, (var_decls, func_decls)) =
                        string_of_typ t2 ^ " in " ^ string_of_expr e))
         in (ty, SBinop((t1, e1'), op, (t2, e2')))
       | Call(fname, args) as call ->
-        let fd = find_func fname in
-        let param_length = List.length fd.formals in
-        let matching = match args with
-          | [] -> ""
-          | hd :: _ -> string_of_expr hd
-        in
-        (* let convert = if List.length args = 1 && test = "" then 0 else List.length args in *)
-        let args = if List.length args = 1 && matching = "" then [] else args in
-        if List.length args <> param_length then
-          raise (Failure ("expecting " ^ string_of_int param_length ^
-                          " arguments in " ^ string_of_expr call ^ "\nwhere: args = " ^ string_of_int (List.length args)))
-        else let check_call (ft, _) e =
-               let (et, e') = expr e in
-               let err = "illegal argument found " ^ string_of_typ et ^
-                         " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-               in (check_assign ft et err, e')
+        (* if fname <> "start" then *)
+          let fd = find_func fname in
+          let param_length = List.length fd.formals in
+          let matching = match args with
+            | [] -> ""
+            | hd :: _ -> string_of_expr hd
           in
-          let args' = List.map2 check_call fd.formals args
-          in (fd.typ, SCall(fname, args'))
+          (* let convert = if List.length args = 1 && test = "" then 0 else List.length args in *)
+          let args = if List.length args = 1 && matching = "" then [] else args in
+          if List.length args <> param_length then
+            raise (Failure ("expecting " ^ string_of_int param_length ^
+                            " arguments in " ^ string_of_expr call ^ "\nwhere: args = " ^ string_of_int (List.length args)))
+          else let check_call (ft, _) e =
+                 let (et, e') = expr e in
+                 let err = "illegal argument found " ^ string_of_typ et ^
+                           " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
+                 in (check_assign ft et err, e')
+            in
+            let args' = List.map2 check_call fd.formals args
+            in (fd.typ, SCall(fname, args'))
+        
+        
     in
 
     let check_bool_expr e =
