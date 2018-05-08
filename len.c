@@ -358,7 +358,7 @@ float_mat* add_mat_float(void* e1, void* e2) {
 		int size = t2->length;
 		int z;
 		tmp->length = size;
-		tmp->arr = malloc(size);
+		tmp->arr = malloc(size * sizeof(float));
 		for (z = 0; z < size; z++) {
 			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
 		}
