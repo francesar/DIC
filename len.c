@@ -611,8 +611,37 @@ double** store_array_double(void *e) {
 	return return_val;
 }
 
+int_mat* cofactor(float num[25][25],float f) {
+    float b [25][25];
+    float fac [25][25];
+    int p, q, m, n, i, j;
+    for(q=0 ; q < f; q++) {
+        for (p = 0; p < f; p++) {
+            m = 0;
+            n = 0;
+            for( i = 0; i < f; i++) {
+                for(j = 0; j < f; j++) {
+                    if(i != q && j != p) {
+                    b[m][n] = num[i][j];
+                        if (n < (f - 2)) {
+                            n++;   
+                        }
+                        else {
+                            n=0;
+                            m++;
+                        }
+                    }
+                }
+            }
+        fac[q][p] = pow(-1,q + p) * determinant(b,f-1);
+        }
+    }
+    transpose(num ,fac, f);
+}
 
-int_mat* transpose_int ( void*e) {
+
+
+int_mat* transpose_int (void *e) {
 	int **output = store_array(e);
 	struct int_mat *e1_ = *(int_mat**)(e);
 	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
