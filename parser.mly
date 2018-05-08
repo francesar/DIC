@@ -122,7 +122,7 @@ expr:
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
   | expr TIMES    expr                { Binop($1, Mult,  $3)            }
   /* | expr TIMES_M  expr                { Binop($1, Mult_M, $3)           } */
-  /* | expr DOT      expr                { Binop($1, Dot_M, $3)            } */
+  | expr DOT      expr                { Binop($1, Dot, $3)            }
   | expr DIVIDE   expr                { Binop($1, Div,   $3)            }
   /* | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            } */
   | expr MOD      expr                { Binop($1, Mod,   $3)            }

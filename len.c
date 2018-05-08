@@ -39,6 +39,7 @@ void print_floatmat(void *e, bool pretty);
 
 int_array* add_list_int(int_array* e1, int_array* e2);
 int_array* sub_list_int(int_array* e1, int_array* e2);
+int dot_prod_int(int_array* e1, int_array* e2);
 float_array* add_list_float(float_array* e1, float_array* e2);
 float_array* sub_list_float(float_array* e1, float_array* e2);
 int_array* append(void *a, void *new_element);
@@ -192,6 +193,18 @@ int_array* sub_list_int(int_array* e1, int_array* e2) {
 		*((new_struct->arr) + x) = *((e1->arr) + x) - *((e2->arr) + x);
 	} 
 	return new_struct;
+}
+
+int dot_prod_int(int_array* e1, int_array* e2) {
+	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
+	int size = e2->length;
+	int total;
+  int x;
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		total = *((e1->arr) + x) * *((e2->arr) + x);
+	} 
+	return total;
 }
 
 float_array* add_list_float(float_array* e1, float_array* e2) {

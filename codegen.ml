@@ -116,6 +116,9 @@ let translate (_, _, functions) =
   let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
   let len_func = L.declare_function "len" len_t the_module in 
 
+  let dot_prod_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
+  let dot_prod_func = L.declare_function "dot_prod_int" dot_prod_t the_module in 
+
   let append_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t ; L.pointer_type i8_t |] in 
   let append_func = L.declare_function "append" append_t the_module in
 
@@ -150,20 +153,20 @@ let translate (_, _, functions) =
   let sub_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let sub_mat_func_float = L.declare_function "sub_mat_float" sub_mat_t_float the_module in
 
-  let mult_mat_t_float = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let mult_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let mult_mat_func_float = L.declare_function "mult_mat_float" mult_mat_t_float the_module in
 
   let det_mat_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let det_mat_func = L.declare_function "determinant_int" det_mat_t the_module in
 
-  let det_mat_t_float = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let det_mat_t_float = L.var_arg_function_type float_t [| L.pointer_type i8_t |] in
   let det_mat_func_float = L.declare_function "determinant_float" det_mat_t_float the_module in
 
   let trans_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t |] in
   let trans_mat_func = L.declare_function "transpose_int" trans_mat_t the_module in
 
-  let trans_mat_t_float = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t |] in
-  let trans_mat_func_float = L.declare_function "transpose_float" trans_mat_t the_module in
+  let trans_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t |] in
+  let trans_mat_func_float = L.declare_function "transpose_float" trans_mat_t_float the_module in
 
   let is_square_t = L.var_arg_function_type i1_t [| L.pointer_type int_mat_struct |] in 
   let is_square_func = L.declare_function "is_square" is_square_t the_module in 
@@ -436,6 +439,8 @@ let translate (_, _, functions) =
                   L.build_call add_list_func [| expr builder e1; expr builder e2 |] "add_list" builder
                 | A.Sub ->
                   L.build_call sub_list_func [| expr builder e1; expr builder e2 |] "sub_list" builder
+                | A.Dot ->
+                  L.build_call dot_prod_func [| expr builder e1; expr builder e2 |] "dot_prod_int" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )
             | "%float_array_struct*" ->
@@ -522,6 +527,7 @@ let translate (_, _, functions) =
               | A.Mod     -> L.build_srem
               | A.And     -> L.build_and
               | A.Or      -> L.build_or
+              | A.Dot     -> raise(Failure("Not valid for this type"))
               | A.Eq      -> L.build_icmp L.Icmp.Eq
               | A.Neq     -> L.build_icmp L.Icmp.Ne
               | A.Less    -> L.build_icmp L.Icmp.Slt

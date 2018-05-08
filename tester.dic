@@ -26,7 +26,9 @@ class func_test {
         
         //print_floatmat(o, true);
 
-        finverse(test4);
+        //finverse(test4);
+		int[] test2 = [1,2,6,6,6];
+        printint(test1**test2);    
 
 		return 0;
 	}
