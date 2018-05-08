@@ -150,11 +150,20 @@ let translate (_, _, functions) =
   let sub_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let sub_mat_func_float = L.declare_function "sub_mat_float" sub_mat_t_float the_module in
 
+  let mult_mat_t_float = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let mult_mat_func_float = L.declare_function "mult_mat_float" mult_mat_t_float the_module in
+
   let det_mat_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let det_mat_func = L.declare_function "determinant_int" det_mat_t the_module in
 
+  let det_mat_t_float = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let det_mat_func_float = L.declare_function "determinant_float" det_mat_t_float the_module in
+
   let trans_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t |] in
   let trans_mat_func = L.declare_function "transpose_int" trans_mat_t the_module in
+
+  let trans_mat_t_float = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t |] in
+  let trans_mat_func_float = L.declare_function "transpose_float" trans_mat_t the_module in
 
   let is_square_t = L.var_arg_function_type i1_t [| L.pointer_type int_mat_struct |] in 
   let is_square_func = L.declare_function "is_square" is_square_t the_module in 
@@ -488,6 +497,17 @@ let translate (_, _, functions) =
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
                   L.build_call sub_mat_func_float [| e1'; e2' |] "sub_mat" builder
+                | A.Mult ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+
+
+                  L.build_call mult_mat_func_float [| e1'; e2' |] "mult_mat" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )
             | _ -> 
@@ -517,6 +537,15 @@ let translate (_, _, functions) =
                     ignore(L.build_store e' p_e' builder);
                     let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
                     L.build_call trans_mat_func [| e' |] "trans_mat" builder
+                | _ -> raise(Failure("Either invalid operator or not implemented yet: " ^ (A.string_of_uop op)))
+              )
+            | "%float_mat_struct*" ->
+              (match op with
+                | A.Trans_M -> 
+                    let p_e' = L.build_alloca (L.type_of e') "" builder in
+                    ignore(L.build_store e' p_e' builder);
+                    let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+                    L.build_call trans_mat_func_float [| e' |] "trans_mat" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet: " ^ (A.string_of_uop op)))
               )
             | _ ->
@@ -580,6 +609,12 @@ let translate (_, _, functions) =
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
         L.build_call det_mat_func [| e' |] "" builder 
+      | SCall("det_float", [e]) ->
+        let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call det_mat_func_float [| e' |] "" builder 
       | SCall("is_square", [e]) ->
         let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in

@@ -324,7 +324,7 @@ let check (pname, (var_decls, func_decls)) =
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
-            Trans_M when t = IntM -> t
+            Trans_M when t = IntM || t = FloatM -> t
           (* | Inv_M when t = Matrix -> t *)
           | Neg when t = Int || t = Float -> t
           | Not when t = Bool -> t
