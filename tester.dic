@@ -19,7 +19,7 @@ class func_test {
 		int[] test8 = test3 + test7;
         float[] o = fmat_fromcsv("nick.csv");
         float[] fucku = o + o;
-		print_floatmat(fucku);
+		print_floatmat(fucku, true);
 		return 0;
 	}
 }
