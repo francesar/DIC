@@ -71,9 +71,9 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "print_stringlist"
         {typ = Void; fname = "print_stringlist"; formals = test [StringM]; body = []}
       (StringMap.add "print_intmat"
-        {typ = Void; fname = "print_intmat"; formals = test [IntM]; body = []}
+        {typ = Void; fname = "print_intmat"; formals = test [IntM; Bool]; body = []}
       (StringMap.add "print_floatmat"
-        {typ = Void; fname = "print_floatmat"; formals = test [FloatM]; body = []}
+        {typ = Void; fname = "print_floatmat"; formals = test [FloatM; Bool]; body = []}
       (StringMap.add "add_list_int"
         {typ = IntM; fname = "add_list"; formals = test [IntM]; body = []}
       (StringMap.add "sub_list_int"
@@ -323,8 +323,8 @@ let check (pname, (var_decls, func_decls)) =
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
-            (* Trans_M when t = Matrix -> t
-          | Inv_M when t = Matrix -> t *)
+            Trans_M when t = IntM -> t
+          (* | Inv_M when t = Matrix -> t *)
           | Neg when t = Int || t = Float -> t
           | Not when t = Bool -> t
           | _ -> raise (Failure ("illegal unary operator " ^

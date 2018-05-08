@@ -13,13 +13,15 @@ class func_test {
 		float[] test6 = test4 + test5; 
 		print_intlist(test1);
 		print_floatlist(test2);
-		print_intmat(test3);
-		print_floatmat(test4);
-		print_floatmat(test6);
+		print_intmat(test3, false);
+		print_floatmat(test4, false);
+		print_floatmat(test6, false);
 		int[] test8 = test3 + test7;
         float[] o = fmat_fromcsv("nick.csv");
         float[] fucku = o + o;
-		print_floatmat(fucku, true);
+
+        fmat_tocsv(fucku, "new.csv");
+
 		return 0;
 	}
 }

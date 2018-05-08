@@ -139,7 +139,7 @@ expr:
   | ID INC                          { Punop($1, Increment)            }
   | ID DEC                          { Punop( $1, Decrement)           }
   | NOT expr                          { Unop(Not, $2)                   }
-  /* | TRANSPOSE expr                    { Unop(Trans_M, $2)               } */
+  | TRANSPOSE expr                    { Unop(Trans_M, $2)               }
   /* | INVERSE expr                      { Unop(Inv_M, $2)                 } */
   | ID ASSIGN expr                    { Assign($1, $3)                  }
   | ID LPAREN args_opt RPAREN         { Call($1, $3)                    }
