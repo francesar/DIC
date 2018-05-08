@@ -17,8 +17,8 @@ class func_test {
 		print_floatmat(test4);
 		print_floatmat(test6);
 		int[] test8 = test3 + test7;
+        fmat_tocsv(test4, "nick.csv");
 		print_intmat(test8);
 		return 0;
 	}
-
 }
