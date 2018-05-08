@@ -83,13 +83,13 @@ void print_floatlist_return (void *e, bool pretty) {
 	int size = e_->length;
 	int x;
 	printf("%s", "[");
-	printf("%f", *((e_->arr)));
+	printf("%lf.3", *((e_->arr)));
 	for (x = 1; x < size; x++) {
 		if (pretty)
 			printf("%s", "\t");
 		else
 			printf("%s", ", ");
-		printf("%f", *((e_->arr) + x));
+		printf("%lf", *((e_->arr) + x));
 	}
 	printf("%s", "]");
 }
@@ -261,6 +261,10 @@ int_mat* add_mat_int(void* e1, void* e2) {
 		tmp->length = inner_size;
 		tmp->arr = malloc(inner_size);
 		for (z = 0; z < inner_size; z++) {
+            double h = *((t1->arr) + z) + *((t2->arr) + z);
+            if(h == 0) {
+                printf("%s\n", "is zero");
+            }
 			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
 		}
 		*((int_array**)(new_struct->arr) + x) = tmp;
@@ -358,7 +362,7 @@ float_mat* add_mat_float(void* e1, void* e2) {
 		int size = t2->length;
 		int z;
 		tmp->length = size;
-		tmp->arr = malloc(size * sizeof(float));
+		tmp->arr = malloc(size * sizeof(double));
 		for (z = 0; z < size; z++) {
 			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
 		}
@@ -425,6 +429,74 @@ int_array* len_mat(void *a) {
 	return new_struct;
 }
 
+void fmat_tocsv(void *v, void *f) {
+    char * file  = *(char **)(f);
+    FILE *fp = fopen(file, "a+");
+    struct float_mat *mat = *(float_mat**)(v);
+    int rcount = mat->length;
+
+    int i;
+    for(i = 0; i < rcount; i++) {
+        struct float_array *f = *((float_array**)(mat->arr) + i);
+        int colcount = f->length;
+        int j;
+        for (j = 0; j < colcount; j++) {
+            double d = *((f->arr) + j);
+            fprintf(fp, "%lf,", d);
+        }
+        fprintf(fp, "\n");
+    }
+}
+
+float_mat* fmat_fromcsv(void *p) {
+    char *path = *(char **)p;
+    FILE *fp = fopen(path, "r");
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    int rcount = 0;
+    while((read = getline(&line, &len, fp) != -1)) {
+        rcount++;
+    }
+    struct float_mat *mat = (struct float_mat *) malloc(sizeof(struct float_mat));
+    mat->arr = malloc(rcount * sizeof(struct float_array));
+	mat->length = rcount;
+
+    fp = fopen(path, "r");
+
+    int i = 0;
+    while((read = getline(&line, &len, fp) != -1)) {
+        struct float_array *row = (struct float_array *) malloc(sizeof(struct float_array));
+        char *tok;
+        char *og = malloc(strlen(line)+1);
+        strcpy(og, line);
+        int colcount = 0;
+        tok = strtok(line, ",");
+        while(tok != NULL) {
+            colcount++;
+            tok = strtok(NULL, ",");
+        }
+
+        row->length = colcount;
+        row->arr = malloc(colcount * sizeof(double));
+
+        char* ltok = strtok(og, ",");
+        double *el;
+        int j = 0;
+        while(ltok != NULL) {
+            double itok;
+            sscanf(ltok, "%lf", &itok);
+            printf("%lf-double\n", itok);
+            *((row->arr) + j)  = itok;
+            ltok = strtok(NULL, ",");
+            j++;
+        }
+        *((float_array**)(mat->arr) + i) = row;
+        i++;
+    }
+    printf("%s\n", "hello");
+    return mat;
+}
 
 int** store_array(void *e) {
 	struct int_mat *e_ = *(int_mat**)(e);

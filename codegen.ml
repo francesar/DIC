@@ -159,6 +159,12 @@ let translate (_, _, functions) =
   let is_square_t = L.var_arg_function_type i1_t [| L.pointer_type int_mat_struct |] in 
   let is_square_func = L.declare_function "is_square" is_square_t the_module in 
 
+  let fmat_fromcsv_t = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t |] in 
+  let fmat_csv = L.declare_function "fmat_fromcsv" fmat_fromcsv_t the_module in
+
+  let fmat_tocsv_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
+  let fmat_tocsv = L.declare_function "fmat_tocsv" fmat_tocsv_t the_module in 
+
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
 
@@ -542,26 +548,32 @@ let translate (_, _, functions) =
         let e2 = expr builder content in
         L.build_call write_string_to_file_func [| e1 ; e2 |] "" builder
       | SCall("len", [e]) ->
-        
         let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in             
         L.build_call len_func [| e'(* expr builder e *) |] "len" builder
-
       | SCall("append", [e;el]) -> 
         let e' = expr builder e in 
         (* let _ = Printf.printf "%s"  (L.string_of_lltype (L.type_of e'))in  *)
         let p_e' = L.build_alloca (L.type_of e') "" builder in 
           ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
-
         let el' = expr builder el in 
         let ptr_el' = L.build_alloca (L.type_of el') "" builder in 
           ignore(L.build_store el' ptr_el' builder);
         let el' = L.build_bitcast ptr_el' (L.pointer_type i8_t) "" builder in
-
         L.build_call append_func [| e' ; el' |] "" builder
+      | SCall("fmat_tocsv", [e;path]) -> 
+        let e' = expr builder e in 
+        let p_e' = L.build_alloca (L.type_of e') "" builder in 
+          ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        let path' = expr builder path in 
+        let ptr_path' = L.build_alloca (L.type_of path') "" builder in 
+          ignore(L.build_store path' ptr_path' builder);
+        let path' = L.build_bitcast ptr_path' (L.pointer_type i8_t) "" builder in 
+        L.build_call fmat_tocsv [| e';path' |] "" builder 
       | SCall("det_int", [e]) ->
         let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
@@ -580,8 +592,6 @@ let translate (_, _, functions) =
         let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
         ignore(L.build_store (expr builder e) p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
-        
-        
         L.build_call printf_list_int_func [| e' |] "printlist" builder
       | SCall ("print_floatlist", [e]) ->
         let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
@@ -598,7 +608,11 @@ let translate (_, _, functions) =
         ignore(L.build_store (expr builder e) p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
         L.build_call printf_mat_float_func [| e' ; (expr builder pretty) |] "printmat" builder 
-      | SCall ("start", [e])
+      | SCall("fmat_fromcsv", [e]) -> 
+        let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in 
+          ignore(L.build_store (expr builder e) p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call fmat_csv [| e' |] "" builder
       | SCall ("printfloat", [e]) ->
         L.build_call printf_float_func [| float_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->

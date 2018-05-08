@@ -8,7 +8,19 @@ class func_test {
 		int[] test3 = test1 * test2;
 		print_intmat(test3, true);
 		
+		float[] test4 = [1.0 , 2.0 , 3.0 : 4.0, 5.0, 6.0 : 7.1, 8.2, 9.3];
+		float[] test5 = [10.0 , 20.0 , 30.0 : 40.0, 50.0, 60.0 : 70.1, 80.2, 90.3];
+		float[] test6 = test4 + test5; 
+		print_intlist(test1);
+		print_floatlist(test2);
+		print_intmat(test3, false);
+		print_floatmat(test4, false);
+		print_floatmat(test6, false);
+		int[] test8 = test3 + test7;
+        float[] o = fmat_fromcsv("nick.csv");
+        float[] fucku = o + o;
+
+        fmat_tocsv(fucku, "new.csv");
 		return 0;
 	}
-
 }
