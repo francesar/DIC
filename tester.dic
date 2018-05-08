@@ -4,26 +4,8 @@ class func_test {
 	func int main(int a) {
 
 		int[] test1 = [1,2,6,6,6];
-		float[] test2 = [1.4, 7.87, 2.309];
-		int[] test3 = [1 , 2 , 3 : 4, 5, 6];
-		int[] test7 = [10, 10, 10 : 10, 10, 10];
-		
-		float[] test4 = [1.0 , 2.0 , 3.0 : 4.0, 5.0, 6.0 : 7.1, 8.2, 9.3];
-		float[] test5 = [10.0 , 20.0 , 30.0 : 40.0, 50.0, 60.0 : 70.1, 80.2, 90.3];
-		float[] test6 = test4 + test5; 
-		print_intlist(test1);
-		print_floatlist(test2);
-		print_intmat(test3, false);
-		print_floatmat(test4, false);
-		print_floatmat(test6, false);
-		int[] test8 = test3 + test7;
-        float[] o = fmat_fromcsv("nick.csv");
-        float[] fucku = o + o;
-
-        //fmat_tocsv(fucku, "new.csv");
-
-        float[] img = fmat_fromcsv("image.csv");
-        
+		int[] test2 = [1,2,6,6,6];
+    printint(test1**test2);    
 
 		return 0;
 	}

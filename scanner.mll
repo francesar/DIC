@@ -29,7 +29,7 @@ rule token = parse
 | '*'      { TIMES       }
 (* | ".*"     { TIMES_M     } *)
 (* | "./"     { DIVIDE_M    } *)
-(* | "**"     { DOT         } *)
+| "**"     { DOT         }
 (* | '~'      { INVERSE     } *)
 | '/'      { DIVIDE      }
 | '%'      { MOD         }
