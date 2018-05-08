@@ -24,6 +24,9 @@ class func_test {
 
         float[] img = fmat_fromcsv("image.csv");
         
+        //print_floatmat(o, true);
+
+        finverse(test4);
 
 		return 0;
 	}

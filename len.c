@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 
 
@@ -509,6 +510,7 @@ float_mat* fmat_fromcsv(void *p) {
     while((read = getline(&line, &len, fp) != -1)) {
         rcount++;
     }
+
     struct float_mat *mat = (struct float_mat *) malloc(sizeof(struct float_mat));
     mat->arr = malloc(rcount * sizeof(struct float_array));
 	mat->length = rcount;
@@ -537,7 +539,6 @@ float_mat* fmat_fromcsv(void *p) {
         while(ltok != NULL) {
             double itok;
             sscanf(ltok, "%lf", &itok);
-            printf("%lf-double\n", itok);
             *((row->arr) + j)  = itok;
             ltok = strtok(NULL, ",");
             j++;
@@ -545,7 +546,6 @@ float_mat* fmat_fromcsv(void *p) {
         *((float_array**)(mat->arr) + i) = row;
         i++;
     }
-    printf("%s\n", "hello");
     return mat;
 }
 
@@ -611,35 +611,6 @@ double** store_array_double(void *e) {
 	return return_val;
 }
 
-int_mat* cofactor(float num[25][25],float f) {
-    float b [25][25];
-    float fac [25][25];
-    int p, q, m, n, i, j;
-    for(q=0 ; q < f; q++) {
-        for (p = 0; p < f; p++) {
-            m = 0;
-            n = 0;
-            for( i = 0; i < f; i++) {
-                for(j = 0; j < f; j++) {
-                    if(i != q && j != p) {
-                    b[m][n] = num[i][j];
-                        if (n < (f - 2)) {
-                            n++;   
-                        }
-                        else {
-                            n=0;
-                            m++;
-                        }
-                    }
-                }
-            }
-        fac[q][p] = pow(-1,q + p) * determinant(b,f-1);
-        }
-    }
-    transpose(num ,fac, f);
-}
-
-
 
 int_mat* transpose_int (void *e) {
 	int **output = store_array(e);
@@ -664,7 +635,7 @@ int_mat* transpose_int (void *e) {
 	return new_struct;
 }
 
-float_mat* transpose_float ( void*e) {
+float_mat* transpose_float (void*e) {
 	double **output = store_array_double(e);
 	struct float_mat *e1_ = *(float_mat**)(e);
 	struct float_mat *new_struct = (struct float_mat*) malloc (sizeof(struct float_mat));
@@ -785,3 +756,89 @@ float det_helper_float(int n, double a[][n]) {
         }
     return p;
 }
+
+float_mat* getAdjoint(struct float_mat *m) {
+    // struct float_mat *mat = *(struct float_mat**)m;
+    int dim = m->length;
+    double **mvals = store_array_double(m);
+    printf("%s\n", "hello");
+    
+    struct float_mat *adjoint = *(struct float_mat**)malloc(sizeof(struct float_mat));
+    adjoint->length = m->length;
+
+    double tmp[dim][dim];
+    int sign = 1;
+    
+    int i, j;
+    for(i = 0; i < dim; i++) {
+        for(j = 0; j < dim; j++) {
+            printf("%d %d\n", i, j);
+        }
+    }
+
+    return m;
+}
+
+float_mat* finverse(void *m) {
+    struct float_mat *mat = *(struct float_mat**)m;
+    int rows = mat->length;
+    double **mat_vals = store_array_double(m);
+
+    float det = determinant_float(m);
+
+    // printf("%s, %lf, %f\n", "hello", det, mat_vals[0][0]);
+
+    struct float_mat *adj = getAdjoint((void *)mat);
+
+    // struct float_mat *adj = getAdjoint(mat);
+    // double **adj_vals = store_array_double(adj);
+
+    // struct float_mat *inverse = (float_mat *)malloc(sizeof(struct float_mat));
+    // inverse->length = rows;
+    // inverse->arr = (float_array*)malloc(rows * sizeof(float_array));
+
+
+
+    // int i;
+    // for(i = 0; i < rows; i++) {
+    //     int j;
+    //     struct float_mat *row = (float_mat*)malloc(sizeof(struct float_mat));
+    //     row->length = rows;
+    //     row->arr = malloc(rows * sizeof(double));
+    //     for(j = 0; j < rows; j++) {
+    //         *((row->arr) + j) = 
+    //     }
+    // }
+
+
+    // int p, q, m, n, i, j;
+    // for(q=0 ; q < f; q++) {
+    //     for (p = 0; p < f; p++) {
+    //         m = 0;
+    //         n = 0;
+    //         for( i = 0; i < f; i++) {
+    //             for(j = 0; j < f; j++) {
+    //                 if(i != q && j != p) {
+    //                     b[m][n] = num[i][j];
+    //                     if (n < (f - 2)) {
+    //                         n++;   
+    //                     }
+    //                     else {
+    //                         n=0;
+    //                         m++;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     fac[q][p] = pow(-1, q + p) * determinant(b);
+    //     }
+    // }
+    // return transpose(fac);
+
+    return mat;
+}
+
+
+// int main() {
+//     struct float_mat *m = fmat_fromcsv("./lol.csv");
+// }

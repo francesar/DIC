@@ -51,6 +51,8 @@ let check (pname, (var_decls, func_decls)) =
     in
 
     StringMap.add "append" {typ=IntM; fname="append"; formals=test [IntM;Int]; body=[]}
+      (StringMap.add "finverse"
+      {typ=FloatM; fname="finverse"; formals=test[FloatM]; body=[]}
       (StringMap.add "fmat_tocsv"
       {typ=FloatM; fname="fmat_tocsv"; formals=test[FloatM; String]; body=[]}
       (StringMap.add "fmat_fromcsv" 
@@ -90,7 +92,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "len_mat"
         {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))))))))))))))
 
 (* 
     let add_bind map (ty, name) =

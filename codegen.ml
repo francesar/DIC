@@ -174,6 +174,9 @@ let translate (_, _, functions) =
   let fmat_tocsv_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
   let fmat_tocsv = L.declare_function "fmat_tocsv" fmat_tocsv_t the_module in 
 
+  let finverse_t = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t |] in
+  let finverse = L.declare_function "finverse" finverse_t the_module in
+
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
 
@@ -648,6 +651,11 @@ let translate (_, _, functions) =
           ignore(L.build_store (expr builder e) p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
         L.build_call fmat_csv [| e' |] "" builder
+      | SCall("finverse", [e]) -> 
+        let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in 
+          ignore(L.build_store (expr builder e) p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call finverse [| e' |] "" builder
       | SCall ("printfloat", [e]) ->
         L.build_call printf_float_func [| float_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->
