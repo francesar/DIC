@@ -20,7 +20,10 @@ class func_test {
         float[] o = fmat_fromcsv("nick.csv");
         float[] fucku = o + o;
 
-        fmat_tocsv(fucku, "new.csv");
+        //fmat_tocsv(fucku, "new.csv");
+
+        float[] img = fmat_fromcsv("image.csv");
+        
 
 		return 0;
 	}
