@@ -88,11 +88,7 @@ void print_floatlist_return (void *e, bool pretty) {
 			printf("%s", "\t");
 		else
 			printf("%s", ", ");
-<<<<<<< HEAD
 		printf("%lf", *((e_->arr) + x));
-=======
-		printf("%f", *((e_->arr) + x));
->>>>>>> transpose working + pretty printing for mats
 	}
 	printf("%s", "]");
 }
