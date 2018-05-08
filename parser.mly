@@ -111,7 +111,7 @@ expr:
   | FALSE                             { BoolLit(false)                  }
   | SLIT                              { StringLit($1)                   }
   | ID                                { Id($1)                          }
-  | FPOINT                            { Fpoint($1)                      }
+  | ID FPOINT                         { Fpoint($1)                      }
   | LBRACK args_opt RBRACK            { ListLit($2)                     }
   | ID LBRACK expr RBRACK ASSIGN expr { ListIndexAssign ($1, $3, $6)    }
   | ID LBRACK expr RBRACK             { ListIndex ($1, $3)              }

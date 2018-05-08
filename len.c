@@ -196,13 +196,11 @@ int_array* sub_list_int(int_array* e1, int_array* e2) {
 }
 
 int dot_prod_int(int_array* e1, int_array* e2) {
-	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
 	int size = e2->length;
-	int total;
+	int total=0;
   int x;
-	new_struct->arr = malloc(size);
 	for (x = 0; x < size; x++) {
-		total = *((e1->arr) + x) * *((e2->arr) + x);
+		total += *((e1->arr) + x) * *((e2->arr) + x);
 	} 
 	return total;
 }

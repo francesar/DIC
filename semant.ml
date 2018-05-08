@@ -356,8 +356,8 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div       when same && t1 = Float -> Float
-          | Add | Sub | Mult | Dot       when same && t1 = IntM -> IntM
-          | Dot       when same && t1 = IntM -> IntM
+          | Add | Sub | Mult             when same && t1 = IntM -> IntM
+          | Dot       when same && t1 = IntM -> Int
           | Add | Sub | Mult             when same && t1 = FloatM -> FloatM
           (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
           | Eq | Neq                     when same               -> Bool
