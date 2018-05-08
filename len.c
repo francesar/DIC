@@ -343,42 +343,33 @@ int_array* len_mat(void *a) {
 
 void fmat_tocsv(void *v, void *f) {
     char * file  = *(char **)(f);
-    printf("%s\n", file);
     FILE *fp = fopen(file, "a+");
     struct float_mat *mat = *(float_mat**)(v);
-
     int rcount = mat->length;
+
     int i;
     for(i = 0; i < rcount; i++) {
         struct float_array *f = *((float_array**)(mat->arr) + i);
         int colcount = f->length;
-        printf("%d-colount\n", colcount);
         int j;
         for (j = 0; j < colcount; j++) {
-            printf("%s\n", "hello");
             double d = *((f->arr) + j);
-            printf("%lf\n", d);
-            printf("%s\n", "pls");
             fprintf(fp, "%lf,", d);
         }
         fprintf(fp, "\n");
     }
 }
 
-float_mat* fmat_fromcsv(char *path) {
-    FILE *fp;
-    fp = fopen(path, "r");
-
-    char *line;
+float_mat* fmat_fromcsv(void *p) {
+    char *path = *(char **)p;
+    FILE *fp = fopen(path, "r");
+    char *line = NULL;
     size_t len = 0;
     ssize_t read;
-    
     int rcount = 0;
-
     while((read = getline(&line, &len, fp) != -1)) {
         rcount++;
     }
-
     struct float_mat *mat = (struct float_mat *) malloc(sizeof(struct float_mat));
     mat->arr = malloc(rcount * sizeof(struct float_array));
 	mat->length = rcount;
@@ -403,23 +394,17 @@ float_mat* fmat_fromcsv(char *path) {
 
         char* ltok = strtok(og, ",");
         double *el;
-        int i = 0;
+        int j = 0;
         while(ltok != NULL) {
             double itok;
             sscanf(ltok, "%lf", &itok);
-            row->arr[i] = itok;
+            *((row->arr) + j)  = itok;
             ltok = strtok(NULL, ",");
+            j++;
         }
         *((float_array**)(mat->arr) + i) = row;
         i++;
     }
-
+    printf("%s\n", "hello");
     return mat;
 }
-
-// int main() {
-//     struct float_mat *x = *((float_mat**)fmat_fromcsv("lol.csv"));
-//     printf("%s\n", "he;;p");
-//     struct float_array *y = *((float_array**)x->arr);
-// }
-
