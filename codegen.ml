@@ -63,7 +63,7 @@ let translate (_, _, functions) =
 
   let ltype_of_typ = function
     | A.Int -> i32_t
-    | A.String -> string_t
+    | A.String -> L.pointer_type string_t
     | A.Void  -> void_t
     | A.Bool -> i1_t
     | A.Float -> float_t
@@ -79,7 +79,7 @@ let translate (_, _, functions) =
   in
 
   let printf_t : L.lltype =
-    L.var_arg_function_type string_t [| L.pointer_type i8_t |] in
+    L.var_arg_function_type i8_t [| L.pointer_type i8_t |] in
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
 
@@ -909,19 +909,19 @@ let translate (_, _, functions) =
               back to the predicate block (we always jump back at the end of a while
               loop's body, unless we returned or something) *)
         let body_bb = L.append_block context "while_body" the_function in
-              let while_builder = stmt (L.builder_at_end context body_bb) body in
-        let () = add_terminal while_builder (L.build_br pred_bb) in
+              let while_builder = stmt builder (* (L.builder_at_end context body_bb) *) body in
+        ignore(add_terminal (stmt (L.builder_at_end context body_bb) body) (L.build_br pred_bb));
 
               (* Generate the predicate code in the predicate block *)
         let pred_builder = L.builder_at_end context pred_bb in
-        let bool_val = expr pred_builder predicate in
+        let bool_val = expr pred_builder (* pred_builder *) predicate in
 
               (* Hook everything up *)
         let merge_bb = L.append_block context "merge" the_function in
-        let _ = L.build_cond_br bool_val body_bb merge_bb pred_builder in
-        L.builder_at_end context merge_bb
+        ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);
+        L.builder_at_end context merge_bb 
       | SFor (e1, e2, e3, body) -> stmt builder
-        ( SBlock [SBlock [e1] ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
+        ( SBlock [e1 ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
       (*| s -> to_imp (string_of_sstmt s)*)
     in ignore (stmt builder (SBlock fdecl.sbody))
 

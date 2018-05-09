@@ -5,6 +5,9 @@ class func_test {
         print_floatmat(x, true);
         print_floatmat(y, true);
 
+        string t = "test";
+        printstr("hi");
+        printstr(t);
 
         float[] w = [0.0, 0.0, 0.0, 0.0, 0.0];
 
