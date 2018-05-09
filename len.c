@@ -80,9 +80,9 @@ double** store_array_double(void *e);
 int_mat* transpose_int (void *e);
 float_mat* transpose_float (void *e);
 int determinant_int(void *e1);
-float determinant_float(void *e1);
+double determinant_float(void *e1);
 int det_helper(int n, int a[][n]);
-float det_helper_float(int n, double[][n]);
+double det_helper_float(int n, double[][n]);
 
 /**************** PRINT FUNCTIONS ****************/
 void print_intlist_return (void *e, bool pretty) {
@@ -1012,7 +1012,7 @@ int_mat* transpose_int (void *e) {
 		struct int_array *tmp = (struct int_array*) malloc (sizeof(struct int_array));
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size);
+		tmp->arr = malloc(inner_size*sizeof(int));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = output[z][x];
 		}
@@ -1068,7 +1068,7 @@ int determinant_int(void *e) {
 	return 0;
 }
 
-float determinant_float(void *e) {
+double determinant_float(void *e) {
 	
 	if (is_square(e)) {
 		//int_mat *tmp = *(int_mat **) e;
@@ -1084,7 +1084,7 @@ float determinant_float(void *e) {
 				tmp[x][y] = output[x][y];
 			}
 		}
-		float value = det_helper_float(n, tmp);
+		double value = det_helper_float(n, tmp);
 		
 		return value;
 	}
@@ -1134,7 +1134,7 @@ int det_helper(int n, int a[][n]) {
     return p;
 }
 
-float det_helper_float(int n, double a[][n]) {
+double det_helper_float(int n, double a[][n]) {
 	if(n<=0) return 0;                                 // stop recursion
     if(n==1) return a[0][0];                           // stop recursion
     if(n==2) return a[0][0]*a[1][1] - a[0][1]*a[1][0]; // stop recursion

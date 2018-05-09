@@ -705,6 +705,12 @@ let translate (_, _, functions) =
                 | A.Sub     -> L.build_fsub
                 | A.Mult    -> L.build_fmul
                 | A.Div     -> L.build_fdiv
+                | A.Eq      -> L.build_fcmp L.Fcmp.Oeq
+                | A.Neq     -> L.build_fcmp L.Fcmp.One
+                | A.Less    -> L.build_fcmp L.Fcmp.Olt
+                | A.Leq     -> L.build_fcmp L.Fcmp.Ole
+                | A.Greater -> L.build_fcmp L.Fcmp.Ogt
+                | A.Geq     -> L.build_fcmp L.Fcmp.Oge
                 | _         -> raise(Failure("Unsupported operations"))
               ) e1' e2' "tmp" builder
             | _ -> 

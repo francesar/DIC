@@ -1,6 +1,6 @@
 class func_test {
 	func int main(int a) {
-        float[] x = fmat_fromcsv("mnist.csv");
+        float[] x = [1.0,2.0:2.0,1.0];
         print_floatmat(x, true);
 
         int[] dim = len_mat_float(x);
@@ -9,8 +9,8 @@ class func_test {
 
         float ty = 1.0;
         float b = 1.0;
-
         float c = ty + b;
+
         
         int i;
         int j;
@@ -18,12 +18,15 @@ class func_test {
         for(i = 0; i < cRow; i++) {
             for(j = 0; j < cCol; j++) {
                 pixVal = x[i][j];
-                if(pixVal>0.0) {
-                    printfloat(pixVal);
-                }
+                test(5);
             }
         }
-
 		return 0;
 	}
+
+  func int test(int adf) {
+    int xawef = 4;
+    printint(adf);
+  }
+
 }
