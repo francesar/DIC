@@ -122,6 +122,12 @@ let translate (_, _, functions) =
   let dot_prod_t_float = L.var_arg_function_type float_t [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in 
   let dot_prod_func_float = L.declare_function "dot_prod_float" dot_prod_t_float the_module in 
 
+  let elem_mult_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type int_array_struct; L.pointer_type int_array_struct |] in 
+  let elem_mult_list_func = L.declare_function "elem_mult_list_int" elem_mult_list_t the_module in 
+
+  let elem_mult_list_float_t = L.var_arg_function_type (L.pointer_type float_array_struct) [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in 
+  let elem_mult_list_func_float = L.declare_function "elem_mult_list_float" elem_mult_list_float_t the_module in 
+
   let append_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t ; L.pointer_type i8_t |] in 
   let append_func = L.declare_function "append" append_t the_module in
 
@@ -444,6 +450,8 @@ let translate (_, _, functions) =
                   L.build_call sub_list_func [| expr builder e1; expr builder e2 |] "sub_list" builder
                 | A.Dot ->
                   L.build_call dot_prod_func [| expr builder e1; expr builder e2 |] "dot_prod_int" builder
+                | A.Mult_M ->
+                  L.build_call elem_mult_list_func [| expr builder e1; expr builder e2|] "elem_mult_list_int" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )
             | "%float_array_struct*" ->
@@ -454,6 +462,8 @@ let translate (_, _, functions) =
                   L.build_call sub_list_func_float [| expr builder e1; expr builder e2 |] "sub_list" builder
                 | A.Dot ->
                   L.build_call dot_prod_func_float [| expr builder e1; expr builder e2 |] "dot_prod_float" builder
+                | A.Mult_M ->
+                  L.build_call elem_mult_list_func_float [| expr builder e1; expr builder e2|] "elem_mult_list_float" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )  
             | "%int_mat_struct*" -> 
@@ -533,6 +543,7 @@ let translate (_, _, functions) =
               | A.And     -> L.build_and
               | A.Or      -> L.build_or
               | A.Dot     -> raise(Failure("Not valid for this type"))
+              | A.Mult_M     -> raise(Failure("Not valid for this type"))
               | A.Eq      -> L.build_icmp L.Icmp.Eq
               | A.Neq     -> L.build_icmp L.Icmp.Ne
               | A.Less    -> L.build_icmp L.Icmp.Slt

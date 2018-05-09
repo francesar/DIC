@@ -83,6 +83,10 @@ let check (pname, (var_decls, func_decls)) =
         {typ = Int; fname = "dot_prod_int"; formals = test [IntM]; body = []}
       (StringMap.add "dot_prod_float"
         {typ = Float; fname = "dot_prod_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_mult_list_int"
+        {typ = IntM; fname = "elem_mult_list_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_mult_list_float"
+        {typ = FloatM; fname = "elem_mult_list_float"; formals = test [FloatM]; body = []}
       (StringMap.add "add_list_float"
         {typ = FloatM; fname = "add_list_float"; formals = test [FloatM]; body = []}
       (StringMap.add "sub_list_float"
@@ -96,7 +100,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "len_mat"
         {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))))))))))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))))))))))))))))))
 
 (* 
     let add_bind map (ty, name) =
@@ -358,10 +362,10 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div       when same && t1 = Float -> Float
-          | Add | Sub | Mult             when same && t1 = IntM -> IntM
+          | Add | Sub | Mult | Mult_M    when same && t1 = IntM -> IntM
           | Dot       when same && t1 = IntM -> Int
           | Dot       when same && t1 = FloatM -> Float
-          | Add | Sub | Mult             when same && t1 = FloatM -> FloatM
+          | Add | Sub | Mult | Mult_M    when same && t1 = FloatM -> FloatM
           (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
           | Eq | Neq                     when same               -> Bool
           | Less | Leq | Greater | Geq
