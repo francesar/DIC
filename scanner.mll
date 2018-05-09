@@ -27,6 +27,8 @@ rule token = parse
 | "--"     { DEC         }
 | '-'      { MINUS       }
 | '*'      { TIMES       }
+| '<'	   { LANGLE		 }
+| '>'	   { RANGLE		 }
 (* | ".*"     { TIMES_M     } *)
 (* | "./"     { DIVIDE_M    } *)
 (* | "**"     { DOT         } *)
@@ -64,7 +66,7 @@ rule token = parse
 | "bool"   { BOOL        }
 | "float"  { FLOAT       }
 | "void"   { VOID        }
-| "func*"  { FUNC 		 }
+| "Fpoint"  { FPOINT     }
 | "list"   { LIST        }
 | "string" { STRING      }
 (* Literals *)
@@ -73,7 +75,7 @@ rule token = parse
 | digits as lxm { LITERAL(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { FLIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { ID(lxm) }
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* '*' as lxm { FPOINT(lxm) }
+(*| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { FPOINT(lxm) } *)
 | '"'[^'"']* '"' as lxm {SLIT(String.sub lxm 1 ((String.length lxm )- 2))}
 | ''' ['a'-'z' 'A'-'Z' '0'-'9' '_'] ''' as lxm {CHLIT(lxm)}
 | eof { EOF }

@@ -5,6 +5,8 @@ open Sast
 module StringMap = Map.Make(String)
 
 let translate (_, _, functions) =
+ 
+
   let context    = L.global_context () in
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t      = L.i32_type    context
@@ -72,6 +74,7 @@ let translate (_, _, functions) =
     | A.StringM -> L.pointer_type string_array_struct
     | A.BoolM -> L.pointer_type bool_array_struct
     | A.CharM -> L.pointer_type char_array_struct
+    | _ -> raise(Failure("Error"))
     (* | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet")) *)
   in
 
@@ -79,6 +82,10 @@ let translate (_, _, functions) =
     L.var_arg_function_type string_t [| L.pointer_type i8_t |] in
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
+
+  (******* CONC FUNCTIONS *******)
+  let start_t  = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let start_func = L.declare_function "start" start_t the_module in
 
 
   (******* PRINTING FUNCTIONS *******)
@@ -270,6 +277,27 @@ let translate (_, _, functions) =
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit l -> L.const_float_of_string float_t l
       | SCLit c -> L.build_global_stringptr c "tmp" builder
+      | SFPoint(s, e) ->
+        (* let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+         *)
+        let e' = expr builder ((Void, SCall(s, e))) in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+        ignore(L.build_store e' p_e' builder);
+        L.build_bitcast p_e' (L.pointer_type i8_t) "" builder 
+(* 
+        let func_ e = expr builder e in
+        let list_of_args = List.map func_ e in
+        let point = L.build_call len_func (Array.of_list list_of_args) "fpoint" builder in
+        let p_e' = L.build_alloca (L.type_of point) "" builder in
+        ignore(L.build_store e' p_e' builder);
+        L.build_bitcast p_e' (L.pointer_type i8_t) "" builder *)
+        
+
       | SListLit l ->
         let ty = match l with
           | hd :: _ -> let (t, _) = hd in
