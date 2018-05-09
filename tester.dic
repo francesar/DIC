@@ -1,23 +1,6 @@
 class func_test {
-	func int main(int a) {
-        float[] x = fmat_fromcsv("x.csv");
-        float[] y = fmat_fromcsv("y.csv");
-        print_floatmat(x, true);
-        print_floatmat(y, true);
-
-
-        float[] w = [0.0, 0.0, 0.0, 0.0, 0.0];
-
-        int[] len = len_mat_float(x);
-        int rows = len[0];
-        int cols = len[1];
-        int i;
-        float[] t;
-        for(i = 0; i < rows; i++) {
-            t = [x[i][0],x[i][1],x[i][2],x[i][3],x[i][4]];
-            print_floatlist(t);
-        }
-
+	func int main() {
+		int[] = [1,2,3:4,5,6:7,8,9];
 		return 0;
 	}
 }

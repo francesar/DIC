@@ -1,0 +1,11 @@
+class func_test {
+	
+    func int main(int a) {
+		int[] test = [7, 2, 3 : 2, 1, 4];
+		printint(0);
+        int a = len(test);
+        printint(a);
+        return 0;
+	}
+
+}

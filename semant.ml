@@ -55,11 +55,11 @@ let check (pname, (var_decls, func_decls)) =
       {typ=FloatM; fname="finverse"; formals=test[FloatM]; body=[]}
       (StringMap.add "fmat_tocsv"
       {typ=FloatM; fname="fmat_tocsv"; formals=test[FloatM; String]; body=[]}
-      (StringMap.add "fmat_fromcsv" 
+      (StringMap.add "fmat_fromcsv"
       {typ=FloatM; fname="fmat_fromcsv"; formals=test[String]; body=[]}
-      (StringMap.add "is_square" 
+      (StringMap.add "is_square"
       {typ=Bool; fname="is_square"; formals=test[IntM]; body=[]}
-      (StringMap.add "printint" 
+      (StringMap.add "printint"
       {typ = Void; fname = "printint"; formals = test [Int]; body = []}
       (StringMap.add "printstr"
         {typ = Void; fname = "printstr"; formals = test [String]; body = []}
@@ -106,7 +106,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "write_string_to_file"
         {typ = Void; fname = "write_string_to_file"; formals = test [String; String]; body = []}
       (StringMap.add "read_intmat_from_file"
-        {typ = IntM; fname = "read_intmat_to_file"; formals = test [String]; body = []}  
+        {typ = IntM; fname = "read_intmat_to_file"; formals = test [String]; body = []}
       (StringMap.add "det_int"
         {typ = Int; fname = "det_int"; formals = test [IntM]; body = []}
       (StringMap.add "len_mat"
@@ -116,7 +116,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.singleton "len"
         {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))))))
 
-(* 
+(*
     let add_bind map (ty, name) =
 
       StringMap.add name {
@@ -413,8 +413,8 @@ let check (pname, (var_decls, func_decls)) =
             in
             let args' = List.map2 check_call fd.formals args
             in (fd.typ, SCall(fname, args'))
-        
-        
+
+
     in
 
     let check_bool_expr e =
@@ -429,13 +429,16 @@ let check (pname, (var_decls, func_decls)) =
         let (rt, e') = expr e in
         let err = "illegal assignment of " ^ string_of_typ typ ^  " " ^ id ^
         " to type " ^ string_of_typ rt
-        in Hashtbl.add symbols id (check_assign typ rt err) ; SVdecl(typ, id, e')
+        in
+        let _ = Printf.printf "%s\n" "test" in
+        Hashtbl.add symbols id (check_assign typ rt err) ; SVdecl(typ, id, e')
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
       | For(v, e2, e3, st) ->
           let _ = check_stmt v in
 
           SFor(check_stmt v, check_bool_expr e2, expr e3, check_stmt st)
-      | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
+      | While(p, s) ->
+        SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
         if t = func.typ then SReturn (t, e')
         else raise (
