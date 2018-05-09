@@ -119,6 +119,9 @@ let translate (_, _, functions) =
   let dot_prod_t = L.var_arg_function_type i32_t [| L.pointer_type int_array_struct; L.pointer_type int_array_struct |] in 
   let dot_prod_func = L.declare_function "dot_prod_int" dot_prod_t the_module in 
 
+  let dot_prod_t_float = L.var_arg_function_type float_t [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in 
+  let dot_prod_func_float = L.declare_function "dot_prod_float" dot_prod_t_float the_module in 
+
   let append_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t ; L.pointer_type i8_t |] in 
   let append_func = L.declare_function "append" append_t the_module in
 
@@ -449,6 +452,8 @@ let translate (_, _, functions) =
                   L.build_call add_list_func_float [| expr builder e1; expr builder e2 |] "add_list" builder
                 | A.Sub ->
                   L.build_call sub_list_func_float [| expr builder e1; expr builder e2 |] "sub_list" builder
+                | A.Dot ->
+                  L.build_call dot_prod_func_float [| expr builder e1; expr builder e2 |] "dot_prod_float" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )  
             | "%int_mat_struct*" -> 

@@ -42,6 +42,7 @@ int_array* sub_list_int(int_array* e1, int_array* e2);
 int dot_prod_int(int_array* e1, int_array* e2);
 float_array* add_list_float(float_array* e1, float_array* e2);
 float_array* sub_list_float(float_array* e1, float_array* e2);
+double dot_prod_float(float_array* e1, float_array* e2);
 int_array* append(void *a, void *new_element);
 int len(void *a);
 
@@ -206,6 +207,17 @@ int dot_prod_int(int_array* e1, int_array* e2) {
 	} 
 	return total;
 }
+
+double dot_prod_float(float_array* e1, float_array* e2) {
+	int size = e2->length;
+	double total=0;
+  int x;
+	for (x = 0; x < size; x++) {
+		total += *((e1->arr) + x) * *((e2->arr) + x);
+	} 
+	return total;
+}
+
 
 float_array* add_list_float(float_array* e1, float_array* e2) {
 	// struct int_array *e1_t = *(int_array**)(e1);
