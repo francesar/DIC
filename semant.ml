@@ -113,12 +113,14 @@ let check (pname, (var_decls, func_decls)) =
         {typ = IntM; fname = "read_intmat_to_file"; formals = test [String]; body = []}  
       (StringMap.add "det_int"
         {typ = Int; fname = "det_int"; formals = test [IntM]; body = []}
+      (StringMap.add "det_float"
+        {typ = Float; fname = "det_float"; formals = test [FloatM]; body = []}
       (StringMap.add "len_mat"
         {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
       (StringMap.add "len_mat_float"
         {typ=IntM; fname="len_mat_float"; formals=test[FloatM]; body=[]}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))))))))))))))))))))))))))))
 
 
 (* 
