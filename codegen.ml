@@ -159,6 +159,9 @@ let translate (_, _, functions) =
   let len_t_mat = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t |] in 
   let len_func_mat = L.declare_function "len_mat" len_t_mat the_module in 
 
+  let len_t_mat_float = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t |] in 
+  let len_func_mat_float = L.declare_function "len_mat_float" len_t_mat the_module in 
+ 
   let add_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let add_mat_func = L.declare_function "add_mat_int" add_mat_t the_module in
 
@@ -631,6 +634,12 @@ let translate (_, _, functions) =
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
         L.build_call len_func_mat [| e' |] "len" builder 
+      | SCall("len_mat_float", [e]) -> 
+        let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call len_func_mat [| e' |] "len_mat_float" builder 
       | SCall("read_intmat_from_file", [file_name]) ->
         let e' = expr builder file_name in
         L.build_call read_intmat_from_file_func [| e' |] "" builder

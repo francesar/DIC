@@ -103,8 +103,10 @@ let check (pname, (var_decls, func_decls)) =
         {typ = Int; fname = "det_int"; formals = test [IntM]; body = []}
       (StringMap.add "len_mat"
         {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
+      (StringMap.add "len_mat_float"
+        {typ=IntM; fname="len_mat_float"; formals=test[FloatM]; body=[]}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))))))))))))))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))
 
 (* 
     let add_bind map (ty, name) =
