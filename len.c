@@ -397,7 +397,7 @@ int_mat* add_mat_int(void* e1, void* e2) {
 		int inner_size = t2->length;
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size);
+		tmp->arr = malloc(inner_size*sizeof(int));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
 		}
@@ -421,7 +421,7 @@ int_mat* sub_mat_int(void* e1, void* e2) {
 		int size = t2->length;
 		int z;
 		tmp->length = size;
-		tmp->arr = malloc(size);
+		tmp->arr = malloc(size*sizeof(int));
 		for (z = 0; z < size; z++) {
 			*((tmp->arr) + z) = *((t1->arr) + z) - *((t2->arr) + z);
 		}
@@ -445,7 +445,7 @@ int_mat* elem_mult_mat_int(void* e1, void* e2) {
 		int inner_size = t2->length;
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size);
+		tmp->arr = malloc(inner_size * sizeof(int));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
 		}
@@ -470,7 +470,7 @@ int_mat* elem_div_mat_int(void* e1, void* e2) {
 		int inner_size = t2->length;
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size);
+		tmp->arr = malloc(inner_size * sizeof(int));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
 		}
@@ -493,7 +493,7 @@ int_mat* const_add_mat_int(int e, void* e1) {
 		int inner_size = t1->length;
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size);
+		tmp->arr = malloc(inner_size * sizeof(int));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = e + *((t1->arr) + z);
 		}
@@ -516,7 +516,7 @@ int_mat* const_mult_mat_int(int e, void* e1) {
 		int inner_size = t1->length;
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size);
+		tmp->arr = malloc(inner_size*sizeof(int));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = e * *((t1->arr) + z);
 		}
@@ -678,7 +678,7 @@ float_mat* const_add_mat_float(double e, void* e1) {
 		int inner_size = t1->length;
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size);
+		tmp->arr = malloc(inner_size*sizeof(double));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = e + *((t1->arr) + z);
 		}
@@ -701,7 +701,7 @@ float_mat* const_mult_mat_float(double e, void* e1) {
 		int inner_size = t1->length;
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size);
+		tmp->arr = malloc(inner_size * sizeof(double));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = e * *((t1->arr) + z);
 		}
@@ -1035,7 +1035,7 @@ float_mat* transpose_float (void*e) {
 		struct float_array *tmp = (struct float_array*) malloc (sizeof(struct float_array));
 		int z;
 		tmp->length = inner_size;
-		tmp->arr = malloc(inner_size * sizeof(float));
+		tmp->arr = malloc(inner_size * sizeof(double));
 		for (z = 0; z < inner_size; z++) {
 			*((tmp->arr) + z) = output[z][x];
 		}
