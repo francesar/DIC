@@ -51,6 +51,8 @@ let check (pname, (var_decls, func_decls)) =
     in
 
     StringMap.add "append" {typ=IntM; fname="append"; formals=test [IntM;Int]; body=[]}
+      (StringMap.add "finverse"
+      {typ=FloatM; fname="finverse"; formals=test[FloatM]; body=[]}
       (StringMap.add "fmat_tocsv"
       {typ=FloatM; fname="fmat_tocsv"; formals=test[FloatM; String]; body=[]}
       (StringMap.add "fmat_fromcsv" 
@@ -77,10 +79,30 @@ let check (pname, (var_decls, func_decls)) =
         {typ = IntM; fname = "add_list"; formals = test [IntM]; body = []}
       (StringMap.add "sub_list_int"
         {typ = IntM; fname = "sub_list"; formals = test [IntM]; body = []}
+      (StringMap.add "dot_prod_int"
+        {typ = Int; fname = "dot_prod_int"; formals = test [IntM]; body = []}
+      (StringMap.add "dot_prod_float"
+        {typ = Float; fname = "dot_prod_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_mult_list_int"
+        {typ = IntM; fname = "elem_mult_list_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_mult_list_float"
+        {typ = FloatM; fname = "elem_mult_list_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_div_list_int"
+        {typ = IntM; fname = "elem_div_list_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_div_list_float"
+        {typ = FloatM; fname = "elem_div_list_float"; formals = test [FloatM]; body = []}
       (StringMap.add "add_list_float"
         {typ = FloatM; fname = "add_list_float"; formals = test [FloatM]; body = []}
       (StringMap.add "sub_list_float"
         {typ = FloatM; fname = "sub_list_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_mult_mat_int"
+        {typ = IntM; fname = "elem_mult_mat_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_div_mat_int"
+        {typ = IntM; fname = "elem_div_mat_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_mult_mat_float"
+        {typ = FloatM; fname = "elem_mult_mat_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_div_mat_float"
+        {typ = FloatM; fname = "elem_div_mat_float"; formals = test [FloatM]; body = []}
       (StringMap.add "write_string_to_file"
         {typ = Void; fname = "write_string_to_file"; formals = test [String; String]; body = []}
       (StringMap.add "read_intmat_from_file"
@@ -89,10 +111,11 @@ let check (pname, (var_decls, func_decls)) =
         {typ = Int; fname = "det_int"; formals = test [IntM]; body = []}
       (StringMap.add "len_mat"
         {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
-      (StringMap.add "start"
-        {typ = Void; fname = "start"; formals = test [FPoint]; body = []}  
+      (StringMap.add "len_mat_float"
+        {typ=IntM; fname="len_mat_float"; formals=test[FloatM]; body=[]}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))))))))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))))))
+
 
 (* 
     let add_bind map (ty, name) =
@@ -353,8 +376,12 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div       when same && t1 = Float -> Float
-          | Add | Sub | Mult             when same && t1 = IntM -> IntM
-          | Add | Sub | Mult             when same && t1 = FloatM -> FloatM
+          | Add | Mult when t1 = Int && t2 = IntM -> IntM
+          | Add | Mult when t1 = Float && t2 = FloatM -> FloatM
+          | Add | Sub | Mult | Mult_M | Div_M   when same && t1 = IntM -> IntM
+          | Dot       when same && t1 = IntM -> Int
+          | Dot       when same && t1 = FloatM -> Float
+          | Add | Sub | Mult | Mult_M | Div_M    when same && t1 = FloatM -> FloatM
           (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
           | Eq | Neq                     when same               -> Bool
           | Less | Leq | Greater | Geq

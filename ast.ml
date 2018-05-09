@@ -3,10 +3,10 @@
 (* Operators *)
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
 type op = Add | Sub | Mult | Div  | Eq | Neq | Less |
-          Leq | Greater | Geq | And | Or | Mod
+          Leq | Greater | Geq | And | Or | Mod | Dot | Mult_M | Div_M
           (* Assign *)
           (* Dot_M | *)
-          (* Mult_M | Div_M *)
+          (*| Div_M *)
 
 type uop = Neg | Not | Trans_M
 (* Trans_M | Inv_M |  *)
@@ -68,7 +68,8 @@ let string_of_op = function
     Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
-  (* | Mult_M -> ".*" *)
+  | Mult_M -> ".*" 
+  | Div_M -> ".*" 
   | Div -> "/"
   (* | Div_M -> "./" *)
   (* | Assign -> "=" *)
@@ -81,7 +82,7 @@ let string_of_op = function
   | And -> "&&"
   | Or -> "||"
   | Mod -> "%"
-  (* | Dot_M -> "**" *)
+  | Dot -> "**" 
 
 let string_of_uop = function
     Neg -> "-"

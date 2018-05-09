@@ -38,17 +38,35 @@ void print_floatmat(void *e, bool pretty);
 
 int_array* add_list_int(int_array* e1, int_array* e2);
 int_array* sub_list_int(int_array* e1, int_array* e2);
+int dot_prod_int(int_array* e1, int_array* e2);
+int_array* elem_mult_list_int(int_array* e1, int_array* e2);
+int_array* elem_div_list_int(int_array* e1, int_array* e2);
+int_array* const_add_list_int(int e, int_array* e1);
+int_array* const_mult_list_int(int e, int_array* e1);
 float_array* add_list_float(float_array* e1, float_array* e2);
 float_array* sub_list_float(float_array* e1, float_array* e2);
+double dot_prod_float(float_array* e1, float_array* e2);
+float_array* elem_mult_list_float(float_array* e1, float_array* e2);
+float_array* elem_div_list_float(float_array* e1, float_array* e2);
+float_array* const_add_list_float(double e, float_array* e1);
+float_array* const_mult_list_float(double e, float_array* e1);
 int_array* append(void *a, void *new_element);
 int len(void *a);
 
 int_mat* add_mat_int(void* e1, void* e2);
 int_mat* sub_mat_int(void* e1, void* e2);
 int_mat* mult_mat_int(void* e1, void* e2);
+int_mat* elem_mult_mat_int(void* e1, void* e2);
+int_mat* elem_div_mat_int(void* e1, void* e2);
+int_mat* const_add_mat_int(int e, void* e1);
+int_mat* const_mult_mat_int(int e, void* e1);
 float_mat* add_mat_float(void* e1, void* e2);
 float_mat* sub_mat_float(void* e1, void* e2);
 float_mat* mult_mat_float(void* e1, void* e2);
+float_mat* elem_mult_mat_float(void* e1, void* e2);
+float_mat* elem_div_mat_float(void* e1, void* e2);
+float_mat* const_add_mat_float(double e, void* e1);
+float_mat* const_mult_mat_float(double e, void* e1);
 bool is_square(int_mat *a);
 int_array* len_mat(void *a);
 int_array* len_mat_float(void *a);
@@ -162,23 +180,14 @@ void print_floatmat(void *e, bool pretty) {
 
 /**************** LIST OPERATIONS ****************/
 int_array* add_list_int(int_array* e1, int_array* e2) {
-	// struct int_array *e1_t = *(int_array**)(e1);
-	// struct int_array *e2_t = *(int_array**)(e2);
-	
-	
 	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
-	
 	int size = e2->length;
 	int x;
-	
-	new_struct->arr = malloc(size);
-	// printf("%d\n", size);
-	
+  new_struct->length = size;	
+	new_struct->arr = malloc(size * sizeof(int));
 	for (x = 0; x < size; x++) {
-	
-		*((new_struct->arr) + x) = *((e1->arr) + x) + *((e2->arr) + x);
+		*((new_struct->arr) + (x)) = *((e1->arr) + x) + *((e2->arr) + (x));
 	}
-	 
 	return new_struct;
 }
 
@@ -186,20 +195,139 @@ int_array* sub_list_int(int_array* e1, int_array* e2) {
 	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
 	int size = e2->length;
 	int x;
-	new_struct->arr = malloc(size);
+  new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(int));
 	for (x = 0; x < size; x++) {
 		*((new_struct->arr) + x) = *((e1->arr) + x) - *((e2->arr) + x);
 	} 
 	return new_struct;
 }
 
-float_array* add_list_float(float_array* e1, float_array* e2) {
-	// struct int_array *e1_t = *(int_array**)(e1);
-	// struct int_array *e2_t = *(int_array**)(e2);
+int dot_prod_int(int_array* e1, int_array* e2) {
+	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
+	int size = e2->length;
+	int total=0;
+  int x;
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		total += *((e1->arr) + x) * *((e2->arr) + x);
+	} 
+	return total;
+}
+
+int_array* elem_mult_list_int(int_array* e1, int_array* e2) {
+	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
+	int size = e2->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = *((e1->arr) + x) * *((e2->arr) + x);
+	} 
+	return new_struct;
+}
+
+int_array* elem_div_list_int(int_array* e1, int_array* e2) {
+	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
+	int size = e2->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = *((e1->arr) + x) / *((e2->arr) + x);
+	} 
+	return new_struct;
+}
+
+int_array* const_add_list_int(int e, int_array* e1){
+	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
+	int size = e1->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = e + *((e1->arr) + x);
+	} 
+	return new_struct;
+}
+
+int_array* const_mult_list_int(int e, int_array* e1){
+	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
+	int size = e1->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = e * *((e1->arr) + x);
+	} 
+	return new_struct;
+}
+
+double dot_prod_float(float_array* e1, float_array* e2) {
+	int size = e2->length;
+	double total=0;
+  int x;
+	for (x = 0; x < size; x++) {
+		total += *((e1->arr) + x) * *((e2->arr) + x);
+	} 
+	return total;
+}
+
+float_array* elem_mult_list_float(float_array* e1, float_array* e2) {
 	struct float_array *new_struct = (struct float_array*) malloc (sizeof(struct float_array));
 	int size = e2->length;
 	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size*sizeof(double));
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = *((e1->arr) + x) * *((e2->arr) + x);
+	} 
+	return new_struct;
+}
+
+float_array* elem_div_list_float(float_array* e1, float_array* e2) {
+	struct float_array *new_struct = (struct float_array*) malloc (sizeof(struct float_array));
+	int size = e2->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size*sizeof(double));
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = *((e1->arr) + x) / *((e2->arr) + x);
+	} 
+	return new_struct;
+}
+
+float_array* const_add_list_float(double e, float_array* e1){
+	struct float_array *new_struct = (struct float_array*) malloc (sizeof(struct float_array));
+	int size = e1->length;
+	int x;
+  new_struct->length = size;	
 	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = e + *((e1->arr) + x);
+	} 
+	return new_struct;
+}
+
+float_array* const_mult_list_float(double e, float_array* e1){
+	struct float_array *new_struct = (struct float_array*) malloc (sizeof(struct float_array));
+	int size = e1->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = e * *((e1->arr) + x);
+	} 
+	return new_struct;
+}
+
+
+float_array* add_list_float(float_array* e1, float_array* e2) {
+	struct float_array *new_struct = (struct float_array*) malloc (sizeof(struct float_array));
+	int size = e2->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size*sizeof(double));
 	for (x = 0; x < size; x++) {
 		*((new_struct->arr) + x) = *((e1->arr) + x) + *((e2->arr) + x);
 	} 
@@ -207,12 +335,11 @@ float_array* add_list_float(float_array* e1, float_array* e2) {
 }
 
 float_array* sub_list_float(float_array* e1, float_array* e2) {
-	// struct int_array *e1_t = *(int_array**)(e1);
-	// struct int_array *e2_t = *(int_array**)(e2);
 	struct float_array *new_struct = (struct float_array*) malloc (sizeof(struct float_array));
 	int size = e2->length;
 	int x;
-	new_struct->arr = malloc(size);
+  new_struct->length = size;	
+	new_struct->arr = malloc(size*sizeof(double));
 	for (x = 0; x < size; x++) {
 		*((new_struct->arr) + x) = *((e1->arr) + x) - *((e2->arr) + x);
 	} 
@@ -267,14 +394,9 @@ int_mat* add_mat_int(void* e1, void* e2) {
 		tmp->length = inner_size;
 		tmp->arr = malloc(inner_size);
 		for (z = 0; z < inner_size; z++) {
-            double h = *((t1->arr) + z) + *((t2->arr) + z);
-            if(h == 0) {
-                printf("%s\n", "is zero");
-            }
 			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
 		}
 		*((int_array**)(new_struct->arr) + x) = tmp;
-		
 	}
 	return new_struct;
 }
@@ -299,6 +421,102 @@ int_mat* sub_mat_int(void* e1, void* e2) {
 			*((tmp->arr) + z) = *((t1->arr) + z) - *((t2->arr) + z);
 		}
 		*((int_array**)(new_struct->arr) + x) = tmp;
+	}
+	return new_struct;
+}
+
+int_mat* elem_mult_mat_int(void* e1, void* e2) {
+	struct int_mat *e1_ = *(int_mat**)(e1);
+	struct int_mat *e2_ = *(int_mat**)(e2);
+	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
+	int size = e2_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(int_array));
+	for (x = 0; x < size; x++) {
+		struct int_array *tmp = (struct int_array*) malloc (sizeof(struct int_array));
+		struct int_array *t1 = *((int_array**)(e1_->arr) + x);
+		struct int_array *t2 = *((int_array**)(e2_->arr) + x);
+		int inner_size = t2->length;
+		int z;
+		tmp->length = inner_size;
+		tmp->arr = malloc(inner_size);
+		for (z = 0; z < inner_size; z++) {
+			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
+		}
+		*((int_array**)(new_struct->arr) + x) = tmp;
+		
+	}
+	return new_struct;
+}
+
+int_mat* elem_div_mat_int(void* e1, void* e2) {
+	struct int_mat *e1_ = *(int_mat**)(e1);
+	struct int_mat *e2_ = *(int_mat**)(e2);
+	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
+	int size = e2_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(int_array));
+	for (x = 0; x < size; x++) {
+		struct int_array *tmp = (struct int_array*) malloc (sizeof(struct int_array));
+		struct int_array *t1 = *((int_array**)(e1_->arr) + x);
+		struct int_array *t2 = *((int_array**)(e2_->arr) + x);
+		int inner_size = t2->length;
+		int z;
+		tmp->length = inner_size;
+		tmp->arr = malloc(inner_size);
+		for (z = 0; z < inner_size; z++) {
+			*((tmp->arr) + z) = *((t1->arr) + z) + *((t2->arr) + z);
+		}
+		*((int_array**)(new_struct->arr) + x) = tmp;
+		
+	}
+	return new_struct;
+}
+
+int_mat* const_add_mat_int(int e, void* e1) {
+	struct int_mat *e1_ = *(int_mat**)(e1);
+	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
+	int size = e1_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(int_array));
+	for (x = 0; x < size; x++) {
+		struct int_array *tmp = (struct int_array*) malloc (sizeof(struct int_array));
+		struct int_array *t1 = *((int_array**)(e1_->arr) + x);
+		int inner_size = t1->length;
+		int z;
+		tmp->length = inner_size;
+		tmp->arr = malloc(inner_size);
+		for (z = 0; z < inner_size; z++) {
+			*((tmp->arr) + z) = e + *((t1->arr) + z);
+		}
+		*((int_array**)(new_struct->arr) + x) = tmp;
+		
+	}
+	return new_struct;
+}
+
+int_mat* const_mult_mat_int(int e, void* e1) {
+	struct int_mat *e1_ = *(int_mat**)(e1);
+	struct int_mat *new_struct = (struct int_mat*) malloc (sizeof(struct int_mat));
+	int size = e1_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(int_array));
+	for (x = 0; x < size; x++) {
+		struct int_array *tmp = (struct int_array*) malloc (sizeof(struct int_array));
+		struct int_array *t1 = *((int_array**)(e1_->arr) + x);
+		int inner_size = t1->length;
+		int z;
+		tmp->length = inner_size;
+		tmp->arr = malloc(inner_size);
+		for (z = 0; z < inner_size; z++) {
+			*((tmp->arr) + z) = e * *((t1->arr) + z);
+		}
+		*((int_array**)(new_struct->arr) + x) = tmp;
+		
 	}
 	return new_struct;
 }
@@ -392,6 +610,102 @@ float_mat* sub_mat_float(void* e1, void* e2) {
 	return new_struct;
 }
 
+float_mat* elem_mult_mat_float(void* e1, void* e2) {
+	struct float_mat *e1_ = *(float_mat**)(e1);
+	struct float_mat *e2_ = *(float_mat**)(e2);
+	struct float_mat *new_struct = (struct float_mat*) malloc (sizeof(struct float_mat));
+	int size = e2_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(float_array));
+	for (x = 0; x < size; x++) {
+		struct float_array *tmp = (struct float_array*) malloc (sizeof(struct float_array));
+		struct float_array *t1 = *((float_array**)(e1_->arr) + x);
+		struct float_array *t2 = *((float_array**)(e2_->arr) + x);
+		int size = t2->length;
+		int z;
+		tmp->length = size;
+		tmp->arr = malloc(size * sizeof(double));
+		for (z = 0; z < size; z++) {
+			*((tmp->arr) + z) = *((t1->arr) + z) * *((t2->arr) + z);
+		}
+		*((float_array**)(new_struct->arr) + x) = tmp;
+		
+	}
+	return new_struct;
+}
+
+float_mat* elem_div_mat_float(void* e1, void* e2) {
+	struct float_mat *e1_ = *(float_mat**)(e1);
+	struct float_mat *e2_ = *(float_mat**)(e2);
+	struct float_mat *new_struct = (struct float_mat*) malloc (sizeof(struct float_mat));
+	int size = e2_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(float_array));
+	for (x = 0; x < size; x++) {
+		struct float_array *tmp = (struct float_array*) malloc (sizeof(struct float_array));
+		struct float_array *t1 = *((float_array**)(e1_->arr) + x);
+		struct float_array *t2 = *((float_array**)(e2_->arr) + x);
+		int size = t2->length;
+		int z;
+		tmp->length = size;
+		tmp->arr = malloc(size * sizeof(double));
+		for (z = 0; z < size; z++) {
+			*((tmp->arr) + z) = *((t1->arr) + z) / *((t2->arr) + z);
+		}
+		*((float_array**)(new_struct->arr) + x) = tmp;
+		
+	}
+	return new_struct;
+}
+
+float_mat* const_add_mat_float(double e, void* e1) {
+	struct float_mat *e1_ = *(float_mat**)(e1);
+	struct float_mat *new_struct = (struct float_mat*) malloc (sizeof(struct float_mat));
+	int size = e1_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(float_array));
+	for (x = 0; x < size; x++) {
+		struct float_array *tmp = (struct float_array*) malloc (sizeof(struct float_array));
+		struct float_array *t1 = *((float_array**)(e1_->arr) + x);
+		int inner_size = t1->length;
+		int z;
+		tmp->length = inner_size;
+		tmp->arr = malloc(inner_size);
+		for (z = 0; z < inner_size; z++) {
+			*((tmp->arr) + z) = e + *((t1->arr) + z);
+		}
+		*((float_array**)(new_struct->arr) + x) = tmp;
+		
+	}
+	return new_struct;
+}
+
+float_mat* const_mult_mat_float(double e, void* e1) {
+	struct float_mat *e1_ = *(float_mat**)(e1);
+	struct float_mat *new_struct = (struct float_mat*) malloc (sizeof(struct float_mat));
+	int size = e1_->length;
+	int x;
+	new_struct->length = size;
+	new_struct->arr = malloc(size * sizeof(float_array));
+	for (x = 0; x < size; x++) {
+		struct float_array *tmp = (struct float_array*) malloc (sizeof(struct float_array));
+		struct float_array *t1 = *((float_array**)(e1_->arr) + x);
+		int inner_size = t1->length;
+		int z;
+		tmp->length = inner_size;
+		tmp->arr = malloc(inner_size);
+		for (z = 0; z < inner_size; z++) {
+			*((tmp->arr) + z) = e * *((t1->arr) + z);
+		}
+		*((float_array**)(new_struct->arr) + x) = tmp;
+		
+	}
+	return new_struct;
+}
+
 
 float_mat* mult_mat_float(void* e1, void* e2) {
 	double **e1_ = store_array_double(e1);
@@ -420,7 +734,7 @@ float_mat* mult_mat_float(void* e1, void* e2) {
         }
     }
     for (i = 0; i < m1; i++) {
-    	struct float_array *tmp = (struct float_array*) malloc (sizeof(struct float_array));
+    	struct float_array *tmp = (struct float_array*) malloc(sizeof(struct float_array));
     	tmp->length = n2;
     	tmp->arr = malloc(n2 * sizeof(double));
     	for (j = 0; j < n2; j++) {
@@ -509,6 +823,7 @@ float_mat* fmat_fromcsv(void *p) {
     while((read = getline(&line, &len, fp) != -1)) {
         rcount++;
     }
+
     struct float_mat *mat = (struct float_mat *) malloc(sizeof(struct float_mat));
     mat->arr = malloc(rcount * sizeof(struct float_array));
 	mat->length = rcount;
@@ -537,7 +852,6 @@ float_mat* fmat_fromcsv(void *p) {
         while(ltok != NULL) {
             double itok;
             sscanf(ltok, "%lf", &itok);
-            printf("%lf-double\n", itok);
             *((row->arr) + j)  = itok;
             ltok = strtok(NULL, ",");
             j++;
@@ -545,7 +859,6 @@ float_mat* fmat_fromcsv(void *p) {
         *((float_array**)(mat->arr) + i) = row;
         i++;
     }
-    printf("%s\n", "hello");
     return mat;
 }
 
@@ -611,35 +924,6 @@ double** store_array_double(void *e) {
 	return return_val;
 }
 
-int_mat* cofactor(float num[25][25],float f) {
-    float b [25][25];
-    float fac [25][25];
-    int p, q, m, n, i, j;
-    for(q=0 ; q < f; q++) {
-        for (p = 0; p < f; p++) {
-            m = 0;
-            n = 0;
-            for( i = 0; i < f; i++) {
-                for(j = 0; j < f; j++) {
-                    if(i != q && j != p) {
-                    b[m][n] = num[i][j];
-                        if (n < (f - 2)) {
-                            n++;   
-                        }
-                        else {
-                            n=0;
-                            m++;
-                        }
-                    }
-                }
-            }
-        fac[q][p] = pow(-1,q + p) * determinant(b,f-1);
-        }
-    }
-    transpose(num ,fac, f);
-}
-
-
 
 int_mat* transpose_int (void *e) {
 	int **output = store_array(e);
@@ -664,7 +948,7 @@ int_mat* transpose_int (void *e) {
 	return new_struct;
 }
 
-float_mat* transpose_float ( void*e) {
+float_mat* transpose_float (void*e) {
 	double **output = store_array_double(e);
 	struct float_mat *e1_ = *(float_mat**)(e);
 	struct float_mat *new_struct = (struct float_mat*) malloc (sizeof(struct float_mat));
@@ -734,6 +1018,20 @@ float determinant_float(void *e) {
 	return 0;
 }
 
+double df(double **output, int n) {
+    double tmp[n][n];
+    int x;
+    for (x = 0; x < n; x++) {
+        int y;
+        for (y = 0; y < n; y++) {
+            tmp[x][y] = output[x][y];
+        }
+    }
+    double value = det_helper_float(n, tmp);
+
+    return value;
+}
+
 
 /*
 
@@ -784,4 +1082,95 @@ float det_helper_float(int n, double a[][n]) {
         p= p + (sign*a[0][k]*det_helper_float(n-1, b)); // here you had aj instead of k causing problems !!!
         }
     return p;
+}
+
+double** getCofactorMatrix(double **vals, int n, int m, int dim) {
+    int i = 0, j = 0;
+    double **tmp = (double **)malloc(sizeof(double *) * dim);
+    for(i = 0; i < dim; i++) {
+        tmp[i] = (double*)malloc(sizeof(double));
+    }
+
+    int row, col;
+    for(row = 0; row < dim; row++) {
+        for(col = 0; col < dim; col++) {
+            if(row != n && col != m) {
+                tmp[i][j++] = vals[row][col];
+                if(j == dim - 1) {
+                    j = 0; 
+                    i++;
+                }
+            }
+        }
+    }
+    return tmp;
+}
+
+void printmat(double **p, int dim) {
+    int i;
+    for(i = 0; i < dim; i++) {
+    	int j;
+        for(j = 0; j < dim; j++) {
+            printf("%lf\n", p[i][j]);
+        }
+    }
+}
+
+float_mat* getAdjoint(void *m, int dim) {
+    double **mvals = store_array_double(m);
+    double adjoint[dim][dim];
+    double tmp[dim][dim];
+    int sign = 1;
+    int i, j;
+    for(i = 0; i < dim; i++) {
+        for(j = 0; j < dim; j++) {
+            double **cf = getCofactorMatrix(mvals, i, j, dim);
+            sign = ((i + j) % 2 == 0) ? 1 : -1;
+            adjoint[j][i] = sign * df(cf, dim-1);
+        }
+    }
+    
+    struct float_mat *mat = (struct float_mat*)malloc(sizeof(struct float_mat));
+    mat->length = dim;
+    mat->arr = malloc(dim * sizeof(struct float_array));
+    
+    for(i = 0; i < dim; i++) {
+        struct float_array *f = (struct float_array *) malloc(sizeof(struct float_array));
+        f->length = dim;
+        f->arr = (double *)malloc(sizeof(double) * dim);
+        for(j = 0; j < dim; j++) {
+            printf("%lf\n", sign * adjoint[i][j]);
+            *((f->arr) + j) = sign * adjoint[i][j];
+        }
+        *((float_array**)(mat->arr) + i) = f;
+    }
+    return mat;
+}
+
+float_mat* finverse(void *m) {
+    struct float_mat *mat = *(struct float_mat**)m;
+    int rows = mat->length;
+    double **mat_vals = store_array_double(m);
+
+    float det = determinant_float(m);
+
+    float_mat *adj = getAdjoint(m, mat->length);
+
+    struct float_mat *inv = (struct float_mat*)malloc(sizeof(struct float_mat));
+    inv->length = rows;
+    inv->arr = malloc(rows * sizeof(struct float_array));
+    
+    double **adjvals = store_array_double(&adj);
+
+    int i, j;
+    for(i = 0; i < rows; i++) {
+        struct float_array *f = (struct float_array *) malloc(sizeof(struct float_array));
+        f->length = rows;
+        f->arr = malloc(sizeof(double) * rows);
+        for (j = 0; j < rows; j++) {
+            *((f->arr) + j) = adjvals[i][j]/(float)det; 
+        }
+        *((float_array**)(inv->arr) + i) = f;
+    }
+    return inv;
 }

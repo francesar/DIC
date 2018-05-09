@@ -1,13 +1,17 @@
-
 class func_test {
-
-	func int add(int b, int c) {
-		return b + c;
-	}
-
 	func int main(int a) {
+        float[] x = fmat_fromcsv("x.csv");
+        float[] y = fmat_fromcsv("y.csv");
+        print_floatmat(x, true);
+        print_floatmat(y, true);
 
-		fpoint test = <add>(3, 4);
+
+        float[] w = [0.0, 0.0, 0.0, 0.0, 0.0];
+
+        int[] len = len_mat_float(x);
+        int rows = len[0];
+        int cols = len[1];
+        int i;
 
 		return 0;
 	}
