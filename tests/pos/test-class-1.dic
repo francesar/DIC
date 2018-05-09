@@ -1,0 +1,7 @@
+class TestClass {
+    func int main() {
+        // Properly formatted class
+        printstr("success");
+        return 0;
+    }
+}

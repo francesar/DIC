@@ -1,0 +1,86 @@
+#!/bin/bash
+printf "Positive Test 0 tests variable/statement ordering:\n"
+cat ./tests/pos0
+sleep 2
+printf "output: \n"
+./toplevel.native ./tests/pos0
+printf "Positive Test 1 tests functions with arguments:\n"
+cat ./tests/pos1
+sleep 2
+printf "\n./toplevel.native ./tests/pos1\n"
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/pos1
+sleep 2
+printf "Positive Test 2 tests functions without arguments:\n"
+cat ./tests/pos2
+sleep 2
+printf "\n./toplevel.native ./tests/pos2\n"
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/pos2
+sleep 2
+printf "Positive Test 3 tests assignment to primitives and data structures:\n"
+cat ./tests/pos3
+sleep 2
+printf "\n./toplevel.native ./tests/pos3\n"
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/pos3
+sleep 2
+printf "Positive Test 4 tests keywords:\n"
+cat ./tests/pos4
+sleep 2
+printf "\n./toplevel.native ./tests/pos4\n"
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/pos4
+sleep 2
+printf "Positive Test 5 tests a standard multifunction class:\n"
+cat ./tests/pos5
+sleep 2
+printf "\n./toplevel.native ./tests/pos5\n"
+sleep 2
+cat ./tests/pos5
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/pos5
+sleep 2
+printf "Negative Test 1 fails because it does not have a class:\n"
+cat ./tests/neg1
+printf "\n./toplevel.native ./tests/neg1\n"
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/neg1
+sleep 2
+printf "Negative Test 2 fails because of a missing semicolon:\n"
+cat ./tests/neg2
+sleep 2
+printf "\n./toplevel.native ./tests/neg2\n"
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/neg2
+sleep 2
+printf "Negative Test 3 fails because of a missing quotation mark in string declaration:\n"
+cat ./tests/neg3
+sleep 2
+printf "\n./toplevel.native ./tests/neg3\n"
+printf "output:\n"
+./toplevel.native ./tests/neg3
+sleep 2
+printf "Negative Test 4 fails because the else clause provides conditions:\n"
+cat ./tests/neg4
+sleep 2
+printf "\n./toplevel.native ./tests/neg4\n"
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/neg4
+sleep 2
+printf "Negative Test 5 fails because the first function is not typed:\n"
+cat ./tests/neg5
+sleep 2
+printf "\n./toplevel.native ./tests/neg5\n"
+sleep 2
+printf "output:\n"
+./toplevel.native ./tests/neg5
+sleep 2

@@ -1,0 +1,14 @@
+5
+1
+6
+1
+&& works.
+|| works.
+== works.
+!= works.
+< works.
+<= works.
+> works.
+>= works.
+>, &&, and != work together.
+success

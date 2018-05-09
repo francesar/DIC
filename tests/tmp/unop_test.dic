@@ -1,0 +1,20 @@
+class unop_test {
+  func int main() {
+    if(!false) {
+      printstr("! operator test");
+    }
+
+    if (-1 < 0) {
+      printstr("- operator test");
+    }
+    int i = 1;
+    if (2 == i++) {
+      printstr("increment test");
+    }
+    if (2 == 3--) {
+      printstr("decrement test");
+    }
+
+    return 0;
+  }
+}
