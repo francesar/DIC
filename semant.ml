@@ -55,6 +55,10 @@ let check (pname, (var_decls, func_decls)) =
       {typ=FloatM; fname="finverse"; formals=test[FloatM]; body=[]}
       (StringMap.add "fmat_tocsv"
       {typ=FloatM; fname="fmat_tocsv"; formals=test[FloatM; String]; body=[]}
+      (StringMap.add "imat_tocsv"
+      {typ=IntM; fname="imat_tocsv"; formals=test[IntM; String]; body=[]}
+      (StringMap.add "imat_fromcsv"
+      {typ=Int; fname="imat_fromcsv"; formals=test[]}
       (StringMap.add "fmat_fromcsv" 
       {typ=FloatM; fname="fmat_fromcsv"; formals=test[String]; body=[]}
       (StringMap.add "is_square" 
@@ -114,7 +118,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "len_mat_float"
         {typ=IntM; fname="len_mat_float"; formals=test[FloatM]; body=[]}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))))))))
 
 
 (* 

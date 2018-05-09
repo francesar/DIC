@@ -1,28 +1,10 @@
 class func_test {
 	func int main(int a) {
-        float[] x = fmat_fromcsv("mnist.csv");
-        print_floatmat(x, true);
 
-        int[] dim = len_mat_float(x);
-        int cRow = dim[0];
-        int cCol = dim[1];
-
-        float ty = 1.0;
-        float b = 1.0;
-
-        float c = ty + b;
-        
-        int i;
-        int j;
-        float pixVal = 0.0;
-        for(i = 0; i < cRow; i++) {
-            for(j = 0; j < cCol; j++) {
-                pixVal = x[i][j];
-                if(pixVal>0.0) {
-                    printfloat(pixVal);
-                }
-            }
-        }
+        float[] mat2 = fmat_fromcsv("smiley.csv");
+        float[] matT = `mat2;
+        float[] matTT = `matT;
+        fmat_tocsv(matTT, "smileytrans.csv");
 
 		return 0;
 	}
