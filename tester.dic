@@ -1,7 +1,5 @@
 class func_test {
-
 	func int main(int a) {
-
 		int[] test1 = [1,2:6,6];
 		int[] test2 = [9,2:6,6];
     print_intmat(test1.*test2, true);    
@@ -14,10 +12,10 @@ class func_test {
     print_floatmat(test3./test4, true);    
     print_floatmat(test3+test4, true);    
     print_floatmat(test3-test4, true);    
-    //print_intmat(2*test1, true);
+    print_intmat(2*test1, true);
     print_intmat(2+test1, true);
-    //print_floatmat(2.0*test3, true);
-    //print_floatmat(2.0+test3, true);
+    print_floatmat(2.0*test3, true);
+    print_floatmat(2.0+test3, true);
 		return 0;
 	}
 }

@@ -657,9 +657,15 @@ let translate (_, _, functions) =
               | "double" ->
                ( match op with
                 | A.Add ->
-                  L.build_call const_add_mat_func_float [| expr builder e1; expr builder e2|] "const_add_mat_float" builder
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call const_add_mat_func_float [| expr builder e1; e2'|] "const_add_mat_float" builder
                 | A.Mult ->
-                  L.build_call const_mult_mat_func_float [| expr builder e1; expr builder e2|] "const_mult_mat_float" builder
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call const_mult_mat_func_float [| expr builder e1; e2'|] "const_mult_mat_float" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
             )
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
