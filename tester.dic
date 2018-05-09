@@ -18,7 +18,7 @@ class func_test {
         for(i = 0; i < cRow; i++) {
             for(j = 0; j < cCol; j++) {
                 pixVal = x[i][j];
-                if(1>0) {
+                if(pixVal>0.0) {
                     printfloat(pixVal);
                 }
             }
