@@ -128,6 +128,9 @@ let translate (_, _, functions) =
   let const_mult_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| i32_t; L.pointer_type int_array_struct |] in 
   let const_mult_list_func = L.declare_function "const_mult_list_int" const_mult_list_t the_module in 
 
+  let const_mult_list_t_float = L.var_arg_function_type (L.pointer_type float_array_struct) [| float_t; L.pointer_type float_array_struct |] in 
+  let const_mult_list_func_float = L.declare_function "const_mult_list_float" const_mult_list_t_float the_module in 
+
   let elem_mult_list_float_t = L.var_arg_function_type (L.pointer_type float_array_struct) [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in 
   let elem_mult_list_func_float = L.declare_function "elem_mult_list_float" elem_mult_list_float_t the_module in 
 
@@ -476,6 +479,8 @@ let translate (_, _, functions) =
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
             )
             | "%float_array_struct*" ->
+              (match (L.string_of_lltype (L.type_of e1')) with
+              | "%float_array_struct*" ->
               (match op with
                 | A.Add ->  
                   L.build_call add_list_func_float [| expr builder e1; expr builder e2 |] "add_list" builder
@@ -488,6 +493,14 @@ let translate (_, _, functions) =
                 | A.Div_M ->
                   L.build_call elem_div_list_func_float [| expr builder e1; expr builder e2|] "elem_div_list_float" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+              )
+              | "double" ->
+              ( match op with
+                | A.Mult ->
+                  L.build_call const_mult_list_func_float [| expr builder e1; expr builder e2|] "const_mult_list_float" builder
+                | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+              )
+              | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )  
             | "%int_mat_struct*" -> 
               (match op with

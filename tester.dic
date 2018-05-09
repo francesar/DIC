@@ -18,6 +18,7 @@ class func_test {
     print_floatlist(test3-test4);    
     printfloat(test3**test4);    
     print_intlist(2*test1);
+    print_floatlist(2.0*test3);
 		return 0;
 	}
 }
