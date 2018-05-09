@@ -3,10 +3,10 @@ class func_test {
 
 	func int main(int a) {
 
-		int[] test1 = [1,2,6,6,6];
-		int[] test2 = [1,2,6,6,6];
-    printint(test1**test2);    
-
+        float[] f = [4.0,3.0:3.0,2.0];
+         
+        float[] b = finverse(f);
+        print_floatmat(b, true);
 		return 0;
 	}
 }

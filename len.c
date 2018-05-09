@@ -196,9 +196,11 @@ int_array* sub_list_int(int_array* e1, int_array* e2) {
 }
 
 int dot_prod_int(int_array* e1, int_array* e2) {
+	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
 	int size = e2->length;
 	int total=0;
   int x;
+	new_struct->arr = malloc(size);
 	for (x = 0; x < size; x++) {
 		total += *((e1->arr) + x) * *((e2->arr) + x);
 	} 
@@ -432,7 +434,7 @@ float_mat* mult_mat_float(void* e1, void* e2) {
         }
     }
     for (i = 0; i < m1; i++) {
-    	struct float_array *tmp = (struct float_array*) malloc (sizeof(struct float_array));
+    	struct float_array *tmp = (struct float_array*) malloc(sizeof(struct float_array));
     	tmp->length = n2;
     	tmp->arr = malloc(n2 * sizeof(double));
     	for (j = 0; j < n2; j++) {
@@ -716,6 +718,20 @@ float determinant_float(void *e) {
 	return 0;
 }
 
+double df(double **output, int n) {
+    double tmp[n][n];
+    int x;
+    for (x = 0; x < n; x++) {
+        int y;
+        for (y = 0; y < n; y++) {
+            tmp[x][y] = output[x][y];
+        }
+    }
+    double value = det_helper_float(n, tmp);
+
+    return value;
+}
+
 
 /*
 
@@ -768,26 +784,65 @@ float det_helper_float(int n, double a[][n]) {
     return p;
 }
 
-float_mat* getAdjoint(struct float_mat *m) {
-    // struct float_mat *mat = *(struct float_mat**)m;
-    int dim = m->length;
-    double **mvals = store_array_double(m);
-    printf("%s\n", "hello");
-    
-    struct float_mat *adjoint = *(struct float_mat**)malloc(sizeof(struct float_mat));
-    adjoint->length = m->length;
+double** getCofactorMatrix(double **vals, int n, int m, int dim) {
+    int i = 0, j = 0;
+    double **tmp = (double **)malloc(sizeof(double *) * dim);
+    for(int i = 0; i < dim; i++) {
+        tmp[i] = (double*)malloc(sizeof(double));
+    }
 
+    int row, col;
+    for(row = 0; row < dim; row++) {
+        for(col = 0; col < dim; col++) {
+            if(row != n && col != m) {
+                tmp[i][j++] = vals[row][col];
+                if(j == dim - 1) {
+                    j = 0; 
+                    i++;
+                }
+            }
+        }
+    }
+    return tmp;
+}
+
+void printmat(double **p, int dim) {
+    for(int i = 0; i < dim; i++) {
+        for(int j = 0; j < dim; j++) {
+            printf("%lf\n", p[i][j]);
+        }
+    }
+}
+
+float_mat* getAdjoint(void *m, int dim) {
+    double **mvals = store_array_double(m);
+    double adjoint[dim][dim];
     double tmp[dim][dim];
     int sign = 1;
-    
     int i, j;
     for(i = 0; i < dim; i++) {
         for(j = 0; j < dim; j++) {
-            printf("%d %d\n", i, j);
+            double **cf = getCofactorMatrix(mvals, i, j, dim);
+            sign = ((i + j) % 2 == 0) ? 1 : -1;
+            adjoint[j][i] = sign * df(cf, dim-1);
         }
     }
-
-    return m;
+    
+    struct float_mat *mat = (struct float_mat*)malloc(sizeof(struct float_mat));
+    mat->length = dim;
+    mat->arr = malloc(dim * sizeof(struct float_array));
+    
+    for(i = 0; i < dim; i++) {
+        struct float_array *f = (struct float_array *) malloc(sizeof(struct float_array));
+        f->length = dim;
+        f->arr = (double *)malloc(sizeof(double) * dim);
+        for(j = 0; j < dim; j++) {
+            printf("%lf\n", sign * adjoint[i][j]);
+            *((f->arr) + j) = sign * adjoint[i][j];
+        }
+        *((float_array**)(mat->arr) + i) = f;
+    }
+    return mat;
 }
 
 float_mat* finverse(void *m) {
@@ -797,59 +852,23 @@ float_mat* finverse(void *m) {
 
     float det = determinant_float(m);
 
-    // printf("%s, %lf, %f\n", "hello", det, mat_vals[0][0]);
+    float_mat *adj = getAdjoint(m, mat->length);
 
-    struct float_mat *adj = getAdjoint((void *)mat);
+    struct float_mat *inv = (struct float_mat*)malloc(sizeof(struct float_mat));
+    inv->length = rows;
+    inv->arr = malloc(rows * sizeof(struct float_array));
+    
+    double **adjvals = store_array_double(&adj);
 
-    // struct float_mat *adj = getAdjoint(mat);
-    // double **adj_vals = store_array_double(adj);
-
-    // struct float_mat *inverse = (float_mat *)malloc(sizeof(struct float_mat));
-    // inverse->length = rows;
-    // inverse->arr = (float_array*)malloc(rows * sizeof(float_array));
-
-
-
-    // int i;
-    // for(i = 0; i < rows; i++) {
-    //     int j;
-    //     struct float_mat *row = (float_mat*)malloc(sizeof(struct float_mat));
-    //     row->length = rows;
-    //     row->arr = malloc(rows * sizeof(double));
-    //     for(j = 0; j < rows; j++) {
-    //         *((row->arr) + j) = 
-    //     }
-    // }
-
-
-    // int p, q, m, n, i, j;
-    // for(q=0 ; q < f; q++) {
-    //     for (p = 0; p < f; p++) {
-    //         m = 0;
-    //         n = 0;
-    //         for( i = 0; i < f; i++) {
-    //             for(j = 0; j < f; j++) {
-    //                 if(i != q && j != p) {
-    //                     b[m][n] = num[i][j];
-    //                     if (n < (f - 2)) {
-    //                         n++;   
-    //                     }
-    //                     else {
-    //                         n=0;
-    //                         m++;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     fac[q][p] = pow(-1, q + p) * determinant(b);
-    //     }
-    // }
-    // return transpose(fac);
-
-    return mat;
+    int i, j;
+    for(i = 0; i < rows; i++) {
+        struct float_array *f = (struct float_array *) malloc(sizeof(struct float_array));
+        f->length = rows;
+        f->arr = malloc(sizeof(double) * rows);
+        for (j = 0; j < rows; j++) {
+            *((f->arr) + j) = adjvals[i][j]/(float)det; 
+        }
+        *((float_array**)(inv->arr) + i) = f;
+    }
+    return inv;
 }
-
-
-// int main() {
-//     struct float_mat *m = fmat_fromcsv("./lol.csv");
-// }
