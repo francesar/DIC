@@ -95,6 +95,14 @@ let check (pname, (var_decls, func_decls)) =
         {typ = FloatM; fname = "add_list_float"; formals = test [FloatM]; body = []}
       (StringMap.add "sub_list_float"
         {typ = FloatM; fname = "sub_list_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_mult_mat_int"
+        {typ = IntM; fname = "elem_mult_mat_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_div_mat_int"
+        {typ = IntM; fname = "elem_div_mat_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_mult_mat_float"
+        {typ = FloatM; fname = "elem_mult_mat_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_div_mat_float"
+        {typ = FloatM; fname = "elem_div_mat_float"; formals = test [FloatM]; body = []}
       (StringMap.add "write_string_to_file"
         {typ = Void; fname = "write_string_to_file"; formals = test [String; String]; body = []}
       (StringMap.add "read_intmat_from_file"
@@ -106,7 +114,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "len_mat_float"
         {typ=IntM; fname="len_mat_float"; formals=test[FloatM]; body=[]}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))))))
 
 (* 
     let add_bind map (ty, name) =
@@ -368,8 +376,8 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div       when same && t1 = Float -> Float
-          | Mult when t1 = Int && t2 = IntM -> IntM
-          | Mult when t1 = Float && t2 = FloatM -> FloatM
+          | Add | Mult when t1 = Int && t2 = IntM -> IntM
+          | Add | Mult when t1 = Float && t2 = FloatM -> FloatM
           | Add | Sub | Mult | Mult_M | Div_M   when same && t1 = IntM -> IntM
           | Dot       when same && t1 = IntM -> Int
           | Dot       when same && t1 = FloatM -> Float

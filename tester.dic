@@ -1,6 +1,4 @@
-
 class func_test {
-
 	func int main(int a) {
         float[] x = fmat_fromcsv("x.csv");
         float[] y = fmat_fromcsv("y.csv");
