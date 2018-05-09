@@ -85,9 +85,9 @@ let translate (_, _, functions) =
     L.declare_function "printf" printf_t the_module in
 
   (******* CONC FUNCTIONS *******)
-  let start_t  = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  (* let start_t  = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let start_func = L.declare_function "start" start_t the_module in
-
+ *)
 
   (******* PRINTING FUNCTIONS *******)
 
@@ -174,7 +174,7 @@ let translate (_, _, functions) =
   let len_func_mat = L.declare_function "len_mat" len_t_mat the_module in 
 
   let len_t_mat_float = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t |] in 
-  let len_func_mat_float = L.declare_function "len_mat_float" len_t_mat the_module in 
+  let len_func_mat_float = L.declare_function "len_mat_float" len_t_mat_float the_module in 
  
   let add_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let add_mat_func = L.declare_function "add_mat_int" add_mat_t the_module in
@@ -338,19 +338,19 @@ let translate (_, _, functions) =
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit l -> L.const_float_of_string float_t l
       | SCLit c -> L.build_global_stringptr c "tmp" builder
-      | SFPoint(s, e) ->
+      (* | SFPoint(s, e) -> *)
         (* let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
          *)
-        let e' = expr builder ((Void, SCall(s, e))) in
+        (* let e' = expr builder ((Void, SCall(s, e))) in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
         ignore(L.build_store e' p_e' builder);
         L.build_bitcast p_e' (L.pointer_type i8_t) "" builder 
-(* 
+(*  *)
         let func_ e = expr builder e in
         let list_of_args = List.map func_ e in
         let point = L.build_call len_func (Array.of_list list_of_args) "fpoint" builder in
@@ -619,9 +619,6 @@ let translate (_, _, functions) =
               | "i32" ->
                ( match op with
                 | A.Add ->
-                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
-                  ignore(L.build_store e1' p_e1' builder);
-                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
                   let p_e2' = L.build_alloca (L.type_of e2') "" builder in
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
@@ -708,7 +705,7 @@ let translate (_, _, functions) =
                 | A.Sub     -> L.build_fsub
                 | A.Mult    -> L.build_fmul
                 | A.Div     -> L.build_fdiv
-                
+                | _         -> raise(Failure("Unsupported operations"))
               ) e1' e2' "tmp" builder
             | _ -> 
               (match op with
@@ -777,7 +774,7 @@ let translate (_, _, functions) =
         let p_e' = L.build_alloca (L.type_of e') "" builder in
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
-        L.build_call len_func_mat [| e' |] "len_mat_float" builder 
+        L.build_call len_func_mat_float [| e' |] "len_mat_float" builder 
       | SCall("read_intmat_from_file", [file_name]) ->
         let e' = expr builder file_name in
         L.build_call read_intmat_from_file_func [| e' |] "" builder
@@ -871,6 +868,7 @@ let translate (_, _, functions) =
           A.Void -> ""
           | _ -> f ^ "_result") in
         L.build_call fdef (Array.of_list llargs) result builder
+      | _ -> raise(Failure("Unimplemented"))
     in
 
 
@@ -918,7 +916,6 @@ let translate (_, _, functions) =
               back to the predicate block (we always jump back at the end of a while
               loop's body, unless we returned or something) *)
         let body_bb = L.append_block context "while_body" the_function in
-              let while_builder = stmt builder (* (L.builder_at_end context body_bb) *) body in
         ignore(add_terminal (stmt (L.builder_at_end context body_bb) body) (L.build_br pred_bb));
 
               (* Generate the predicate code in the predicate block *)
