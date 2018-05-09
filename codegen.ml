@@ -670,9 +670,10 @@ let translate (_, _, functions) =
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
                   L.build_call const_mult_mat_func_float [| expr builder e1; e2'|] "const_mult_mat_float" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
-            )
+              )
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
             )
+            
             | _ -> 
               (match op with
               | A.Add     -> L.build_add
