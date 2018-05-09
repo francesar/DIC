@@ -5,6 +5,8 @@ open Sast
 module StringMap = Map.Make(String)
 
 let translate (_, _, functions) =
+ 
+
   let context    = L.global_context () in
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t      = L.i32_type    context
@@ -61,7 +63,7 @@ let translate (_, _, functions) =
 
   let ltype_of_typ = function
     | A.Int -> i32_t
-    | A.String -> string_t
+    | A.String -> L.pointer_type string_t
     | A.Void  -> void_t
     | A.Bool -> i1_t
     | A.Float -> float_t
@@ -72,14 +74,20 @@ let translate (_, _, functions) =
     | A.StringM -> L.pointer_type string_array_struct
     | A.BoolM -> L.pointer_type bool_array_struct
     | A.CharM -> L.pointer_type char_array_struct
+    | _ -> raise(Failure("Error"))
     (* | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet")) *)
   in
 
   let printf_t : L.lltype =
-    L.var_arg_function_type string_t [| L.pointer_type i8_t |] in
+    L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
 
+  (******* CONC FUNCTIONS *******)
+  (* let start_t  = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let start_func = L.declare_function "start" start_t the_module in
+ *)
 
   (******* PRINTING FUNCTIONS *******)
 
@@ -116,6 +124,36 @@ let translate (_, _, functions) =
   let len_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in 
   let len_func = L.declare_function "len" len_t the_module in 
 
+  let dot_prod_t = L.var_arg_function_type i32_t [| L.pointer_type int_array_struct; L.pointer_type int_array_struct |] in 
+  let dot_prod_func = L.declare_function "dot_prod_int" dot_prod_t the_module in 
+
+  let dot_prod_t_float = L.var_arg_function_type float_t [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in 
+  let dot_prod_func_float = L.declare_function "dot_prod_float" dot_prod_t_float the_module in 
+
+  let elem_mult_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type int_array_struct; L.pointer_type int_array_struct |] in 
+  let elem_mult_list_func = L.declare_function "elem_mult_list_int" elem_mult_list_t the_module in 
+
+  let const_mult_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| i32_t; L.pointer_type int_array_struct |] in 
+  let const_mult_list_func = L.declare_function "const_mult_list_int" const_mult_list_t the_module in 
+
+  let const_mult_list_t_float = L.var_arg_function_type (L.pointer_type float_array_struct) [| float_t; L.pointer_type float_array_struct |] in 
+  let const_mult_list_func_float = L.declare_function "const_mult_list_float" const_mult_list_t_float the_module in 
+
+  let const_add_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| i32_t; L.pointer_type int_array_struct |] in 
+  let const_add_list_func = L.declare_function "const_add_list_int" const_add_list_t the_module in 
+
+  let const_add_list_t_float = L.var_arg_function_type (L.pointer_type float_array_struct) [| float_t; L.pointer_type float_array_struct |] in 
+  let const_add_list_func_float = L.declare_function "const_add_list_float" const_add_list_t_float the_module in 
+
+  let elem_mult_list_float_t = L.var_arg_function_type (L.pointer_type float_array_struct) [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in 
+  let elem_mult_list_func_float = L.declare_function "elem_mult_list_float" elem_mult_list_float_t the_module in 
+
+  let elem_div_list_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type int_array_struct; L.pointer_type int_array_struct |] in 
+  let elem_div_list_func = L.declare_function "elem_div_list_int" elem_div_list_t the_module in 
+
+  let elem_div_list_float_t = L.var_arg_function_type (L.pointer_type float_array_struct) [| L.pointer_type float_array_struct; L.pointer_type float_array_struct |] in 
+  let elem_div_list_func_float = L.declare_function "elem_div_list_float" elem_div_list_float_t the_module in 
+
   let append_t = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t ; L.pointer_type i8_t |] in 
   let append_func = L.declare_function "append" append_t the_module in
 
@@ -135,11 +173,29 @@ let translate (_, _, functions) =
   let len_t_mat = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t |] in 
   let len_func_mat = L.declare_function "len_mat" len_t_mat the_module in 
 
+  let len_t_mat_float = L.var_arg_function_type (L.pointer_type int_array_struct) [| L.pointer_type i8_t |] in 
+  let len_func_mat_float = L.declare_function "len_mat_float" len_t_mat_float the_module in 
+ 
   let add_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let add_mat_func = L.declare_function "add_mat_int" add_mat_t the_module in
 
   let sub_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let sub_mat_func = L.declare_function "sub_mat_int" sub_mat_t the_module in
+  
+  let elem_mult_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
+  let elem_mult_mat_func = L.declare_function "elem_mult_mat_int" elem_mult_mat_t the_module in 
+
+  let elem_div_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
+  let elem_div_mat_func = L.declare_function "elem_div_mat_int" elem_div_mat_t the_module in 
+
+  let const_add_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| i32_t; L.pointer_type i8_t |] in 
+  let const_add_mat_func = L.declare_function "const_add_mat_int" const_add_mat_t the_module in 
+
+  let const_mult_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| i32_t; L.pointer_type i8_t |] in 
+  let const_mult_mat_func = L.declare_function "const_mult_mat_int" const_mult_mat_t the_module in 
+
+  let mult_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let mult_mat_func = L.declare_function "mult_mat_int" mult_mat_t the_module in
 
   let add_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let add_mat_func_float = L.declare_function "add_mat_float" add_mat_t_float the_module in
@@ -147,14 +203,44 @@ let translate (_, _, functions) =
   let sub_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
   let sub_mat_func_float = L.declare_function "sub_mat_float" sub_mat_t_float the_module in
 
+  let elem_mult_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
+  let elem_mult_mat_func_float = L.declare_function "elem_mult_mat_float" elem_mult_mat_t_float the_module in 
+
+  let elem_div_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
+  let elem_div_mat_func_float = L.declare_function "elem_div_mat_float" elem_div_mat_t_float the_module in 
+
+  let const_add_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| float_t; L.pointer_type i8_t |] in 
+  let const_add_mat_func_float = L.declare_function "const_add_mat_float" const_add_mat_t_float the_module in 
+
+  let const_mult_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| float_t; L.pointer_type i8_t |] in 
+  let const_mult_mat_func_float = L.declare_function "const_mult_mat_float" const_mult_mat_t_float the_module in 
+
+  let mult_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t; L.pointer_type i8_t |] in
+  let mult_mat_func_float = L.declare_function "mult_mat_float" mult_mat_t_float the_module in
+
   let det_mat_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let det_mat_func = L.declare_function "determinant_int" det_mat_t the_module in
+
+  let det_mat_t_float = L.var_arg_function_type float_t [| L.pointer_type i8_t |] in
+  let det_mat_func_float = L.declare_function "determinant_float" det_mat_t_float the_module in
 
   let trans_mat_t = L.var_arg_function_type (L.pointer_type int_mat_struct) [| L.pointer_type i8_t |] in
   let trans_mat_func = L.declare_function "transpose_int" trans_mat_t the_module in
 
+  let trans_mat_t_float = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t |] in
+  let trans_mat_func_float = L.declare_function "transpose_float" trans_mat_t_float the_module in
+
   let is_square_t = L.var_arg_function_type i1_t [| L.pointer_type int_mat_struct |] in 
   let is_square_func = L.declare_function "is_square" is_square_t the_module in 
+
+  let fmat_fromcsv_t = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t |] in 
+  let fmat_csv = L.declare_function "fmat_fromcsv" fmat_fromcsv_t the_module in
+
+  let fmat_tocsv_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t; L.pointer_type i8_t |] in 
+  let fmat_tocsv = L.declare_function "fmat_tocsv" fmat_tocsv_t the_module in 
+
+  let finverse_t = L.var_arg_function_type (L.pointer_type float_mat_struct) [| L.pointer_type i8_t |] in
+  let finverse = L.declare_function "finverse" finverse_t the_module in
 
 
   let to_imp str = raise (Failure ("Not yet implemented: " ^ str)) in
@@ -164,18 +250,19 @@ let translate (_, _, functions) =
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
     let function_decl m fdecl =
       let name = fdecl.sfname
-      and formal_types =
-  Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals)
-      in let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types in
-      StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    List.fold_left function_decl StringMap.empty functions in
+      and formal_types = Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.sformals) in
+      let ftype = L.function_type (ltype_of_typ fdecl.styp) formal_types in
+      StringMap.add name (L.define_function name ftype the_module, fdecl) m 
+    in
+    List.fold_left function_decl StringMap.empty functions 
+  in
 
 
   let build_function fdecl =
 
 
     (* int main() {}  ----->  define i32 @main() {}  *)
-(*     let main_ty = L.function_type (ltype_of_typ fdecl.styp) [||] in
+(*     let main_ty = L.function_type (ltype_ of_typ fdecl.styp) [||] in
     let the_function = L.define_function "main" main_ty the_module in
  *)
 
@@ -205,11 +292,7 @@ let translate (_, _, functions) =
       List.fold_left2 add_formal ht fdecl.sformals (Array.to_list (L.params the_function))
     in
 
-(*     let check_mat ((_, e) : sexpr) = match e with
-      | SMatLit rows ->
-        intM_t
-      | _ -> i1_t
-    in *)
+
     let mat_type p = match L.string_of_lltype (L.type_of p) with
       | "%int_mat_struct*" -> L.pointer_type int_mat_struct
       | "%float_mat_struct*" -> L.pointer_type float_mat_struct
@@ -228,8 +311,6 @@ let translate (_, _, functions) =
     in
     let add_local (t, n) p =
       let _ = L.set_value_name n p in
-      (* let _ = Printf.printf "%s" ("test" ^ L.string_of_lltype (L.type_of p)) in *)
-      (* let _ = if (check_mat p) = intM_t then t = intM_t else t = t in *)
       let local_var =
         match t with
         | _ ->
@@ -242,9 +323,8 @@ let translate (_, _, functions) =
 
 
 
-    let lookup n = try Hashtbl.find local_vars n
-                      with Not_found -> raise(Failure("n: " ^ n))
-                   (* with Not_found -> StringMap.find n global_vars *)
+    let lookup n = try Hashtbl.find local_vars n with Not_found -> 
+        raise(Failure("n: " ^ n))
     in
 
 
@@ -258,6 +338,27 @@ let translate (_, _, functions) =
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit l -> L.const_float_of_string float_t l
       | SCLit c -> L.build_global_stringptr c "tmp" builder
+      (* | SFPoint(s, e) -> *)
+        (* let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+         *)
+        (* let e' = expr builder ((Void, SCall(s, e))) in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+        ignore(L.build_store e' p_e' builder);
+        L.build_bitcast p_e' (L.pointer_type i8_t) "" builder 
+(*  *)
+        let func_ e = expr builder e in
+        let list_of_args = List.map func_ e in
+        let point = L.build_call len_func (Array.of_list list_of_args) "fpoint" builder in
+        let p_e' = L.build_alloca (L.type_of point) "" builder in
+        ignore(L.build_store e' p_e' builder);
+        L.build_bitcast p_e' (L.pointer_type i8_t) "" builder *)
+        
+
       | SListLit l ->
         let ty = match l with
           | hd :: _ -> let (t, _) = hd in
@@ -276,7 +377,6 @@ let translate (_, _, functions) =
           let pointer = L.build_gep init_array [| L.const_int i32_t index |] "tmp" builder in
           ignore(L.build_store value pointer builder)
         in let _ = List.iteri setValues (List.map (expr builder) l) in
-        (* let _ = Printf.printf "%s" (L.string_of_lltype ty) in *)
         let struct_type = (match L.string_of_lltype ty with
           | "i32*" -> int_array_struct
           | "double*" -> float_array_struct
@@ -293,15 +393,12 @@ let translate (_, _, functions) =
         let struct_array = L.build_load (lookup v) "" builder in
         let struct_array = L.build_struct_gep struct_array 1 "" builder in
         let local_array = L.build_load struct_array "" builder in
-        (* let local_array = L.build_load (lookup v) "" builder in *)
         let pointer = L.build_gep local_array [| expr builder e |] "" builder in
         L.build_load pointer "" builder
       | SListIndexAssign(v, e1, e2) ->
         let struct_array = L.build_load (lookup v) "" builder in
         let struct_array = L.build_struct_gep struct_array 1 "" builder in
         let local_array = L.build_load struct_array "" builder in
-        
-        (* let local_array = L.build_load (lookup v) "" builder in *)
         let pointer = L.build_gep local_array [| expr builder e1 |] "" builder in
         L.build_store (expr builder e2) pointer builder
 
@@ -402,16 +499,6 @@ let translate (_, _, functions) =
         let inner_pointer = L.build_gep inner_local_array [| outer_index |] "" builder in
         L.build_load inner_pointer "" builder
       | SMatIndexAssign (v, e1, e2) ->
-(*         let (outer_index, inner_index) = match e1 with
-          | hd :: tl :: [] -> (expr builder hd, expr builder tl)
-          | _ -> raise(Failure("This is not a 2D matrix"))
-        in
-        let local_array_outer = L.build_load (lookup v) "" builder in
-        let pointer_outer = L.build_gep local_array_outer [| inner_index |] "" builder in
-        let local_array_inner = L.build_load pointer_outer "" builder in
-        let pointer_inner = L.build_gep local_array_inner [| outer_index |] "" builder in
-        L.build_store (expr builder e2) pointer_inner builder
- *)
         let (outer_index, inner_index) = match e1 with
           | hd :: tl :: [] -> (expr builder hd, expr builder tl)
           | _ -> raise(Failure("This is not a 2D matrix"))
@@ -426,34 +513,69 @@ let translate (_, _, functions) =
         let inner_pointer = L.build_gep inner_local_array [| outer_index |] "" builder in
         L.build_store (expr builder e2) inner_pointer builder
       | SBinop (e1, op, e2) ->
-(*           let (t, _) = e1 *)
           let e1' = expr builder e1
           and e2' = expr builder e2 in
-          (* let _ = Printf.printf "%s" (L.string_of_lltype (L.type_of e1')) in *)
-          (match (L.string_of_lltype (L.type_of e1')) with 
+          (match (L.string_of_lltype (L.type_of e2')) with 
             | "%int_array_struct*" ->
+              (match (L.string_of_lltype (L.type_of e1')) with
+              | "%int_array_struct*" ->
               (match op with
                 | A.Add ->  
                   L.build_call add_list_func [| expr builder e1; expr builder e2 |] "add_list" builder
                 | A.Sub ->
                   L.build_call sub_list_func [| expr builder e1; expr builder e2 |] "sub_list" builder
+                | A.Dot ->
+                  L.build_call dot_prod_func [| expr builder e1; expr builder e2 |] "dot_prod_int" builder
+                | A.Mult_M ->
+                  L.build_call elem_mult_list_func [| expr builder e1; expr builder e2|] "elem_mult_list_int" builder
+                | A.Div_M ->
+                  L.build_call elem_div_list_func [| expr builder e1; expr builder e2|] "elem_div_list_int" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )
+              | "i32" ->
+               ( match op with
+                | A.Add ->
+                  L.build_call const_add_list_func [| expr builder e1; expr builder e2|] "const_add_list_int" builder
+                | A.Mult ->
+                  L.build_call const_mult_list_func [| expr builder e1; expr builder e2|] "const_mult_list_int" builder
+                | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+            )
+                | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+            )
             | "%float_array_struct*" ->
+              (match (L.string_of_lltype (L.type_of e1')) with
+              | "%float_array_struct*" ->
               (match op with
                 | A.Add ->  
                   L.build_call add_list_func_float [| expr builder e1; expr builder e2 |] "add_list" builder
                 | A.Sub ->
                   L.build_call sub_list_func_float [| expr builder e1; expr builder e2 |] "sub_list" builder
+                | A.Dot ->
+                  L.build_call dot_prod_func_float [| expr builder e1; expr builder e2 |] "dot_prod_float" builder
+                | A.Mult_M ->
+                  L.build_call elem_mult_list_func_float [| expr builder e1; expr builder e2|] "elem_mult_list_float" builder
+                | A.Div_M ->
+                  L.build_call elem_div_list_func_float [| expr builder e1; expr builder e2|] "elem_div_list_float" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+              )
+              | "double" ->
+              ( match op with
+                | A.Add ->
+                  L.build_call const_add_list_func_float [| expr builder e1; expr builder e2|] "const_add_list_float" builder
+                | A.Mult ->
+                  L.build_call const_mult_list_func_float [| expr builder e1; expr builder e2|] "const_mult_list_float" builder
+                | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+              )
+              | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )  
             | "%int_mat_struct*" -> 
+              (match (L.string_of_lltype (L.type_of e1')) with
+              | "%int_mat_struct*" ->
               (match op with
                 | A.Add ->  
                   let p_e1' = L.build_alloca (L.type_of e1') "" builder in
                   ignore(L.build_store e1' p_e1' builder);
                   let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
-
                   let p_e2' = L.build_alloca (L.type_of e2') "" builder in
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
@@ -467,9 +589,52 @@ let translate (_, _, functions) =
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
                   L.build_call sub_mat_func [| e1'; e2' |] "sub_mat" builder
+                | A.Mult ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call mult_mat_func [| e1'; e2' |] "mult_mat" builder 
+                | A.Mult_M ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call elem_mult_mat_func [| e1'; e2' |] "elem_mult_mat_int" builder 
+                | A.Div_M ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call elem_div_mat_func [| e1'; e2' |] "elem_div_mat_int" builder 
+                
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
-              )
+              ) 
+              | "i32" ->
+               ( match op with
+                | A.Add ->
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call const_add_mat_func [| expr builder e1; e2'|] "const_add_mat_int" builder
+                | A.Mult ->
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call const_mult_mat_func [| expr builder e1; e2'|] "const_mult_mat_int" builder
+                | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+            )
+                | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+            )
             | "%float_mat_struct*" -> 
+              (match (L.string_of_lltype (L.type_of e1')) with
+              | "%float_mat_struct*" ->
               (match op with
                 | A.Add ->  
                   let p_e1' = L.build_alloca (L.type_of e1') "" builder in
@@ -489,8 +654,65 @@ let translate (_, _, functions) =
                   ignore(L.build_store e2' p_e2' builder);
                   let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
                   L.build_call sub_mat_func_float [| e1'; e2' |] "sub_mat" builder
+                | A.Mult ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+
+
+                  L.build_call mult_mat_func_float [| e1'; e2' |] "mult_mat" builder
+                | A.Mult_M ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call elem_mult_mat_func_float [| e1'; e2' |] "elem_mult_mat_float" builder 
+                | A.Div_M ->
+                  let p_e1' = L.build_alloca (L.type_of e1') "" builder in
+                  ignore(L.build_store e1' p_e1' builder);
+                  let e1' = L.build_bitcast p_e1' (L.pointer_type i8_t) "" builder in
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call elem_div_mat_func_float [| e1'; e2' |] "elem_div_mat_float" builder 
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
               )
+              | "double" ->
+               ( match op with
+                | A.Add ->
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call const_add_mat_func_float [| expr builder e1; e2'|] "const_add_mat_float" builder
+                | A.Mult ->
+                  let p_e2' = L.build_alloca (L.type_of e2') "" builder in
+                  ignore(L.build_store e2' p_e2' builder);
+                  let e2' = L.build_bitcast p_e2' (L.pointer_type i8_t) "" builder in
+                  L.build_call const_mult_mat_func_float [| expr builder e1; e2'|] "const_mult_mat_float" builder
+                | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+              )
+                | _ -> raise(Failure("Either invalid operator or not implemented yet"))
+            )
+            | "double" ->
+              (match op with
+                | A.Add     -> L.build_fadd
+                | A.Sub     -> L.build_fsub
+                | A.Mult    -> L.build_fmul
+                | A.Div     -> L.build_fdiv
+                | A.Eq      -> L.build_fcmp L.Fcmp.Oeq
+                | A.Neq     -> L.build_fcmp L.Fcmp.One
+                | A.Less    -> L.build_fcmp L.Fcmp.Olt
+                | A.Leq     -> L.build_fcmp L.Fcmp.Ole
+                | A.Greater -> L.build_fcmp L.Fcmp.Ogt
+                | A.Geq     -> L.build_fcmp L.Fcmp.Oge
+                | _         -> raise(Failure("Unsupported operations"))
+              ) e1' e2' "tmp" builder
             | _ -> 
               (match op with
               | A.Add     -> L.build_add
@@ -500,6 +722,9 @@ let translate (_, _, functions) =
               | A.Mod     -> L.build_srem
               | A.And     -> L.build_and
               | A.Or      -> L.build_or
+              | A.Dot     -> raise(Failure("Not valid for this type"))
+              | A.Mult_M     -> raise(Failure("Not valid for this type"))
+              | A.Div_M     -> raise(Failure("Not valid for this type"))
               | A.Eq      -> L.build_icmp L.Icmp.Eq
               | A.Neq     -> L.build_icmp L.Icmp.Ne
               | A.Less    -> L.build_icmp L.Icmp.Slt
@@ -518,6 +743,15 @@ let translate (_, _, functions) =
                     ignore(L.build_store e' p_e' builder);
                     let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
                     L.build_call trans_mat_func [| e' |] "trans_mat" builder
+                | _ -> raise(Failure("Either invalid operator or not implemented yet: " ^ (A.string_of_uop op)))
+              )
+            | "%float_mat_struct*" ->
+              (match op with
+                | A.Trans_M -> 
+                    let p_e' = L.build_alloca (L.type_of e') "" builder in
+                    ignore(L.build_store e' p_e' builder);
+                    let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+                    L.build_call trans_mat_func_float [| e' |] "trans_mat" builder
                 | _ -> raise(Failure("Either invalid operator or not implemented yet: " ^ (A.string_of_uop op)))
               )
             | _ ->
@@ -541,6 +775,12 @@ let translate (_, _, functions) =
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
         L.build_call len_func_mat [| e' |] "len" builder 
+      | SCall("len_mat_float", [e]) -> 
+        let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call len_func_mat_float [| e' |] "len_mat_float" builder 
       | SCall("read_intmat_from_file", [file_name]) ->
         let e' = expr builder file_name in
         L.build_call read_intmat_from_file_func [| e' |] "" builder
@@ -549,32 +789,44 @@ let translate (_, _, functions) =
         let e2 = expr builder content in
         L.build_call write_string_to_file_func [| e1 ; e2 |] "" builder
       | SCall("len", [e]) ->
-        
         let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in             
         L.build_call len_func [| e'(* expr builder e *) |] "len" builder
-
       | SCall("append", [e;el]) -> 
         let e' = expr builder e in 
         (* let _ = Printf.printf "%s"  (L.string_of_lltype (L.type_of e'))in  *)
         let p_e' = L.build_alloca (L.type_of e') "" builder in 
           ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
-
         let el' = expr builder el in 
         let ptr_el' = L.build_alloca (L.type_of el') "" builder in 
           ignore(L.build_store el' ptr_el' builder);
         let el' = L.build_bitcast ptr_el' (L.pointer_type i8_t) "" builder in
-
         L.build_call append_func [| e' ; el' |] "" builder
+      | SCall("fmat_tocsv", [e;path]) -> 
+        let e' = expr builder e in 
+        let p_e' = L.build_alloca (L.type_of e') "" builder in 
+          ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        let path' = expr builder path in 
+        let ptr_path' = L.build_alloca (L.type_of path') "" builder in 
+          ignore(L.build_store path' ptr_path' builder);
+        let path' = L.build_bitcast ptr_path' (L.pointer_type i8_t) "" builder in 
+        L.build_call fmat_tocsv [| e';path' |] "" builder 
       | SCall("det_int", [e]) ->
         let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
         ignore(L.build_store e' p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
         L.build_call det_mat_func [| e' |] "" builder 
+      | SCall("det_float", [e]) ->
+        let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call det_mat_func_float [| e' |] "" builder 
       | SCall("is_square", [e]) ->
         let e' = expr builder e in
         let p_e' = L.build_alloca (L.type_of e') "" builder in
@@ -587,8 +839,6 @@ let translate (_, _, functions) =
         let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
         ignore(L.build_store (expr builder e) p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
-        
-        
         L.build_call printf_list_int_func [| e' |] "printlist" builder
       | SCall ("print_floatlist", [e]) ->
         let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in
@@ -605,6 +855,16 @@ let translate (_, _, functions) =
         ignore(L.build_store (expr builder e) p_e' builder);
         let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
         L.build_call printf_mat_float_func [| e' ; (expr builder pretty) |] "printmat" builder 
+      | SCall("fmat_fromcsv", [e]) -> 
+        let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in 
+          ignore(L.build_store (expr builder e) p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call fmat_csv [| e' |] "" builder
+      | SCall("finverse", [e]) -> 
+        let p_e' = L.build_alloca (L.type_of (expr builder e)) "" builder in 
+          ignore(L.build_store (expr builder e) p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in 
+        L.build_call finverse [| e' |] "" builder
       | SCall ("printfloat", [e]) ->
         L.build_call printf_float_func [| float_format_str ; (expr builder e) |] "printf" builder
       | SCall (f, args) ->
@@ -614,8 +874,7 @@ let translate (_, _, functions) =
           A.Void -> ""
           | _ -> f ^ "_result") in
         L.build_call fdef (Array.of_list llargs) result builder
-      (* | _ -> to_imp (string_of_sexpr (A.Int, e)) *)
-      (*| _ -> to_imp (string_of_sexpr (A.Int, e))*)
+      | _ -> raise(Failure("Unimplemented"))
     in
 
 
@@ -663,19 +922,18 @@ let translate (_, _, functions) =
               back to the predicate block (we always jump back at the end of a while
               loop's body, unless we returned or something) *)
         let body_bb = L.append_block context "while_body" the_function in
-              let while_builder = stmt (L.builder_at_end context body_bb) body in
-        let () = add_terminal while_builder (L.build_br pred_bb) in
+        ignore(add_terminal (stmt (L.builder_at_end context body_bb) body) (L.build_br pred_bb));
 
               (* Generate the predicate code in the predicate block *)
         let pred_builder = L.builder_at_end context pred_bb in
-        let bool_val = expr pred_builder predicate in
+        let bool_val = expr pred_builder (* pred_builder *) predicate in
 
               (* Hook everything up *)
         let merge_bb = L.append_block context "merge" the_function in
-        let _ = L.build_cond_br bool_val body_bb merge_bb pred_builder in
-        L.builder_at_end context merge_bb
+        ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);
+        L.builder_at_end context merge_bb 
       | SFor (e1, e2, e3, body) -> stmt builder
-        ( SBlock [SBlock [e1] ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
+        ( SBlock [e1 ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
       (*| s -> to_imp (string_of_sstmt s)*)
     in ignore (stmt builder (SBlock fdecl.sbody))
 

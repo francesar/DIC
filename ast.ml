@@ -3,10 +3,10 @@
 (* Operators *)
 (* For now, matrix ops have *_M prefix to denote ops on matrices *)
 type op = Add | Sub | Mult | Div  | Eq | Neq | Less |
-          Leq | Greater | Geq | And | Or | Mod
+          Leq | Greater | Geq | And | Or | Mod | Dot | Mult_M | Div_M
           (* Assign *)
           (* Dot_M | *)
-          (* Mult_M | Div_M *)
+          (*| Div_M *)
 
 type uop = Neg | Not | Trans_M
 (* Trans_M | Inv_M |  *)
@@ -14,7 +14,7 @@ type puop =  Increment | Decrement
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM 
+    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM | FPoint
   (* | List of typ *)
   (* | Matrix of typ *)
 
@@ -32,6 +32,7 @@ type expr =
   | MatLit of expr list list (* Matrix literal *)
   | MatIndexAssign of string * (expr list) * expr (* Matrix Access Index *)
   | MatIndex of string * (expr list) (* Assign a Matrix Index *)
+  | FpointLit of string * (expr list)
   | Id of string
   | Binop of expr * op * expr
   | Punop of string * puop
@@ -39,6 +40,8 @@ type expr =
   | Assign of string * expr
   | Call of string * expr list
   | Noexpr
+
+
 
 type var_decl =  typ * string * expr
 
@@ -65,7 +68,8 @@ let string_of_op = function
     Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
-  (* | Mult_M -> ".*" *)
+  | Mult_M -> ".*" 
+  | Div_M -> ".*" 
   | Div -> "/"
   (* | Div_M -> "./" *)
   (* | Assign -> "=" *)
@@ -78,7 +82,7 @@ let string_of_op = function
   | And -> "&&"
   | Or -> "||"
   | Mod -> "%"
-  (* | Dot_M -> "**" *)
+  | Dot -> "**" 
 
 let string_of_uop = function
     Neg -> "-"
@@ -113,6 +117,7 @@ let rec string_of_expr = function
       ^ "]"
   | MatIndexAssign (v, e1, e2) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "] = " ^ string_of_expr e2
   | MatIndex (v, e1) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "]"
+  | FpointLit (s, l) -> "<" ^ s ^ ">" ^  "[" ^ String.concat "," (List.map string_of_expr l) ^ "]"
   | Id(s) -> s
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
@@ -120,7 +125,7 @@ let rec string_of_expr = function
   | Punop(v, o) ->  v ^ string_of_puop o
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+      f ^ "(" ^ (String.concat ", " (List.map string_of_expr el)) ^ ")"
   | Noexpr -> ""
 
 let string_of_typ = function
@@ -135,6 +140,7 @@ let string_of_typ = function
   | StringM -> "string[]"
   | BoolM -> "bool[]"
   | FloatM -> "float[]"
+  | FPoint -> "fpoint"
   (* | List(t) -> string_of_typ t ^ "[]"
   | Matrix(t) -> string_of_typ t ^ "[][]" *)
 

@@ -1,19 +1,18 @@
-
 /* Ocamlyacc parser for DIC */
 
 %{
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA LBRACK RBRACK COLON QUOTE
+%token SEMI LPAREN RPAREN LBRACE RBRACE LANGLE RANGLE COMMA LBRACK RBRACK COLON QUOTE
 %token PLUS MINUS TIMES TIMES_M DIVIDE DIVIDE_M ASSIGN MOD TRANSPOSE INVERSE DOT
 %token INC DEC
 %token NOT EQ PEQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NULL FUNC
 %token RETURN IF ELSE FOR WHILE
-%token INT BOOL FLOAT VOID LIST DICT STRING CHAR INTM FLOATM CHARM BOOLM STRINGM
+%token INT BOOL FLOAT VOID LIST DICT STRING CHAR INTM FLOATM CHARM BOOLM STRINGM FPOINT
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT SLIT CHLIT
+%token <string> ID FLIT SLIT CHLIT 
 %token CLASS EOF
 
 %nonassoc NOELSE
@@ -72,6 +71,7 @@ typ:
   | STRINGM{ StringM}
   | CHAR   { Char   }
   | CHARM  { CharM  }
+  | FPOINT { FPoint }
 
 vdecl:
     typ ID SEMI                   { ($1, $2, Noexpr)  }
@@ -117,13 +117,15 @@ expr:
   | LBRACK rows   RBRACK              { MatLit($2)                      }
   | ID mat_indices ASSIGN expr        { MatIndexAssign ($1, $2, $4)     }
   | ID mat_indices                    { MatIndex ($1, $2)               }
+  | LANGLE ID RANGLE LPAREN args_opt RPAREN
+                                      { FpointLit($2, $5)                  }
   | expr PLUS     expr                { Binop($1, Add,   $3)            }
   | expr MINUS    expr                { Binop($1, Sub,   $3)            }
   | expr TIMES    expr                { Binop($1, Mult,  $3)            }
-  /* | expr TIMES_M  expr                { Binop($1, Mult_M, $3)           } */
-  /* | expr DOT      expr                { Binop($1, Dot_M, $3)            } */
+  | expr TIMES_M  expr                { Binop($1, Mult_M, $3)           } 
+  | expr DOT      expr                { Binop($1, Dot, $3)            }
   | expr DIVIDE   expr                { Binop($1, Div,   $3)            }
-  /* | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            } */
+  | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            } 
   | expr MOD      expr                { Binop($1, Mod,   $3)            }
   | expr EQ       expr                { Binop($1, Eq,    $3)            }
   | expr NEQ      expr                { Binop($1, Neq,   $3)            }

@@ -6,7 +6,6 @@ type func_symbol = func_decl StringMap.t
 
 (* args here might need to change since we accept classes OR statment blocks as valid programs *)
 let check (pname, (var_decls, func_decls)) =
-
     let check_binds (kind : string) (to_check : bind list) =
       let check_it checked binding =
         let void_err = "illegal void " ^ kind ^ " " ^ snd binding
@@ -52,8 +51,18 @@ let check (pname, (var_decls, func_decls)) =
     in
 
     StringMap.add "append" {typ=IntM; fname="append"; formals=test [IntM;Int]; body=[]}
-      (StringMap.add "is_square" {typ=Bool; fname="is_square"; formals=test[IntM]; body=[]}
-      (* (StringMap.add "start_thread" {typ=Void; fname="start_thread"; formals=} *)
+      (StringMap.add "finverse"
+      {typ=FloatM; fname="finverse"; formals=test[FloatM]; body=[]}
+      (StringMap.add "fmat_tocsv"
+      {typ=FloatM; fname="fmat_tocsv"; formals=test[FloatM; String]; body=[]}
+      (StringMap.add "imat_tocsv"
+      {typ=IntM; fname="imat_tocsv"; formals=test[IntM; String]; body=[]}
+      (StringMap.add "imat_fromcsv"
+      {typ=Int; fname="imat_fromcsv"; formals=test[]; body=[]}
+      (StringMap.add "fmat_fromcsv" 
+      {typ=FloatM; fname="fmat_fromcsv"; formals=test[String]; body=[]}
+      (StringMap.add "is_square" 
+      {typ=Bool; fname="is_square"; formals=test[IntM]; body=[]}
       (StringMap.add "printint" 
       {typ = Void; fname = "printint"; formals = test [Int]; body = []}
       (StringMap.add "printstr"
@@ -74,20 +83,45 @@ let check (pname, (var_decls, func_decls)) =
         {typ = IntM; fname = "add_list"; formals = test [IntM]; body = []}
       (StringMap.add "sub_list_int"
         {typ = IntM; fname = "sub_list"; formals = test [IntM]; body = []}
+      (StringMap.add "dot_prod_int"
+        {typ = Int; fname = "dot_prod_int"; formals = test [IntM]; body = []}
+      (StringMap.add "dot_prod_float"
+        {typ = Float; fname = "dot_prod_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_mult_list_int"
+        {typ = IntM; fname = "elem_mult_list_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_mult_list_float"
+        {typ = FloatM; fname = "elem_mult_list_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_div_list_int"
+        {typ = IntM; fname = "elem_div_list_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_div_list_float"
+        {typ = FloatM; fname = "elem_div_list_float"; formals = test [FloatM]; body = []}
       (StringMap.add "add_list_float"
         {typ = FloatM; fname = "add_list_float"; formals = test [FloatM]; body = []}
       (StringMap.add "sub_list_float"
         {typ = FloatM; fname = "sub_list_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_mult_mat_int"
+        {typ = IntM; fname = "elem_mult_mat_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_div_mat_int"
+        {typ = IntM; fname = "elem_div_mat_int"; formals = test [IntM]; body = []}
+      (StringMap.add "elem_mult_mat_float"
+        {typ = FloatM; fname = "elem_mult_mat_float"; formals = test [FloatM]; body = []}
+      (StringMap.add "elem_div_mat_float"
+        {typ = FloatM; fname = "elem_div_mat_float"; formals = test [FloatM]; body = []}
       (StringMap.add "write_string_to_file"
         {typ = Void; fname = "write_string_to_file"; formals = test [String; String]; body = []}
       (StringMap.add "read_intmat_from_file"
         {typ = IntM; fname = "read_intmat_to_file"; formals = test [String]; body = []}  
       (StringMap.add "det_int"
         {typ = Int; fname = "det_int"; formals = test [IntM]; body = []}
+      (StringMap.add "det_float"
+        {typ = Float; fname = "det_float"; formals = test [FloatM]; body = []}
       (StringMap.add "len_mat"
         {typ = IntM; fname = "len_mat"; formals = test [IntM]; body = []}
+      (StringMap.add "len_mat_float"
+        {typ=IntM; fname="len_mat_float"; formals=test[FloatM]; body=[]}
       (StringMap.singleton "len"
-        {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))
+        {typ = Int; fname = "len"; formals = test [IntM]; body = []})))))))))))))))))))))))))))))))))))
+
 
 (* 
     let add_bind map (ty, name) =
@@ -126,6 +160,7 @@ let check (pname, (var_decls, func_decls)) =
   (* Add functions to function symbol table *)
   let function_decls = List.fold_left add_func built_in_decls func_decls
   in
+
 
   (* Finds and returns functions in function symbol table *)
   let find_func s =
@@ -172,6 +207,8 @@ let check (pname, (var_decls, func_decls)) =
       | StringLit s -> (String, SStringLit s)
       | Noexpr      -> (Void, SNoExpr)
       | Id s        -> (type_of_identifier s, SId s)
+      | FpointLit(s, e) -> (FPoint, SFPoint(s, List.map expr e))
+      (* | Fpoint s    -> () *)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var
         and (rt, e') = expr e in
@@ -179,8 +216,6 @@ let check (pname, (var_decls, func_decls)) =
                   string_of_typ rt ^ " in " ^ string_of_expr ex
         in (check_assign lt rt err, SAssign(var, (rt, e')))
       | ListLit l   ->
-        (* Potentially do this in codegen instead of semant  *)
-        (* Take in a list and return first element type *)
         let first_ele inp = match inp with
           | hd :: _ ->(
             let (t, _) = expr hd in
@@ -319,7 +354,7 @@ let check (pname, (var_decls, func_decls)) =
       | Unop(op, e) as ex ->
         let (t, e') = expr e in
         let ty = match op with
-            Trans_M when t = IntM -> t
+            Trans_M when t = IntM || t = FloatM -> t
           (* | Inv_M when t = Matrix -> t *)
           | Neg when t = Int || t = Float -> t
           | Not when t = Bool -> t
@@ -347,8 +382,12 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div       when same && t1 = Float -> Float
-          | Add | Sub | Mult             when same && t1 = IntM -> IntM
-          | Add | Sub | Mult             when same && t1 = FloatM -> FloatM
+          | Add | Mult when t1 = Int && t2 = IntM -> IntM
+          | Add | Mult when t1 = Float && t2 = FloatM -> FloatM
+          | Add | Sub | Mult | Mult_M | Div_M   when same && t1 = IntM -> IntM
+          | Dot       when same && t1 = IntM -> Int
+          | Dot       when same && t1 = FloatM -> Float
+          | Add | Sub | Mult | Mult_M | Div_M    when same && t1 = FloatM -> FloatM
           (* | Dot_M | Mult_M | Div_M when same && t1 = Matrix -> Matrix *)
           | Eq | Neq                     when same               -> Bool
           | Less | Leq | Greater | Geq
@@ -360,25 +399,28 @@ let check (pname, (var_decls, func_decls)) =
                        string_of_typ t2 ^ " in " ^ string_of_expr e))
         in (ty, SBinop((t1, e1'), op, (t2, e2')))
       | Call(fname, args) as call ->
-        let fd = find_func fname in
-        let param_length = List.length fd.formals in
-        let matching = match args with
-          | [] -> ""
-          | hd :: _ -> string_of_expr hd
-        in
-        (* let convert = if List.length args = 1 && test = "" then 0 else List.length args in *)
-        let args = if List.length args = 1 && matching = "" then [] else args in
-        if List.length args <> param_length then
-          raise (Failure ("expecting " ^ string_of_int param_length ^
-                          " arguments in " ^ string_of_expr call ^ "\nwhere: args = " ^ string_of_int (List.length args)))
-        else let check_call (ft, _) e =
-               let (et, e') = expr e in
-               let err = "illegal argument found " ^ string_of_typ et ^
-                         " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-               in (check_assign ft et err, e')
+        (* if fname <> "start" then *)
+          let fd = find_func fname in
+          let param_length = List.length fd.formals in
+          let matching = match args with
+            | [] -> ""
+            | hd :: _ -> string_of_expr hd
           in
-          let args' = List.map2 check_call fd.formals args
-          in (fd.typ, SCall(fname, args'))
+          (* let convert = if List.length args = 1 && test = "" then 0 else List.length args in *)
+          let args = if List.length args = 1 && matching = "" then [] else args in
+          if List.length args <> param_length then
+            raise (Failure ("expecting " ^ string_of_int param_length ^
+                            " arguments in " ^ string_of_expr call ^ "\nwhere: args = " ^ string_of_int (List.length args)))
+          else let check_call (ft, _) e =
+                 let (et, e') = expr e in
+                 let err = "illegal argument found " ^ string_of_typ et ^
+                           " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
+                 in (check_assign ft et err, e')
+            in
+            let args' = List.map2 check_call fd.formals args
+            in (fd.typ, SCall(fname, args'))
+        
+        
     in
 
     let check_bool_expr e =
