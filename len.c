@@ -36,6 +36,11 @@ void print_floatlist(void *e);
 void print_intmat(void *e, bool pretty);
 void print_floatmat(void *e, bool pretty);
 
+void imat_tocsv(void *v, void *f);
+void fmat_tocsv(void *v, void *f);
+float_mat* fmat_fromcsv(void *p);
+int_mat* imat_fromcsv(void *p);
+
 int_array* add_list_int(int_array* e1, int_array* e2);
 int_array* sub_list_int(int_array* e1, int_array* e2);
 int dot_prod_int(int_array* e1, int_array* e2);
@@ -813,6 +818,25 @@ void fmat_tocsv(void *v, void *f) {
     }
 }
 
+void imat_tocsv(void *v, void *f) {
+    char * file  = *(char **)(f);
+    FILE *fp = fopen(file, "a+");
+    struct int_mat *mat = *(int_mat**)(v);
+    int rcount = mat->length;
+
+    int i;
+    for(i = 0; i < rcount; i++) {
+        struct int_array *f = *((int_array**)(mat->arr) + i);
+        int colcount = f->length;
+        int j;
+        for (j = 0; j < colcount; j++) {
+            int d = *((f->arr) + j);
+            fprintf(fp, "%d,", d);
+        }
+        fprintf(fp, "\n");
+    }
+}
+
 float_mat* fmat_fromcsv(void *p) {
     char *path = *(char **)p;
     FILE *fp = fopen(path, "r");
@@ -857,6 +881,55 @@ float_mat* fmat_fromcsv(void *p) {
             j++;
         }
         *((float_array**)(mat->arr) + i) = row;
+        i++;
+    }
+    return mat;
+}
+
+int_mat* imat_fromcsv(void *p) {
+    char *path = *(char **)p;
+    FILE *fp = fopen(path, "r");
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    int rcount = 0;
+    while((read = getline(&line, &len, fp) != -1)) {
+        rcount++;
+    }
+
+    struct int_mat *mat = (struct int_mat *) malloc(sizeof(struct int_mat));
+    mat->arr = malloc(rcount * sizeof(struct int_array));
+	mat->length = rcount;
+
+    fp = fopen(path, "r");
+
+    int i = 0;
+    while((read = getline(&line, &len, fp) != -1)) {
+        struct int_array *row = (struct int_array *) malloc(sizeof(struct int_array));
+        char *tok;
+        char *og = malloc(strlen(line)+1);
+        strcpy(og, line);
+        int colcount = 0;
+        tok = strtok(line, ",");
+        while(tok != NULL) {
+            colcount++;
+            tok = strtok(NULL, ",");
+        }
+
+        row->length = colcount;
+        row->arr = malloc(colcount * sizeof(int));
+
+        char* ltok = strtok(og, ",");
+        double *el;
+        int j = 0;
+        while(ltok != NULL) {
+            int itok;
+            sscanf(ltok, "%d", &itok);
+            *((row->arr) + j)  = itok;
+            ltok = strtok(NULL, ",");
+            j++;
+        }
+        *((int_array**)(mat->arr) + i) = row;
         i++;
     }
     return mat;
