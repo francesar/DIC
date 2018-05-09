@@ -79,7 +79,8 @@ let translate (_, _, functions) =
   in
 
   let printf_t : L.lltype =
-    L.var_arg_function_type i8_t [| L.pointer_type i8_t |] in
+    L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
 
@@ -701,6 +702,14 @@ let translate (_, _, functions) =
             )
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
             )
+            | "double" ->
+              (match op with
+                | A.Add     -> L.build_fadd
+                | A.Sub     -> L.build_fsub
+                | A.Mult    -> L.build_fmul
+                | A.Div     -> L.build_fdiv
+                
+              ) e1' e2' "tmp" builder
             | _ -> 
               (match op with
               | A.Add     -> L.build_add
