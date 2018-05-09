@@ -18,7 +18,7 @@ all : toplevel.native len.o
 .PHONY: toplevel.native
 toplevel.native:
 	rm -f len.o
-	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4,-c,-Wall\
 	toplevel.native
 
 .PHONY: clean
