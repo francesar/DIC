@@ -58,7 +58,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.add "imat_tocsv"
       {typ=IntM; fname="imat_tocsv"; formals=test[IntM; String]; body=[]}
       (StringMap.add "imat_fromcsv"
-      {typ=Int; fname="imat_fromcsv"; formals=test[]}
+      {typ=Int; fname="imat_fromcsv"; formals=test[]; body=[]}
       (StringMap.add "fmat_fromcsv" 
       {typ=FloatM; fname="fmat_fromcsv"; formals=test[String]; body=[]}
       (StringMap.add "is_square" 
