@@ -3,9 +3,9 @@ class func_test {
 
 	func int main(int a) {
 
-		int[] test1 = [1,2,6,6,6];
-		int[] test2 = [1,2,6,6,6];
-    printint(test1**test2);    
+		float[] test1 = [1.0,2.0,6.0,6.0,6.0];
+		float[] test2 = [1.0,2.0,6.0,6.0,6.0];
+    printfloat(test1**test2);    
 
 		return 0;
 	}
