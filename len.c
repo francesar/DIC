@@ -42,11 +42,13 @@ int_array* sub_list_int(int_array* e1, int_array* e2);
 int dot_prod_int(int_array* e1, int_array* e2);
 int_array* elem_mult_list_int(int_array* e1, int_array* e2);
 int_array* elem_div_list_int(int_array* e1, int_array* e2);
+int_array* const_mult_list_int(int e, int_array* e1);
 float_array* add_list_float(float_array* e1, float_array* e2);
 float_array* sub_list_float(float_array* e1, float_array* e2);
 double dot_prod_float(float_array* e1, float_array* e2);
 float_array* elem_mult_list_float(float_array* e1, float_array* e2);
 float_array* elem_div_list_float(float_array* e1, float_array* e2);
+float_array* const_mult_list_float(double e, float_array* e1);
 int_array* append(void *a, void *new_element);
 int len(void *a);
 
@@ -226,6 +228,18 @@ int_array* elem_div_list_int(int_array* e1, int_array* e2) {
 	return new_struct;
 }
 
+int_array* const_mult_list_int(int e, int_array* e1){
+	struct int_array *new_struct = (struct int_array*) malloc (sizeof(struct int_array));
+	int size = e1->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = e * *((e1->arr) + x);
+	} 
+	return new_struct;
+}
+
 double dot_prod_float(float_array* e1, float_array* e2) {
 	int size = e2->length;
 	double total=0;
@@ -260,6 +274,17 @@ float_array* elem_div_list_float(float_array* e1, float_array* e2) {
 	return new_struct;
 }
 
+float_array* const_mult_list_float(double e, float_array* e1){
+	struct float_array *new_struct = (struct float_array*) malloc (sizeof(struct float_array));
+	int size = e1->length;
+	int x;
+  new_struct->length = size;	
+	new_struct->arr = malloc(size);
+	for (x = 0; x < size; x++) {
+		*((new_struct->arr) + x) = e * *((e1->arr) + x);
+	} 
+	return new_struct;
+}
 
 
 float_array* add_list_float(float_array* e1, float_array* e2) {

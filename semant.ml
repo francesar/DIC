@@ -366,6 +366,8 @@ let check (pname, (var_decls, func_decls)) =
         let ty = match op with
             Add | Sub | Mult | Div | Mod when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div       when same && t1 = Float -> Float
+          | Mult when t1 = Int && t2 = IntM -> IntM
+          | Mult when t1 = Float && t2 = FloatM -> FloatM
           | Add | Sub | Mult | Mult_M | Div_M   when same && t1 = IntM -> IntM
           | Dot       when same && t1 = IntM -> Int
           | Dot       when same && t1 = FloatM -> Float
