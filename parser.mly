@@ -124,7 +124,7 @@ expr:
   | expr TIMES_M  expr                { Binop($1, Mult_M, $3)           } 
   | expr DOT      expr                { Binop($1, Dot, $3)            }
   | expr DIVIDE   expr                { Binop($1, Div,   $3)            }
-  /* | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            } */
+  | expr DIVIDE_M expr                { Binop($1, Div_M, $3)            } 
   | expr MOD      expr                { Binop($1, Mod,   $3)            }
   | expr EQ       expr                { Binop($1, Eq,    $3)            }
   | expr NEQ      expr                { Binop($1, Neq,   $3)            }

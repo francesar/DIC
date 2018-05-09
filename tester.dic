@@ -6,12 +6,14 @@ class func_test {
 		int[] test1 = [1,2,6,6,6];
 		int[] test2 = [9,2,6,6,6];
     print_intlist(test1.*test2);    
+    print_intlist(test1./test2);    
     print_intlist(test1+test2);    
     print_intlist(test1-test2);    
     printint(test1**test2);    
 		float[] test3 = [1.0,2.1,6.2,6.3,6.4];
 		float[] test4 = [1.2,2.0,6.2,6.3,6.4];
     print_floatlist(test3.*test4);    
+    print_floatlist(test3./test4);    
     print_floatlist(test3+test4);    
     print_floatlist(test3-test4);    
     printfloat(test3**test4);    

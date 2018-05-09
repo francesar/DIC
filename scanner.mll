@@ -28,7 +28,7 @@ rule token = parse
 | '-'      { MINUS       }
 | '*'      { TIMES       }
 | ".*"     { TIMES_M     } 
-(* | "./"     { DIVIDE_M    } *)
+| "./"     { DIVIDE_M    } 
 | "**"     { DOT         }
 (* | '~'      { INVERSE     } *)
 | '/'      { DIVIDE      }
