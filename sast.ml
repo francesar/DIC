@@ -14,6 +14,7 @@ and sx =
   | SMatIndexAssign of string * (sexpr list) * sexpr
   | SMatIndex of string * (sexpr list)
   | SId of string
+  | SFPoint of string * (sexpr list)
   | SBinop of sexpr * op * sexpr
   | SPunop of string * puop
   | SUnop of uop * sexpr
@@ -62,6 +63,7 @@ let rec string_of_sexpr (t, e) =
   | SCall(f, el) ->
     f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoExpr -> ""
+  | SFPoint(s, e) -> "<" ^ s ^ ">(" ^ String.concat ", " (List.map string_of_sexpr e) ^ ")" 
   | SListLit(el) -> "[" ^ String.concat ", " (List.map string_of_sexpr el) ^ "]"
   | SListIndex(v, e) -> v ^ "[" ^ string_of_sexpr e ^ "]"
   | SListIndexAssign(v,e1, e2) -> v ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2

@@ -5,7 +5,6 @@
 #include <math.h>
 
 
-
 /**************** STRUCT DEFINITIONS ****************/
 typedef struct int_array {
 	int length;
@@ -1161,7 +1160,7 @@ float det_helper_float(int n, double a[][n]) {
 double** getCofactorMatrix(double **vals, int n, int m, int dim) {
     int i = 0, j = 0;
     double **tmp = (double **)malloc(sizeof(double *) * dim);
-    for(int i = 0; i < dim; i++) {
+    for(i = 0; i < dim; i++) {
         tmp[i] = (double*)malloc(sizeof(double));
     }
 
@@ -1181,8 +1180,10 @@ double** getCofactorMatrix(double **vals, int n, int m, int dim) {
 }
 
 void printmat(double **p, int dim) {
-    for(int i = 0; i < dim; i++) {
-        for(int j = 0; j < dim; j++) {
+    int i;
+    for(i = 0; i < dim; i++) {
+    	int j;
+        for(j = 0; j < dim; j++) {
             printf("%lf\n", p[i][j]);
         }
     }

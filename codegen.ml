@@ -5,6 +5,8 @@ open Sast
 module StringMap = Map.Make(String)
 
 let translate (_, _, functions) =
+ 
+
   let context    = L.global_context () in
   (* Add types to the context so we can use them in our LLVM code *)
   let i32_t      = L.i32_type    context
@@ -61,7 +63,7 @@ let translate (_, _, functions) =
 
   let ltype_of_typ = function
     | A.Int -> i32_t
-    | A.String -> string_t
+    | A.String -> L.pointer_type string_t
     | A.Void  -> void_t
     | A.Bool -> i1_t
     | A.Float -> float_t
@@ -72,13 +74,19 @@ let translate (_, _, functions) =
     | A.StringM -> L.pointer_type string_array_struct
     | A.BoolM -> L.pointer_type bool_array_struct
     | A.CharM -> L.pointer_type char_array_struct
+    | _ -> raise(Failure("Error"))
     (* | t -> raise (Failure ("Type " ^ A.string_of_typ t ^ " not implemented yet")) *)
   in
 
   let printf_t : L.lltype =
-    L.var_arg_function_type string_t [| L.pointer_type i8_t |] in
+    L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
+
+  (******* CONC FUNCTIONS *******)
+  let start_t  = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let start_func = L.declare_function "start" start_t the_module in
 
 
   (******* PRINTING FUNCTIONS *******)
@@ -330,6 +338,27 @@ let translate (_, _, functions) =
       | SBoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | SFLit l -> L.const_float_of_string float_t l
       | SCLit c -> L.build_global_stringptr c "tmp" builder
+      | SFPoint(s, e) ->
+        (* let e' = expr builder e in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+         *)
+        let e' = expr builder ((Void, SCall(s, e))) in
+        let p_e' = L.build_alloca (L.type_of e') "" builder in
+        ignore(L.build_store e' p_e' builder);
+        let e' = L.build_bitcast p_e' (L.pointer_type i8_t) "" builder in
+        ignore(L.build_store e' p_e' builder);
+        L.build_bitcast p_e' (L.pointer_type i8_t) "" builder 
+(* 
+        let func_ e = expr builder e in
+        let list_of_args = List.map func_ e in
+        let point = L.build_call len_func (Array.of_list list_of_args) "fpoint" builder in
+        let p_e' = L.build_alloca (L.type_of point) "" builder in
+        ignore(L.build_store e' p_e' builder);
+        L.build_bitcast p_e' (L.pointer_type i8_t) "" builder *)
+        
+
       | SListLit l ->
         let ty = match l with
           | hd :: _ -> let (t, _) = hd in
@@ -673,7 +702,14 @@ let translate (_, _, functions) =
               )
                 | _ -> raise(Failure("Either invalid operator or not implemented yet"))
             )
-            
+            | "double" ->
+              (match op with
+                | A.Add     -> L.build_fadd
+                | A.Sub     -> L.build_fsub
+                | A.Mult    -> L.build_fmul
+                | A.Div     -> L.build_fdiv
+                
+              ) e1' e2' "tmp" builder
             | _ -> 
               (match op with
               | A.Add     -> L.build_add
@@ -882,19 +918,19 @@ let translate (_, _, functions) =
               back to the predicate block (we always jump back at the end of a while
               loop's body, unless we returned or something) *)
         let body_bb = L.append_block context "while_body" the_function in
-              let while_builder = stmt (L.builder_at_end context body_bb) body in
-        let () = add_terminal while_builder (L.build_br pred_bb) in
+              let while_builder = stmt builder (* (L.builder_at_end context body_bb) *) body in
+        ignore(add_terminal (stmt (L.builder_at_end context body_bb) body) (L.build_br pred_bb));
 
               (* Generate the predicate code in the predicate block *)
         let pred_builder = L.builder_at_end context pred_bb in
-        let bool_val = expr pred_builder predicate in
+        let bool_val = expr pred_builder (* pred_builder *) predicate in
 
               (* Hook everything up *)
         let merge_bb = L.append_block context "merge" the_function in
-        let _ = L.build_cond_br bool_val body_bb merge_bb pred_builder in
-        L.builder_at_end context merge_bb
+        ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);
+        L.builder_at_end context merge_bb 
       | SFor (e1, e2, e3, body) -> stmt builder
-        ( SBlock [SBlock [e1] ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
+        ( SBlock [e1 ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
       (*| s -> to_imp (string_of_sstmt s)*)
     in ignore (stmt builder (SBlock fdecl.sbody))
 

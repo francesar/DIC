@@ -27,6 +27,7 @@ rule token = parse
 | "--"     { DEC         }
 | '-'      { MINUS       }
 | '*'      { TIMES       }
+
 | ".*"     { TIMES_M     } 
 | "./"     { DIVIDE_M    } 
 | "**"     { DOT         }
@@ -64,7 +65,7 @@ rule token = parse
 | "bool"   { BOOL        }
 | "float"  { FLOAT       }
 | "void"   { VOID        }
-| "func*"  { FUNC 		 }
+| "Fpoint"  { FPOINT     }
 | "list"   { LIST        }
 | "string" { STRING      }
 (* Literals *)

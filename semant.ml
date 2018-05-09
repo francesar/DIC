@@ -116,6 +116,7 @@ let check (pname, (var_decls, func_decls)) =
       (StringMap.singleton "len"
         {typ = Int; fname = "len"; formals = test [IntM]; body = []}))))))))))))))))))))))))))))))))
 
+
 (* 
     let add_bind map (ty, name) =
 
@@ -200,6 +201,7 @@ let check (pname, (var_decls, func_decls)) =
       | StringLit s -> (String, SStringLit s)
       | Noexpr      -> (Void, SNoExpr)
       | Id s        -> (type_of_identifier s, SId s)
+      | FpointLit(s, e) -> (FPoint, SFPoint(s, List.map expr e))
       (* | Fpoint s    -> () *)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var
@@ -208,8 +210,6 @@ let check (pname, (var_decls, func_decls)) =
                   string_of_typ rt ^ " in " ^ string_of_expr ex
         in (check_assign lt rt err, SAssign(var, (rt, e')))
       | ListLit l   ->
-        (* Potentially do this in codegen instead of semant  *)
-        (* Take in a list and return first element type *)
         let first_ele inp = match inp with
           | hd :: _ ->(
             let (t, _) = expr hd in

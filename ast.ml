@@ -14,7 +14,7 @@ type puop =  Increment | Decrement
 
 (* Primitive Types *)
 type typ =
-    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM 
+    Int | Bool | Char | Float | Void | String | IntM | CharM | FloatM | BoolM | StringM | FPoint
   (* | List of typ *)
   (* | Matrix of typ *)
 
@@ -32,8 +32,8 @@ type expr =
   | MatLit of expr list list (* Matrix literal *)
   | MatIndexAssign of string * (expr list) * expr (* Matrix Access Index *)
   | MatIndex of string * (expr list) (* Assign a Matrix Index *)
+  | FpointLit of string * (expr list)
   | Id of string
-  | Fpoint of string
   | Binop of expr * op * expr
   | Punop of string * puop
   | Unop of uop * expr
@@ -117,8 +117,8 @@ let rec string_of_expr = function
       ^ "]"
   | MatIndexAssign (v, e1, e2) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "] = " ^ string_of_expr e2
   | MatIndex (v, e1) -> v ^ "[" ^ String.concat "][" (List.map string_of_expr e1) ^ "]"
+  | FpointLit (s, l) -> "<" ^ s ^ ">" ^  "[" ^ String.concat "," (List.map string_of_expr l) ^ "]"
   | Id(s) -> s
-  | Fpoint(s) -> s
   | Binop(e1, o , e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
@@ -140,6 +140,7 @@ let string_of_typ = function
   | StringM -> "string[]"
   | BoolM -> "bool[]"
   | FloatM -> "float[]"
+  | FPoint -> "fpoint"
   (* | List(t) -> string_of_typ t ^ "[]"
   | Matrix(t) -> string_of_typ t ^ "[][]" *)
 
