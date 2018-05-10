@@ -1,51 +1,9 @@
 class func_test {
 	func int main(int a) {
-        int[] x = [1,2,3:6,5,6:7,8,9];
-        printMatrix(x);
-        printint(det_int(x));
-        float[] y = [1.0,2.0,3.0:6.0,5.0,6.0:7.0,8.0,9.0];
-        print_floatmat(y,true);
-
-
-        float[] mat1 = fmat_fromcsv("all-black.csv");
-
-        float[] t1 = 120.0 + mat1;
-        t1[0][0] = 7.0;
-        fmat_tocsv(t1, "darkgrey.csv");
-
-        float[] mat2 = fmat_fromcsv("smiley.csv");
-        float[] tmp = `mat2;
-        fmat_tocsv(tmp, "smileytrans.csv");
-
-        float[] mat3 = fmat_fromcsv("all-black.csv");
-        int[] dims = len_mat_float(mat2);
-        int rows = dims[0];
-        int cols = dims[1];
-
-        int i;
-        int j; 
-
-        float pixVal = 0.0;
-        for(i = 0; i < rows; i++) {
-            mat3[i][0] = 155.0;
-            mat3[i][cols-1] = 155.0;
-            mat3[i][cols-2] = 100.0;
-            mat3[i][1] = 100.0;
-            for(j = 0; j < cols; j++) {
-                mat3[0][j] = 155.0;
-                mat3[rows-1][j] = 155.0;
-                mat3[1][j] = 100.0;
-                mat3[rows-2][j] = 100.0;
-            }
-        }
-        fmat_tocsv(mat3, "border.csv");
-
-        
-
-		return 0;
+        	float[] x = [1.0,2.0 : 3.0, 4.0];
+		float[] y = finverse(x);
+		print_floatmat(y, true);
+		return 0;	
 	}
 
-    func void printMatrix(int[] arr) {
-        print_intmat(arr, true);
-    }
 }
