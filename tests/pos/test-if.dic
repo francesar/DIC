@@ -1,0 +1,11 @@
+class func_test{
+  func int main(){
+    if (!true) {
+      printint(0);
+    }
+    else {
+      printint(1);
+    }
+    return 0;
+  }
+}

@@ -1,0 +1,9 @@
+class Foo {
+  func int main() {
+    for (int i = 0; i < 10; i++) {
+     i++;
+     printint(i);
+    }
+    return 0;
+  }
+}

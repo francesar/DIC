@@ -1,0 +1,10 @@
+class func_test{
+  func int main(){
+    int i = 0;
+    while(i < 7) {
+      printint(i);
+      i++;
+    }
+    return 0;
+  }
+}

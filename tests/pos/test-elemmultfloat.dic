@@ -1,0 +1,9 @@
+class func_test{
+  func int main(){
+    float[] x = [2.1,4.2,6.3,8.4];
+    float[] y = [1.1,2.2,3.3,4.4];
+    float[] z = x .* y;
+    print_floatlist(z);
+    return 0;
+  }
+}

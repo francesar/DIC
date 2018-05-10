@@ -1,0 +1,9 @@
+class func_test{
+  func int main(){
+    int j = 5;
+    for (int i = 0; i < j; i++) {
+      printint(i);
+    }
+    return 0;
+  }
+}
