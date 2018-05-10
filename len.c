@@ -307,7 +307,7 @@ float_array* const_add_list_float(double e, float_array* e1){
 	int size = e1->length;
 	int x;
   new_struct->length = size;	
-	new_struct->arr = malloc(size);
+	new_struct->arr = malloc(size*sizeof(double));
 	for (x = 0; x < size; x++) {
 		*((new_struct->arr) + x) = e + *((e1->arr) + x);
 	} 
@@ -319,7 +319,7 @@ float_array* const_mult_list_float(double e, float_array* e1){
 	int size = e1->length;
 	int x;
   new_struct->length = size;	
-	new_struct->arr = malloc(size);
+	new_struct->arr = malloc(size*sizeof(double));
 	for (x = 0; x < size; x++) {
 		*((new_struct->arr) + x) = e * *((e1->arr) + x);
 	} 
