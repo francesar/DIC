@@ -1,0 +1,8 @@
+class func_test {
+  func int main(int a) {
+    int[] e = [1,2,3,4];
+    e[2] = 96;
+    print_intlist(e);
+    return 0;
+  }
+}
