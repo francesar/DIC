@@ -1162,17 +1162,23 @@ double det_helper_float(int n, double a[][n]) {
 }
 
 double** getCofactorMatrix(double **vals, int n, int m, int dim) {
-    int i = 0, j = 0;
+    
     double **tmp = (double **)malloc(sizeof(double *) * dim);
-    for(i = 0; i < dim; i++) {
-        tmp[i] = (double*)malloc(sizeof(double));
+    
+    int i = 0, j = 0;
+    int z;
+    for(z = 0; z < dim; z++) {
+        tmp[z] = (double*)malloc(sizeof(double));
     }
 
     int row, col;
     for(row = 0; row < dim; row++) {
         for(col = 0; col < dim; col++) {
             if(row != n && col != m) {
+                
+
                 tmp[i][j++] = vals[row][col];
+                
                 if(j == dim - 1) {
                     j = 0; 
                     i++;
@@ -1199,9 +1205,12 @@ float_mat* getAdjoint(void *m, int dim) {
     double tmp[dim][dim];
     int sign = 1;
     int i, j;
+    
     for(i = 0; i < dim; i++) {
         for(j = 0; j < dim; j++) {
+            
             double **cf = getCofactorMatrix(mvals, i, j, dim);
+            
             sign = ((i + j) % 2 == 0) ? 1 : -1;
             adjoint[j][i] = sign * df(cf, dim-1);
         }
@@ -1216,7 +1225,7 @@ float_mat* getAdjoint(void *m, int dim) {
         f->length = dim;
         f->arr = (double *)malloc(sizeof(double) * dim);
         for(j = 0; j < dim; j++) {
-            printf("%lf\n", sign * adjoint[i][j]);
+            // printf("%lf\n", sign * adjoint[i][j]);
             *((f->arr) + j) = sign * adjoint[i][j];
         }
         *((float_array**)(mat->arr) + i) = f;
@@ -1228,11 +1237,10 @@ float_mat* finverse(void *m) {
     struct float_mat *mat = *(struct float_mat**)m;
     int rows = mat->length;
     double **mat_vals = store_array_double(m);
-
     float det = determinant_float(m);
 
     float_mat *adj = getAdjoint(m, mat->length);
-
+    
     struct float_mat *inv = (struct float_mat*)malloc(sizeof(struct float_mat));
     inv->length = rows;
     inv->arr = malloc(rows * sizeof(struct float_array));

@@ -1,0 +1,9 @@
+class func_test{
+  func int main(){
+    bool t = true;
+    if (t){
+      printstr("ok");
+    }
+    return 0;
+  }
+}

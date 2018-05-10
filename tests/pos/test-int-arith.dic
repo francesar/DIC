@@ -1,0 +1,12 @@
+class func_test{
+  func int main(){
+    int a = 4;
+    int b= 2;
+    printint(a+b);
+    printint(a-b);
+    printint(a*b);
+    printint(a/b);
+    printint(a%b);
+    return 0;
+  }
+}

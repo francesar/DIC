@@ -1,0 +1,7 @@
+class func_test{
+  func int main(){
+    int x = 7;
+    printint(-x);
+    return 0;
+  }
+}

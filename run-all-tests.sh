@@ -2,7 +2,7 @@ RunTestPos() {
     CMP=$(echo $1 | cut -d'.' -f 1)
     ./toplevel.native $1 > $CMP.ll;
     llc $CMP.ll > $CMP.s
-    cc -o $CMP.exe $CMP.s 
+    cc -o $CMP.exe $CMP.s len.o
     ./$CMP.exe > test 
     rm $CMP.ll $CMP.s $CMP.exe
     RES="-res"
