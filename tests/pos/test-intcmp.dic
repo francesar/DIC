@@ -1,0 +1,26 @@
+class func_test{
+  func int main(){
+    int a = 4;
+    int b= 2;
+    int c = 2;
+    if (b<a){
+      printstr("ok1");
+    }
+    if (b<=a){
+      printstr("ok2");
+    }
+    if (a>b){
+      printstr("ok3");
+    }
+    if (a>=b){
+      printstr("ok4");
+    }
+    if (b!=a){
+      printstr("ok5");
+    }
+    if (c==b){
+      printstr("ok6");
+    }
+    return 0;
+  }
+}
