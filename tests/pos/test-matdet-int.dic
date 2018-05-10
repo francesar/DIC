@@ -1,0 +1,7 @@
+class func_test {
+  func int main(int a) {
+    int[] q = [1,2,3:3,4,5:7,4,2];
+    printint(det_int(q));
+    return 0;
+  }
+}

@@ -1,0 +1,7 @@
+class func_test{
+  func int main(){
+    float y = 8.0;
+    printfloat(-y);
+    return 0;
+  }
+}

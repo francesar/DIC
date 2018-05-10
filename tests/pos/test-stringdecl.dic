@@ -1,0 +1,7 @@
+class func_test{
+  func int main(){
+    string a = "string";
+    printstr(a);
+    return 0;
+  }
+}

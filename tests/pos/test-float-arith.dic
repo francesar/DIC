@@ -1,0 +1,11 @@
+class func_test{
+  func int main(){
+    float x = 8.0;
+    float y = 4.0;
+    printfloat(x+y);
+    printfloat(x-y);
+    printfloat(x*y);
+    printfloat(x/y);
+    return 0;
+  }
+}

@@ -1,9 +1,0 @@
-class WhileTest {
-    func int main() {
-        while(false) {
-            printstr("bad");
-        } 
-        printstr("success");
-        return 0;
-    }
-}
